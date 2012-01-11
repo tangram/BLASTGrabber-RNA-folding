@@ -8,31 +8,24 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-
-public class FoldGraphic extends JFrame{
+public class FoldGraphic extends JFrame {
 	private static final long serialVersionUID = -3069890720770045627L;
 	
 	String sequence;
 	ArrayList<Hairpin> hairpins;
 	
-	public FoldGraphic(HairpinStructure structure){
-		
+	public FoldGraphic(HairpinStructure structure) {
 		this.sequence = structure.dnaSequence;
 		hairpins = structure.hairpins;
 		
 		createWindow();
 	}
 
-	
-	
-	
-	
-	private class GraphicsPanel extends JPanel{
+	private class GraphicsPanel extends JPanel {
 		private static final long serialVersionUID = 7231696028399642624L;
 
 		@Override
-		public void paint(Graphics g){			
-			
+		public void paint(Graphics g) {			
 			Hairpin hairpin = hairpins.get(0);
 			Graphics2D g2d = (Graphics2D)g;
 			
@@ -45,7 +38,7 @@ public class FoldGraphic extends JFrame{
 			
 			//drawing top strand
 			tempIndex = hairpin.topStrandLength;			//moving tempIndex to end of top strand
-			while(i < tempIndex){
+			while(i < tempIndex) {
 				drawBase(g2d, sequence.substring(i, i+1), point);
 				point.y += 30;
 				i++;
@@ -55,7 +48,7 @@ public class FoldGraphic extends JFrame{
 			point.y -= 9; 		//moving point back to 30sin45 relative to last nucleotide, mind our while-loop already moved it 30 down			
 			
 			//drawing top helix
-			while(i < tempIndex + hairpin.helixTop.length()){
+			while(i < tempIndex + hairpin.helixTop.length()) {
 				drawBase(g2d, sequence.substring(i, i+1), point);
 				point.x += 30;
 				i++;
@@ -75,7 +68,7 @@ public class FoldGraphic extends JFrame{
 			drawBase(g2d, sequence.substring(i, i+1), point);
 			
 			//drawing rest of the loop
-			while(i < tempIndex + hairpin.loopLength - 1){
+			while(i < tempIndex + hairpin.loopLength - 1) {
 				i++;
 				tempAngle -= loopAngle;
 				point.x += (int)(30 * Math.cos(tempAngle));
@@ -91,7 +84,7 @@ public class FoldGraphic extends JFrame{
 			point.y -= (int)(30 * Math.sin(tempAngle));
 			
 			//drawing bottom helix
-			while(i < tempIndex + hairpin.helixBottom.length() - 1){
+			while(i < tempIndex + hairpin.helixBottom.length() - 1) {
 				i++;
 				drawBase(g2d, sequence.substring(i, i+1), point);
 				point.x -= 30;
@@ -106,33 +99,27 @@ public class FoldGraphic extends JFrame{
 			drawBase(g2d, sequence.substring(i, i+1), point);
 			
 			//drawing the rest of the bottom strand
-			while(i < tempIndex + hairpin.bottomStrandLength - 1){
+			while(i < tempIndex + hairpin.bottomStrandLength - 1) {
 				i++;
 				point.y += 30;
 				drawBase(g2d, sequence.substring(i, i+1), point);
 			}
-			
-			
 			
 			//TODO make lines between nucleotides
 			//TODO Draw "loose" nucleiosides
 			//TODO Connect several hairpins (eventually)
 		}
 		
-		private void drawBase(Graphics2D g, String c, Point point){
-			
-			
+		private void drawBase(Graphics2D g, String c, Point point) {
 			g.setColor(c.equals("A") ? Color.BLUE : c.equals("U") ? Color.GREEN : c.equals("G") ? Color.RED : Color.MAGENTA);
-			
 			g.fillOval(point.x, point.y, 20, 20);
 			g.setColor(Color.WHITE);
 			g.setFont(g.getFont().deriveFont(Font.BOLD, 17.0f));
 			g.drawString(c, point.x+5, point.y+16);
 		}
 	}
-	
 
-	private void createWindow(){
+	private void createWindow() f{
 		GraphicsPanel panel = new GraphicsPanel();
 		setLocationByPlatform(true);
 		setSize(1024, 768);

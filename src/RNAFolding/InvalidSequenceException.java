@@ -1,5 +1,5 @@
 package RNAFolding;
 
-public class InvalidSequenceException extends Exception{
+public class InvalidSequenceException extends Exception {
 
 }

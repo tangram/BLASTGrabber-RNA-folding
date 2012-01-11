@@ -1,11 +1,11 @@
 package RNAFolding;
-public class Hairpin{
+public class Hairpin {
 	
 		public String helixTop;
 		public String helixBottom;
 		public int startIndex, topStrandLength, bottomStrandLength, loopLength;
 		
-		public Hairpin(String structure, int startIndex){
+		public Hairpin(String structure, int startIndex) {
 			this.startIndex = startIndex;
 			int tempIndexStart = 0;
 			int tempIndexEnd = 0;
@@ -22,10 +22,11 @@ public class Hairpin{
 				tempIndexEnd++;
 			
 			//finds the start of the loop (last bond on top of helix)
-			while(charStructure[tempIndexEnd-1] != '('){
+			while(charStructure[tempIndexEnd-1] != '(') {
 				tempIndexEnd--;
 				loopLength++;	
 			}
+
 			helixTop = structure.substring(tempIndexStart, tempIndexEnd);
 			
 			tempIndexEnd = charStructure.length - 1;
@@ -38,5 +39,4 @@ public class Hairpin{
 			bottomStrandLength = structure.length() - topStrandLength - helixTop.length() - loopLength - helixBottom.length();
 			System.out.println(bottomStrandLength);
 		}
-
-	}
+}
