@@ -119,7 +119,7 @@ public class FoldGraphic extends JFrame {
 		}
 	}
 
-	private void createWindow() f{
+	private void createWindow() {
 		GraphicsPanel panel = new GraphicsPanel();
 		setLocationByPlatform(true);
 		setSize(1024, 768);
