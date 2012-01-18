@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class HairpinStructure {
 	public String dnaSequence;
 	public String foldSequence;
-	public ArrayList<Hairpin> hairpins = new ArrayList<Hairpin>();
+	public ArrayList<Hairpin> hairpins = new ArrayList<>();
 	
 	public HairpinStructure(String dnaSequence) {
 		this.dnaSequence = dnaSequence.toUpperCase();
@@ -25,7 +25,7 @@ public class HairpinStructure {
 		InputStream stdout;
 
 		try {
-			Process process = Runtime.getRuntime().exec ("c:/Users/Eirik/Dropbox/Netbeans/build/RNAFold.exe");
+			Process process = Runtime.getRuntime().exec ("BLASTGrabber-miRNA-folding/bin/RNAFold.exe");
 			stdin = process.getOutputStream ();
 			//stderr = process.getErrorStream ();
 			stdout = process.getInputStream ();

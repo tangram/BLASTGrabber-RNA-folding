@@ -1,9 +1,5 @@
 package RNAFolding;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,6 +16,16 @@ public class FoldGraphic extends JFrame {
 		
 		createWindow();
 	}
+        
+        private void createWindow(){
+        GraphicsPanel panel = new GraphicsPanel();
+        setLocationByPlatform(true);
+        setSize(1024, 768);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        add(panel);
+        setVisible(true);
+	}
+        
 
 	private class GraphicsPanel extends JPanel {
 		private static final long serialVersionUID = 7231696028399642624L;
@@ -119,12 +125,5 @@ public class FoldGraphic extends JFrame {
 		}
 	}
 
-	private void createWindow() f{
-		GraphicsPanel panel = new GraphicsPanel();
-		setLocationByPlatform(true);
-		setSize(1024, 768);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		add(panel);
-		setVisible(true);
-	}
+
 }
