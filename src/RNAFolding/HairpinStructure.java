@@ -15,20 +15,22 @@ public class HairpinStructure {
 		this.foldSequence = getFoldSequence(dnaSequence);
 	
 		hairpins.add(new Hairpin(foldSequence, 0));
-		//TODO make logic to recognize separate hairpin structures
+		// TODO make logic to recognize separate hairpin structures
 	}
 
 	private static String getFoldSequence(String dnaSeq) {  
 		String line = new String();
 		OutputStream stdin;
-		@SuppressWarnings("unused") InputStream stderr;
+		@SuppressWarnings("unused") 
+		InputStream stderr;
 		InputStream stdout;
 
 		try {
-			Process process = Runtime.getRuntime().exec ("c:/Users/Eirik/Dropbox/Netbeans/build/RNAFold.exe");
-			stdin = process.getOutputStream ();
-			//stderr = process.getErrorStream ();
-			stdout = process.getInputStream ();
+			// RNAFold.exe is available at http://www.tbi.univie.ac.at/RNA/windoze/
+			Process process = Runtime.getRuntime().exec("RNAFold.exe");
+			stdin = process.getOutputStream();
+			//stderr = process.getErrorStream();
+			stdout = process.getInputStream();
 
 			stdin.write(dnaSeq.getBytes());
 			stdin.flush();
