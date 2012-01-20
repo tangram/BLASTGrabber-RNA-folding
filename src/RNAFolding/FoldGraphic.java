@@ -125,5 +125,16 @@ public class FoldGraphic extends JFrame {
 		}
 	}
 
+<<<<<<< HEAD
 
+=======
+	private void createWindow() {
+		GraphicsPanel panel = new GraphicsPanel();
+		setLocationByPlatform(true);
+		setSize(1024, 768);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		add(panel);
+		setVisible(true);
+	}
+>>>>>>> 3928deeeb60d91be82ab8d2afb9a1a09d7eec9ef
 }
