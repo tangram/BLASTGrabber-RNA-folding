@@ -15,20 +15,29 @@ public class HairpinStructure {
 		this.foldSequence = getFoldSequence(dnaSequence);
 	
 		hairpins.add(new Hairpin(foldSequence, 0));
-		//TODO make logic to recognize separate hairpin structures
+		// TODO make logic to recognize separate hairpin structures
 	}
 
 	private static String getFoldSequence(String dnaSeq) {  
 		String line = new String();
 		OutputStream stdin;
-		@SuppressWarnings("unused") InputStream stderr;
+		@SuppressWarnings("unused") 
+		InputStream stderr;
 		InputStream stdout;
 
 		try {
+<<<<<<< HEAD
 			Process process = Runtime.getRuntime().exec ("BLASTGrabber-miRNA-folding/bin/RNAFold.exe");
 			stdin = process.getOutputStream ();
 			//stderr = process.getErrorStream ();
 			stdout = process.getInputStream ();
+=======
+			// RNAFold.exe is available at http://www.tbi.univie.ac.at/RNA/windoze/
+			Process process = Runtime.getRuntime().exec("RNAFold.exe");
+			stdin = process.getOutputStream();
+			//stderr = process.getErrorStream();
+			stdout = process.getInputStream();
+>>>>>>> 5be7e0bccdbb88f95a5cfb2b38fe6a21da64c8e7
 
 			stdin.write(dnaSeq.getBytes());
 			stdin.flush();

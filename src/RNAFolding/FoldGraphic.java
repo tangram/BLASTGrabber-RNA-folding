@@ -38,96 +38,99 @@ public class FoldGraphic extends JFrame {
 			Point point;
 			int startIndex = hairpin.startIndex;
 			
-			int i = startIndex;			//"manual" iterator
+			int i = startIndex;  // "manual" iterator
 			int tempIndex;
 			point = new Point(50, 50);
 			
-			//drawing top strand
-			tempIndex = hairpin.topStrandLength;			//moving tempIndex to end of top strand
+			// drawing top strand
+			tempIndex = hairpin.topStrandLength;  // moving tempIndex to end of top strand
 			while(i < tempIndex) {
 				drawBase(g2d, sequence.substring(i, i+1), point);
 				point.y += 30;
 				i++;
 			}
 			
-			point.x += 21; 		//moving point 45 degrees in x-direction (30cos45)
-			point.y -= 9; 		//moving point back to 30sin45 relative to last nucleotide, mind our while-loop already moved it 30 down			
+			point.x += 21;  // moving point 45 degrees in x-direction (30cos45)
+			point.y -= 9;  // moving point back to 30sin45 relative to last nucleotide, mind our while-loop already moved it 30 down			
 			
-			//drawing top helix
-			while(i < tempIndex + hairpin.helixTop.length()) {
+			// drawing top strand
+			while(i < tempIndex + hairpin.strandTop.length()) {
 				drawBase(g2d, sequence.substring(i, i+1), point);
 				point.x += 30;
 				i++;
 			}
 			
-			point.x -= 30; 		//resetting the point back to the last nucleotide
-			tempIndex += hairpin.helixTop.length();		//moving tempIndex to start of loop
+			point.x -= 30;  //resetting the point back to the last nucleotide
+			tempIndex += hairpin.strandTop.length();  // moving tempIndex to start of loop
 
 			double loopAngle = Math.PI - (Math.PI * (hairpin.loopLength)) / (hairpin.loopLength + 2);
 			double tempAngle = Math.PI/2 - loopAngle;
 			
-			//placing point at first nucleotide in the loop
+			// placing point at first nucleotide in the loop
 			point.x += (int)(30 * Math.cos(tempAngle));
 			point.y -= (int)(30 * Math.sin(tempAngle));
 						
-			//drawing first nucleotide in loop
+			// drawing first nucleotide in loop
 			drawBase(g2d, sequence.substring(i, i+1), point);
 			
-			//drawing rest of the loop
+			// drawing rest of the loop
 			while(i < tempIndex + hairpin.loopLength - 1) {
 				i++;
 				tempAngle -= loopAngle;
 				point.x += (int)(30 * Math.cos(tempAngle));
 				point.y -= (int)(30 * Math.sin(tempAngle));
-				drawBase(g2d, sequence.substring(i, i+1), point);
+				drawBase(g2d, sequence.substring(i, i + 1), point);
 			}
 			
-			tempIndex += hairpin.loopLength;		//moving tempIndex to start of bottom helix
+			tempIndex += hairpin.loopLength; // moving tempIndex to start of bottom strand
 			
-			//placing the point at beginning (end) of bottom helix
+			// placing the point at beginning (end) of bottom strand
 			tempAngle -= loopAngle;
 			point.x += (int)(30 * Math.cos(tempAngle));
 			point.y -= (int)(30 * Math.sin(tempAngle));
 			
-			//drawing bottom helix
-			while(i < tempIndex + hairpin.helixBottom.length() - 1) {
+			// drawing bottom strand
+			while(i < tempIndex + hairpin.strandBottom.length() - 1) {
 				i++;
-				drawBase(g2d, sequence.substring(i, i+1), point);
+				drawBase(g2d, sequence.substring(i, i + 1), point);
 				point.x -= 30;
 			}
 			
-			tempIndex += hairpin.helixBottom.length();		//moving tempIndex to start of strand
+			tempIndex += hairpin.strandBottom.length();  // moving tempIndex to start of strand
 			
-			//drawing first nucleotide in bottom strand 45 degrees away from and below the last (first) nucleotide in bottom helix
+			// drawing first nucleotide in bottom strand 45 degrees away from and below the last (first) nucleotide in bottom strand
 			i++;
 			point.x += 9;
 			point.y += 21;
-			drawBase(g2d, sequence.substring(i, i+1), point);
+			drawBase(g2d, sequence.substring(i, i + 1), point);
 			
-			//drawing the rest of the bottom strand
+			// drawing the rest of the bottom strand
 			while(i < tempIndex + hairpin.bottomStrandLength - 1) {
 				i++;
 				point.y += 30;
-				drawBase(g2d, sequence.substring(i, i+1), point);
+				drawBase(g2d, sequence.substring(i, i + 1), point);
 			}
 			
-			//TODO make lines between nucleotides
-			//TODO Draw "loose" nucleiosides
-			//TODO Connect several hairpins (eventually)
+			// TODO make lines between nucleotides
+			// TODO Draw "loose" nucleotides
+			// TODO Connect several hairpins (eventually)
 		}
 		
 		private void drawBase(Graphics2D g, String c, Point point) {
-			g.setColor(c.equals("A") ? Color.BLUE : c.equals("U") ? Color.GREEN : c.equals("G") ? Color.RED : Color.MAGENTA);
-			g.fillOval(point.x, point.y, 20, 20);
+			g.setColor(c.equals("A") ? Color.GREEN : c.equals("U") ? Color.RED : c.equals("G") ? Color.BLACK : Color.BLUE);
+			g.fillOval(point.x, point.y, 21, 21);
 			g.setColor(Color.WHITE);
-			g.setFont(g.getFont().deriveFont(Font.BOLD, 17.0f));
-			g.drawString(c, point.x+5, point.y+16);
+			g.setFont(g.getFont().deriveFont(Font.BOLD, 16.0f));
+			g.drawString(c, point.x+5, point.y+17);
 		}
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+>>>>>>> 5be7e0bccdbb88f95a5cfb2b38fe6a21da64c8e7
 	private void createWindow() {
 		GraphicsPanel panel = new GraphicsPanel();
 		setLocationByPlatform(true);
