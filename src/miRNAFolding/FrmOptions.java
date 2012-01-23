@@ -27,6 +27,7 @@ public class FrmOptions extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+<<<<<<< HEAD
         buttonGroupDanglingEnds = new javax.swing.ButtonGroup();
         buttonGroupGUPairs = new javax.swing.ButtonGroup();
         jPanelRNAfold = new javax.swing.JPanel();
@@ -125,10 +126,16 @@ public class FrmOptions extends javax.swing.JInternalFrame {
                 .addComponent(jRadioButtonNoGU))
         );
 
+=======
+        setClosable(true);
+        setTitle("mRNA Folding options");
+
+>>>>>>> 5be7e0bccdbb88f95a5cfb2b38fe6a21da64c8e7
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+<<<<<<< HEAD
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanelRNAfold, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -140,11 +147,19 @@ public class FrmOptions extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addComponent(jPanelRNAfold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+=======
+            .addGap(0, 394, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 278, Short.MAX_VALUE)
+>>>>>>> 5be7e0bccdbb88f95a5cfb2b38fe6a21da64c8e7
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+<<<<<<< HEAD
     private javax.swing.ButtonGroup buttonGroupDanglingEnds;
     private javax.swing.ButtonGroup buttonGroupGUPairs;
     private javax.swing.JCheckBox jCheckBoxCirc;
@@ -160,5 +175,7 @@ public class FrmOptions extends javax.swing.JInternalFrame {
     private javax.swing.JRadioButton jRadioButtonGU;
     private javax.swing.JRadioButton jRadioButtonNoCloseGU;
     private javax.swing.JRadioButton jRadioButtonNoGU;
+=======
+>>>>>>> 5be7e0bccdbb88f95a5cfb2b38fe6a21da64c8e7
     // End of variables declaration//GEN-END:variables
 }
