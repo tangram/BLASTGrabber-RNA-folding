@@ -1,0 +1,5 @@
+13/01/2012
+Kan det være en idé å ha en tekstfil som denne i git-repoet for å utveksle meldinger og spørsmål angående koden, men som ikke nødvendigvis trenger svar umiddelbart? 
+Jeg vet commit-beskjeder til dels løser problematikken, men jeg synes det virker unaturlig å bruke commits til slik diskusjon.
+Mulig det er en dum idé, gi tilbakemelding :p.
+-Petter

@@ -26,11 +26,12 @@ public class HairpinStructure {
 		InputStream stdout;
 
 		try {
+			Process process = Runtime.getRuntime().exec ("BLASTGrabber-miRNA-folding/bin/RNAFold.exe");
+			stdin = process.getOutputStream ();
+			//stderr = process.getErrorStream ();
+			stdout = process.getInputStream ();
 			// RNAFold.exe is available at http://www.tbi.univie.ac.at/RNA/windoze/
-			Process process = Runtime.getRuntime().exec("RNAFold.exe");
-			stdin = process.getOutputStream();
-			//stderr = process.getErrorStream();
-			stdout = process.getInputStream();
+
 
 			stdin.write(dnaSeq.getBytes());
 			stdin.flush();
