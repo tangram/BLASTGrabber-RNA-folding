@@ -1,8 +1,10 @@
 package Plugin;
 
 import BLASTGrabber.Facade.BLASTGrabberQuery;
+import miRNAFolding.FrmMain;
 import miRNAFolding.FrmClipboard;
 import java.util.HashMap;
+import javax.swing.JDesktopPane;
 
 /**
  * @author Ralf Neumann
@@ -10,29 +12,32 @@ import java.util.HashMap;
  * @author Petter Hannevold
  */
 public class Main implements Facade {
-    private static Main m_Me = null;
-    private BLASTGrabber.Facade m_BLASTGrabberFacade = null;
+    private static Main me = null;
+    private BLASTGrabber.Facade blastGrabberFacade = null;
+    private JDesktopPane BLASTGrabberDesktop = null;
 
     public static final String NAME = "miRNA Folding";
 
     public static Main getMain() {
-        return m_Me;
+        return me;
     }
 
     public BLASTGrabber.Facade getBLASTGrabberFacade() {
-        return m_BLASTGrabberFacade;
+        return blastGrabberFacade;
     }
 
     @Override
-    public void initialize(BLASTGrabber.Facade blastgrabberFacade) {
-        m_BLASTGrabberFacade = blastgrabberFacade;
-        m_Me = this;
+    public void initialize(BLASTGrabber.Facade blastGrabberFacade) {
+        me = this;
+        this.blastGrabberFacade = blastGrabberFacade;
+        BLASTGrabberDesktop = this.blastGrabberFacade.getDesktopPane();
     }
 
     @Override
     public void displayMain() {
-        miRNAFolding.FrmMain frm = new miRNAFolding.FrmMain();
-        m_BLASTGrabberFacade.displayInternalFrame(frm);
+        FrmMain frmMain = new FrmMain();
+        BLASTGrabberDesktop.add(frmMain);
+        frmMain.setVisible(true);
     }
 
     @Override
@@ -47,8 +52,9 @@ public class Main implements Facade {
 
     @Override
     public void processSelectedClipboardItems(HashMap<String, BLASTGrabberQuery> queries) {
-        FrmClipboard frm = new FrmClipboard();
-        frm.init(queries);
-        m_BLASTGrabberFacade.displayInternalFrame(frm);
+        FrmClipboard frmClipboard = new FrmClipboard();
+        frmClipboard.init(queries, BLASTGrabberDesktop);
+        BLASTGrabberDesktop.add(frmClipboard);
+        frmClipboard.setVisible(true);
     }
 }

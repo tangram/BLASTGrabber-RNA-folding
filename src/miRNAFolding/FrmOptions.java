@@ -26,6 +26,7 @@ public class FrmOptions extends javax.swing.JInternalFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         buttonGroupDanglingEnds = new javax.swing.ButtonGroup();
         buttonGroupGUPairs = new javax.swing.ButtonGroup();
         jPanelRNAfold = new javax.swing.JPanel();
@@ -95,7 +96,7 @@ public class FrmOptions extends javax.swing.JInternalFrame {
                     .addComponent(jRadioButtonGU)
                     .addComponent(jRadioButtonNoCloseGU)
                     .addComponent(jRadioButtonNoGU))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         jPanelRNAfoldLayout.setVerticalGroup(
             jPanelRNAfoldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -124,9 +125,6 @@ public class FrmOptions extends javax.swing.JInternalFrame {
                 .addComponent(jRadioButtonNoGU))
         );
 
-        setClosable(true);
-        setTitle("mRNA Folding options");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -142,11 +140,6 @@ public class FrmOptions extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addComponent(jPanelRNAfold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGap(0, 394, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 278, Short.MAX_VALUE)
         );
 
         pack();
