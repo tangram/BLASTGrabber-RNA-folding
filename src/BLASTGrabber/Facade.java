@@ -3,13 +3,13 @@ package BLASTGrabber;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import javax.swing.JInternalFrame;
+import javax.swing.JDesktopPane;
 
 /**
  * @author Ralf Neumann
  */
 public interface Facade {
-    public void displayInternalFrame(JInternalFrame frame);
+    public JDesktopPane getDesktopPane();
     public ArrayList<String> getBLASTAlignments(HashMap<String, BLASTGrabberQuery> queries);
     public ArrayList<String> getFASTAQueries(HashMap<String, BLASTGrabberQuery> queries);
     public ArrayList<String> getFASTACustomDBSequences(HashMap<String, BLASTGrabberQuery> queries);
