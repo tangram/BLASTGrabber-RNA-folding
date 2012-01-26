@@ -26,6 +26,103 @@ public class FrmOptions extends javax.swing.JInternalFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        buttonGroupDanglingEnds = new javax.swing.ButtonGroup();
+        buttonGroupGUPairs = new javax.swing.ButtonGroup();
+        jPanelRNAfold = new javax.swing.JPanel();
+        jCheckBoxT = new javax.swing.JCheckBox();
+        jFormattedTextFieldTemperature = new javax.swing.JFormattedTextField();
+        jLabelTemperature = new javax.swing.JLabel();
+        jRadioButtonGU = new javax.swing.JRadioButton();
+        jRadioButtonNoCloseGU = new javax.swing.JRadioButton();
+        jRadioButtonNoGU = new javax.swing.JRadioButton();
+        jCheckBoxCirc = new javax.swing.JCheckBox();
+        jRadioButtonD0 = new javax.swing.JRadioButton();
+        jRadioButtonD1 = new javax.swing.JRadioButton();
+        jRadioButtonD2 = new javax.swing.JRadioButton();
+        jRadioButtonD3 = new javax.swing.JRadioButton();
+        jCheckBoxNoLP = new javax.swing.JCheckBox();
+
+        setClosable(true);
+        setTitle("mRNA Folding options");
+
+        jPanelRNAfold.setBorder(javax.swing.BorderFactory.createTitledBorder("RNAfold"));
+
+        jCheckBoxT.setText("Scale to temperature");
+
+        jFormattedTextFieldTemperature.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jFormattedTextFieldTemperature.setText("37.0");
+
+        jLabelTemperature.setText("°C");
+
+        jRadioButtonGU.setSelected(true);
+        jRadioButtonGU.setText("Allow GU pairs");
+
+        jRadioButtonNoCloseGU.setText("Disallow GU pairs at ends of helices");
+
+        jRadioButtonNoGU.setText("Disallow GU pairs");
+
+        jCheckBoxCirc.setText("Assume circular RNA");
+
+        jRadioButtonD0.setText("Ignore dangling ends");
+
+        jRadioButtonD1.setSelected(true);
+        jRadioButtonD1.setText("Only unpaired bases can participate in at most one dangling end");
+
+        jRadioButtonD2.setText("Dangling energies will be added for the bases adjacent to a helix on both sides");
+
+        jRadioButtonD3.setText("Allow coaxial stacking of adjacent helices in multi-loops");
+
+        jCheckBoxNoLP.setText("Disallow lonely pairs (helices of length 1)");
+
+        javax.swing.GroupLayout jPanelRNAfoldLayout = new javax.swing.GroupLayout(jPanelRNAfold);
+        jPanelRNAfold.setLayout(jPanelRNAfoldLayout);
+        jPanelRNAfoldLayout.setHorizontalGroup(
+            jPanelRNAfoldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelRNAfoldLayout.createSequentialGroup()
+                .addGroup(jPanelRNAfoldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelRNAfoldLayout.createSequentialGroup()
+                        .addComponent(jCheckBoxT)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jFormattedTextFieldTemperature, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabelTemperature))
+                    .addComponent(jCheckBoxCirc)
+                    .addComponent(jCheckBoxNoLP)
+                    .addComponent(jRadioButtonD0)
+                    .addComponent(jRadioButtonD1)
+                    .addComponent(jRadioButtonD2)
+                    .addComponent(jRadioButtonD3)
+                    .addComponent(jRadioButtonGU)
+                    .addComponent(jRadioButtonNoCloseGU)
+                    .addComponent(jRadioButtonNoGU))
+                .addContainerGap(12, Short.MAX_VALUE))
+        );
+        jPanelRNAfoldLayout.setVerticalGroup(
+            jPanelRNAfoldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelRNAfoldLayout.createSequentialGroup()
+                .addGroup(jPanelRNAfoldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBoxT)
+                    .addComponent(jFormattedTextFieldTemperature, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelTemperature))
+                .addGap(18, 18, 18)
+                .addComponent(jCheckBoxCirc)
+                .addGap(18, 18, 18)
+                .addComponent(jCheckBoxNoLP)
+                .addGap(18, 18, 18)
+                .addComponent(jRadioButtonD0)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonD1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonD2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonD3)
+                .addGap(18, 18, 18)
+                .addComponent(jRadioButtonGU)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonNoCloseGU)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonNoGU))
+        );
 
         setClosable(true);
         setTitle("mRNA Folding options");
@@ -34,6 +131,17 @@ public class FrmOptions extends javax.swing.JInternalFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanelRNAfold, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanelRNAfold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGap(0, 394, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -44,5 +152,20 @@ public class FrmOptions extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroupDanglingEnds;
+    private javax.swing.ButtonGroup buttonGroupGUPairs;
+    private javax.swing.JCheckBox jCheckBoxCirc;
+    private javax.swing.JCheckBox jCheckBoxNoLP;
+    private javax.swing.JCheckBox jCheckBoxT;
+    private javax.swing.JFormattedTextField jFormattedTextFieldTemperature;
+    private javax.swing.JLabel jLabelTemperature;
+    private javax.swing.JPanel jPanelRNAfold;
+    private javax.swing.JRadioButton jRadioButtonD0;
+    private javax.swing.JRadioButton jRadioButtonD1;
+    private javax.swing.JRadioButton jRadioButtonD2;
+    private javax.swing.JRadioButton jRadioButtonD3;
+    private javax.swing.JRadioButton jRadioButtonGU;
+    private javax.swing.JRadioButton jRadioButtonNoCloseGU;
+    private javax.swing.JRadioButton jRadioButtonNoGU;
     // End of variables declaration//GEN-END:variables
 }
