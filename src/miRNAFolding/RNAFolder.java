@@ -10,6 +10,7 @@ import java.io.OutputStream;
 public class RNAFolder {
     public static boolean runSequencePlot(String sequence, FrmOptions options) {
         //String path = RNAFolder.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String binPath = "bin/";
 
         String osExtension = "";
         if (OsDetector.isWindows())
@@ -19,14 +20,14 @@ public class RNAFolder {
 
         // sequence data | RNAFold -noPS | RNAPlot -o svg
         try {
-            Process rnaFold = runtime.exec("RNAfold" + osExtension + " -noPS");
+            Process rnaFold = runtime.exec(binPath + "RNAfold" + osExtension + " -noPS");
 
             OutputStream rnaFoldIn = rnaFold.getOutputStream();
             rnaFoldIn.write(sequence.getBytes());
             rnaFoldIn.flush();
             rnaFoldIn.close();
 
-            Process rnaPlot = runtime.exec("RNAplot" + osExtension + " -o svg");
+            Process rnaPlot = runtime.exec(binPath + "RNAplot" + osExtension + " -o svg");
 
             Piper pipe = new Piper(rnaFold.getInputStream(), rnaPlot.getOutputStream());
             new Thread(pipe).start();
