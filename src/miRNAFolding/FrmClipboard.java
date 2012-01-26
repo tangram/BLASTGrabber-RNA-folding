@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
 
+import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -26,15 +27,17 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
     private HashMap<String, BLASTGrabberQuery> queries;
     private FrmOptions frmOptions;
     private JDesktopPane desktop;
+    private BLASTGrabber.Facade facade;
 
     /** Creates new form FrmClipboard */
     public FrmClipboard() {
         initComponents();
     }
 
-    public void init(HashMap<String, BLASTGrabberQuery> queries, JDesktopPane desktop) {
+    public void init(HashMap<String, BLASTGrabberQuery> queries, JDesktopPane desktop, BLASTGrabber.Facade facade) {
         this.queries = queries;
         this.desktop = desktop;
+        this.facade = facade;
 
         DefaultListModel listModel = new DefaultListModel();
         jListQueries.setModel(listModel);
@@ -51,6 +54,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
                 pos = listModel.getSize();
                 listModel.add(pos, "  " + itH.next().SequenceHeader);
             }
+        }
+        
+        ArrayList<String> fasta = facade.getFASTACustomDBSequences(queries);
+        
+        Iterator<String> itS = fasta.iterator();
+
+        while (itS.hasNext()) {
+            jTextArea1.setText(itS.next());
         }
 
         frmOptions = new FrmOptions();
@@ -107,13 +118,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
         HashMap<String, BLASTGrabberQuery> testData = new HashMap<String, BLASTGrabberQuery>();
         testData.put(">test category 1 [RANDOM garb] age-2 make [THIS seemlike] actualdata", testQuery);
 
-        intFrm.init(testData, desktop);
+        //intFrm.init(testData, desktop);
         desktop.add(intFrm);
         intFrm.setVisible(true);
         desktop.setVisible(true);
         main.setVisible(true);
         desktop.setPreferredSize(new Dimension(1300, 700));
+        //desktop.getDesktopManager().
         main.pack();
+        main.setExtendedState(main.getExtendedState() | main.MAXIMIZED_BOTH);
     }
 
     /** This method is called from within the constructor to
@@ -129,6 +142,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
         jListQueries = new javax.swing.JList();
         jButtonOptions = new javax.swing.JButton();
         svgPanel = new com.kitfox.svg.app.beans.SVGPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
 
         setClosable(true);
         setIconifiable(true);
@@ -142,7 +157,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
         jButtonOptions.setText("Options...");
 
         svgPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
-        svgPanel.setFont(new java.awt.Font("SansSerif", 0, 11)); // NOI18N
+        svgPanel.setFont(new java.awt.Font("SansSerif", 0, 11));
         svgPanel.setPreferredSize(new java.awt.Dimension(400, 400));
         svgPanel.setScaleToFit(true);
         svgPanel.setUseAntiAlias(true);
@@ -158,6 +173,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
             .addGap(0, 398, Short.MAX_VALUE)
         );
 
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -167,7 +186,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(svgPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 492, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonOptions))
                     .addComponent(jScrollPaneQueries, javax.swing.GroupLayout.DEFAULT_SIZE, 973, Short.MAX_VALUE))
                 .addContainerGap())
@@ -180,8 +201,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonOptions)
-                    .addComponent(svgPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(svgPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         pack();
@@ -190,7 +212,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonOptions;
     private javax.swing.JList jListQueries;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPaneQueries;
+    private javax.swing.JTextArea jTextArea1;
     private com.kitfox.svg.app.beans.SVGPanel svgPanel;
     // End of variables declaration//GEN-END:variables
 }

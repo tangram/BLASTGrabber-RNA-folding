@@ -13,8 +13,8 @@ import javax.swing.JDesktopPane;
  */
 public class Main implements Facade {
     private static Main me = null;
-    private BLASTGrabber.Facade blastGrabberFacade = null;
-    private JDesktopPane BLASTGrabberDesktop = null;
+    private BLASTGrabber.Facade facade = null;
+    private JDesktopPane desktop = null;
 
     public static final String NAME = "miRNA Folding";
 
@@ -23,20 +23,20 @@ public class Main implements Facade {
     }
 
     public BLASTGrabber.Facade getBLASTGrabberFacade() {
-        return blastGrabberFacade;
+        return facade;
     }
 
     @Override
     public void initialize(BLASTGrabber.Facade blastGrabberFacade) {
         me = this;
-        this.blastGrabberFacade = blastGrabberFacade;
-        BLASTGrabberDesktop = this.blastGrabberFacade.getDesktopPane();
+        this.facade = blastGrabberFacade;
+        desktop = this.facade.getDesktopPane();
     }
 
     @Override
     public void displayMain() {
         FrmMain frmMain = new FrmMain();
-        BLASTGrabberDesktop.add(frmMain);
+        desktop.add(frmMain);
         frmMain.setVisible(true);
     }
 
@@ -53,8 +53,8 @@ public class Main implements Facade {
     @Override
     public void processSelectedClipboardItems(HashMap<String, BLASTGrabberQuery> queries) {
         FrmClipboard frmClipboard = new FrmClipboard();
-        frmClipboard.init(queries, BLASTGrabberDesktop);
-        BLASTGrabberDesktop.add(frmClipboard);
+        frmClipboard.init(queries, desktop, facade);
+        desktop.add(frmClipboard);
         frmClipboard.setVisible(true);
     }
 }
