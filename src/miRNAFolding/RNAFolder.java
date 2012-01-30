@@ -20,7 +20,7 @@ public class RNAFolder {
 
         // sequence data | RNAFold -noPS | RNAPlot -o svg
         try {
-            Process rnaFold = runtime.exec(binPath + "RNAfold" + osExtension + " -noPS");
+            Process rnaFold = runtime.exec(binPath + "RNAfold" + osExtension + " -p -d2 -noLP");
 
             OutputStream rnaFoldIn = rnaFold.getOutputStream();
             rnaFoldIn.write(sequence.getBytes());

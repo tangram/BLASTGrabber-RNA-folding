@@ -73,7 +73,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame implements ActionLi
         // to be removed - for testing purposes
         String test = ">test\nGGGCUAUUAGCUCAGUUGGUUAGAGCGCACCCCUGAUAAGGGUGAGGUCGCUGAUUCGAAUUCAGCAUAGCCCA";
         RNAFolder.runSequencePlot(test, frmOptions);
-        loadSVG(ColorAnnotator.annnotateSVG("test_ss.svg", null));
+        loadSVG(ColorAnnotator.annnotateSVG("test_ss.svg", false));
     }
 
     private void loadSVG(String filename) {
