@@ -34,7 +34,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="svgPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="480" max="32767" attributes="0"/>
+                      <Component id="jScrollPaneTemp" pref="480" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jButtonOptions" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -50,12 +50,12 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPaneQueries" min="-2" pref="226" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="jButtonOptions" min="-2" max="-2" attributes="0"/>
-                  <Component id="svgPanel" alignment="0" min="-2" max="-2" attributes="1"/>
-                  <Component id="jScrollPane1" min="-2" pref="240" max="-2" attributes="0"/>
+                  <Component id="svgPanel" alignment="0" max="32767" attributes="1"/>
+                  <Component id="jScrollPaneTemp" alignment="0" max="32767" attributes="1"/>
               </Group>
-              <EmptySpace pref="15" max="32767" attributes="0"/>
+              <EmptySpace pref="19" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -115,14 +115,14 @@
         </DimensionLayout>
       </Layout>
     </Container>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+    <Container class="javax.swing.JScrollPane" name="jScrollPaneTemp">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTextArea" name="jTextArea1">
+        <Component class="javax.swing.JTextArea" name="jTextAreaTemp">
           <Properties>
             <Property name="columns" type="int" value="20"/>
             <Property name="rows" type="int" value="5"/>

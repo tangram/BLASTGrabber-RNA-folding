@@ -33,11 +33,11 @@ public class RNAFolder {
             new Thread(pipe).start();
             rnaPlot.waitFor();
 
-        } catch (IOException io) {
-            System.out.println(io.toString());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
             return false;
-        } catch (InterruptedException ie) {
-            System.out.println(ie.toString());
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
             return false;
         }
         return true;
