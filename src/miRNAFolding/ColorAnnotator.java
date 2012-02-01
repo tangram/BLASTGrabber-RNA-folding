@@ -3,12 +3,10 @@ package miRNAFolding;
 import java.awt.Color;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,8 +19,9 @@ import nu.xom.ParsingException;
 import nu.xom.Serializer;
 
 /**
- * ColorAnnotator contains methods for reading pair probabilities and computing positional entropy from RNAfold dot plot
- * files. These can be passed to annotateSVG and written to a new SVG file.
+ * ColorAnnotator contains methods for reading pair probabilities from RNAfold dot plot PostScript files,
+ * and extending an SVG structure plot from RNAplot with color annotation for either pair probability
+ * (unpaired bases show probability of being unpaired) or positional entropy.
  *
  * @author Eirik Krogstad
  */
@@ -44,6 +43,7 @@ public class ColorAnnotator {
      * @return          Dataset containing pair identifiers and pair probabilities as String[]
      */
     public static Dataset readPairProbabilities(String filepath) {
+        long before = System.currentTimeMillis();
         String ubox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+ubox";
         String lbox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+lbox";
         Dataset dataset = new Dataset();
@@ -52,23 +52,33 @@ public class ColorAnnotator {
             BufferedReader reader = new BufferedReader(new FileReader(filepath));
             String line = null;
             String[] splitLine = null;
+            boolean start = false;
+
+            reader.skip(1900);  // we can safely skip ahead this much
 
             while ((line = reader.readLine()) != null) {
-                if (line.matches(ubox)) {
-                     // drop " ubox", split by spaces
-                    splitLine = line.substring(0, line.length() - 5).split("\\s");
-                    dataset.data.add(splitLine);
-                } else if (line.matches(lbox)) {
-                    // drop " (float) lbox", split by spaces
-                    splitLine = line.substring(0, line.length() - 15).split("\\s");
-                    dataset.pairs.put(Integer.valueOf(splitLine[0]), Integer.valueOf(splitLine[1]));
+                if (line.equals("drawgrid"))
+                    start = true;
+                if (start) {
+                    if (line.matches(ubox)) {
+                         // drop " ubox", split by spaces
+                        splitLine = line.substring(0, line.length() - 5).split("\\s");
+                        dataset.data.add(splitLine);
+                    } else if (line.matches(lbox)) {
+                        // drop " (float) lbox", split by spaces
+                        splitLine = line.substring(0, line.length() - 15).split("\\s");
+                        dataset.pairs.put(Integer.valueOf(splitLine[0]), Integer.valueOf(splitLine[1]));
+                    }
                 }
             }
+            reader.close();
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        long after = System.currentTimeMillis();
+        System.out.println("readPairProbabilities: " + (after - before));
 
         return dataset;
     }
@@ -114,14 +124,17 @@ public class ColorAnnotator {
 
         Dataset dataset = readPairProbabilities(filepath.substring(0, filepath.length() - 7) + "_dp.ps");
 
+        long before = System.currentTimeMillis();
         // read svg file
         try {
-            doc = parser.build(new File(filepath));
+            doc = parser.build(new BufferedReader(new FileReader(filepath)));
         } catch (ParsingException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        long aread = System.currentTimeMillis();
+        System.out.println("annotateSVG read SVG: " + (aread - before));
 
         String svg = "http://www.w3.org/2000/svg";
 
@@ -158,6 +171,7 @@ public class ColorAnnotator {
                 .getAttributeValue("points")
                 .split("\\s+");
 
+        // compute pair probabilities or positional entropy
         int n = coord.length - 1;
 
         double[] pp = new double[n];
@@ -220,21 +234,22 @@ public class ColorAnnotator {
 
         String newFilepath = filepath.substring(0, filepath.length() - 4) + "_color.svg";
 
+        long bwrite = System.currentTimeMillis();
         // write new svg file
         try {
-            FileOutputStream fStream = new FileOutputStream(new File(newFilepath));
-            BufferedOutputStream bStream = new BufferedOutputStream(fStream);
-            OutputStreamWriter out = new OutputStreamWriter(bStream);
-            Serializer serializer = new Serializer(bStream);
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(newFilepath));
+            Serializer serializer = new Serializer(stream);
             serializer.setIndent(2);
-            serializer.setMaxLength(80);
+            serializer.setMaxLength(120);
             serializer.write(doc);
-            out.flush();
-            out.close();
-
+            stream.flush();
+            stream.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        long after = System.currentTimeMillis();
+        System.out.println("annotateSVG write SVG: " + (after - bwrite));
+        System.out.println("annotateSVG: " + (after - before));
 
         return newFilepath;
     }
