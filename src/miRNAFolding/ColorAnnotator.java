@@ -43,7 +43,6 @@ public class ColorAnnotator {
      * @return          Dataset containing pair identifiers and pair probabilities as String[]
      */
     public static Dataset readPairProbabilities(String filepath) {
-        long before = System.currentTimeMillis();
         String ubox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+ubox";
         String lbox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+lbox";
         Dataset dataset = new Dataset();
@@ -77,8 +76,6 @@ public class ColorAnnotator {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        long after = System.currentTimeMillis();
-        System.out.println("readPairProbabilities: " + (after - before));
 
         return dataset;
     }
@@ -124,7 +121,6 @@ public class ColorAnnotator {
 
         Dataset dataset = readPairProbabilities(filepath.substring(0, filepath.length() - 7) + "_dp.ps");
 
-        long before = System.currentTimeMillis();
         // read svg file
         try {
             doc = parser.build(new BufferedReader(new FileReader(filepath)));
@@ -133,8 +129,6 @@ public class ColorAnnotator {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        long aread = System.currentTimeMillis();
-        System.out.println("annotateSVG read SVG: " + (aread - before));
 
         String svg = "http://www.w3.org/2000/svg";
 
@@ -234,7 +228,6 @@ public class ColorAnnotator {
 
         String newFilepath = filepath.substring(0, filepath.length() - 4) + "_color.svg";
 
-        long bwrite = System.currentTimeMillis();
         // write new svg file
         try {
             BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(newFilepath));
@@ -247,9 +240,6 @@ public class ColorAnnotator {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        long after = System.currentTimeMillis();
-        System.out.println("annotateSVG write SVG: " + (after - bwrite));
-        System.out.println("annotateSVG: " + (after - before));
 
         return newFilepath;
     }

@@ -11,10 +11,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JTable;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * @author Eirik Krogstad
@@ -24,10 +30,20 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private HashMap<String, BLASTGrabberQuery> queries;
     private JDesktopPane desktop;
     private BLASTGrabber.Facade facade;
-    private String foldOptions;
+
+    private DefaultListModel listModel;
+    private DefaultTableModel suboptimalTableModel;
+    private DefaultTableModel multipleTableModel;
+    private String[] standardColumns = {"Number", "ID", "Structure", "kCal/mol"};
+    private String[] suboptimalRandomColumns = {"Number", "ID", "Structure"};
+
+   // actual pre-miRNA from human X chromosome for testing
+   private String test = ">hsa-let-7f-2 MI0000068\nUGUGGGAUGAGGUAGUAGAUUGUAUAGUUUUAGGGUCAUACCCCAUCUUGGAGAUAACUAUACAGUCUACUGUCUUUCCCACG";
 
     /** Creates new form FrmClipboard */
     public FrmClipboard() {
+        // needed to ensure proper formatting of JFormattedTextFields
+        Locale.setDefault(Locale.ENGLISH);
         initComponents();
     }
 
@@ -36,8 +52,16 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         this.desktop = desktop;
         this.facade = facade;
 
-        DefaultListModel listModel = new DefaultListModel();
+        listModel = new DefaultListModel();
         jListQueries.setModel(listModel);
+
+        suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
+        jTableSuboptimal.setModel(suboptimalTableModel);
+        jTableSuboptimal.getSelectionModel().addListSelectionListener(new TableListener());
+
+        multipleTableModel = new DefaultTableModel(suboptimalRandomColumns, 0);
+        jTableMultiple.setModel(multipleTableModel);
+        jTableMultiple.getSelectionModel().addListSelectionListener(new TableListener());
 
         int pos = 0;
         Iterator<String> itQ = queries.keySet().iterator();
@@ -64,14 +88,28 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         */
     }
 
+    private void generatePlot(String folding) {
+        RNAFolder.generatePlots(folding);
+
+        jTextAreaFoldOutput.setText(folding);
+
+        String svgToAnnotate = folding.split("\\s")[0].substring(1);
+        if (svgToAnnotate.length() > 42)
+            svgToAnnotate = svgToAnnotate.substring(0, 42);
+        svgToAnnotate += "_ss.svg";
+        String svgPath = ColorAnnotator.annnotateSVG(svgToAnnotate, jRadioButtonPositionalEntropy.isSelected());
+
+        loadSVG(svgPath);
+    }
+
     /**
-     * Build a String with command line parameters for RNAFolder.foldSequence (RNAfold command line tool) from
+     * Build a String with common command line parameters for Vienna RNA command line tools from
      * selected GUI components.
      *
      * @return  String with selected command line parameters
      */
     private String buildOptionsString() {
-        StringBuilder sb = new StringBuilder(" -p");
+        StringBuilder sb = new StringBuilder();
 
         if (jRadioButtonTemperature.isSelected()) {
             sb.append(" -T ");
@@ -80,9 +118,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         }
         if (jCheckBoxCirc.isSelected())
-            sb.append(" -circ");
+            sb.append(" --circ");
         if (jCheckBoxNoLP.isSelected())
-            sb.append(" -noLP");
+            sb.append(" --noLP");
         if (jRadioButtonD0.isSelected())
             sb.append(" -d0");
         else if (jRadioButtonD1.isSelected())
@@ -92,9 +130,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         else
             sb.append(" -d3");
         if (jRadioButtonNoCloseGU.isSelected())
-            sb.append(" -noCloseGU");
+            sb.append(" --noClosingGU");
         else if (jRadioButtonNoGU.isSelected())
-            sb.append(" -noGU");
+            sb.append(" --noGU");
 
         return sb.toString();
     }
@@ -165,6 +203,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         buttonGroupTemperature = new javax.swing.ButtonGroup();
         buttonGroupDanglingEnds = new javax.swing.ButtonGroup();
         buttonGroupGUPairs = new javax.swing.ButtonGroup();
+        buttonGroupSuboptimal = new javax.swing.ButtonGroup();
         jScrollPaneQueries = new javax.swing.JScrollPane();
         jListQueries = new javax.swing.JList();
         svgPanel = new com.kitfox.svg.app.beans.SVGPanel();
@@ -176,6 +215,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jScrollPaneFoldOutput = new javax.swing.JScrollPane();
         jTextAreaFoldOutput = new javax.swing.JTextArea();
         jPanelSuboptimal = new javax.swing.JPanel();
+        jScrollPaneSuboptimal = new javax.swing.JScrollPane();
+        jTableSuboptimal = new javax.swing.JTable();
+        jButtonFoldSuboptimal = new javax.swing.JButton();
+        jRadioButtonRandom = new javax.swing.JRadioButton();
+        jRadioButtonRange = new javax.swing.JRadioButton();
+        jFormattedTextFieldRandom = new javax.swing.JFormattedTextField();
+        jFormattedTextFieldRange = new javax.swing.JFormattedTextField();
+        jLabelRange = new javax.swing.JLabel();
+        jLabelRandom = new javax.swing.JLabel();
         jPanelMultiple = new javax.swing.JPanel();
         jScrollPaneMultiple = new javax.swing.JScrollPane();
         jTableMultiple = new javax.swing.JTable();
@@ -212,7 +260,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         svgPanel.setBackground(new java.awt.Color(255, 255, 255));
         svgPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
-        svgPanel.setFont(new java.awt.Font("SansSerif", 0, 11)); // NOI18N
+        svgPanel.setFont(new java.awt.Font("SansSerif", 0, 11));
         svgPanel.setPreferredSize(new java.awt.Dimension(400, 400));
         svgPanel.setScaleToFit(true);
         svgPanel.setUseAntiAlias(true);
@@ -242,17 +290,17 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         svgPanel.setLayout(svgPanelLayout);
         svgPanelLayout.setHorizontalGroup(
             svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, svgPanelLayout.createSequentialGroup()
-                .addContainerGap(251, Short.MAX_VALUE)
+            .addGroup(svgPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jRadioButtonPairProbabilities)
                     .addComponent(jRadioButtonPositionalEntropy, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addContainerGap())
+                .addContainerGap(251, Short.MAX_VALUE))
         );
         svgPanelLayout.setVerticalGroup(
             svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, svgPanelLayout.createSequentialGroup()
-                .addContainerGap(345, Short.MAX_VALUE)
+                .addContainerGap(349, Short.MAX_VALUE)
                 .addComponent(jRadioButtonPairProbabilities)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jRadioButtonPositionalEntropy)
@@ -269,7 +317,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         });
 
         jTextAreaFoldOutput.setColumns(20);
-        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11));
         jTextAreaFoldOutput.setRows(5);
         jScrollPaneFoldOutput.setViewportView(jTextAreaFoldOutput);
 
@@ -289,46 +337,92 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelMFELayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPaneFoldOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 193, Short.MAX_VALUE)
                 .addComponent(jButtonFold)
                 .addContainerGap())
         );
 
         jTabbedPane.addTab("MFE structure", jPanelMFE);
 
+        jTableSuboptimal.setAutoCreateRowSorter(true);
+        jScrollPaneSuboptimal.setViewportView(jTableSuboptimal);
+
+        jButtonFoldSuboptimal.setText("Fold suboptimal structures");
+        jButtonFoldSuboptimal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFoldSuboptimalActionPerformed(evt);
+            }
+        });
+
+        buttonGroupSuboptimal.add(jRadioButtonRandom);
+        jRadioButtonRandom.setSelected(true);
+        jRadioButtonRandom.setText("Random sample of");
+
+        buttonGroupSuboptimal.add(jRadioButtonRange);
+        jRadioButtonRange.setText("Within range");
+
+        jFormattedTextFieldRandom.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        jFormattedTextFieldRandom.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jFormattedTextFieldRandom.setText("10");
+
+        jFormattedTextFieldRange.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.00"))));
+        jFormattedTextFieldRange.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jFormattedTextFieldRange.setText("1.0");
+
+        jLabelRange.setText("kCal/mol of MFE structure");
+
+        jLabelRandom.setText("suboptimal structures");
+
         javax.swing.GroupLayout jPanelSuboptimalLayout = new javax.swing.GroupLayout(jPanelSuboptimal);
         jPanelSuboptimal.setLayout(jPanelSuboptimalLayout);
         jPanelSuboptimalLayout.setHorizontalGroup(
             jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSuboptimalLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPaneSuboptimal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
+                    .addGroup(jPanelSuboptimalLayout.createSequentialGroup()
+                        .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelSuboptimalLayout.createSequentialGroup()
+                                .addComponent(jRadioButtonRange)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jFormattedTextFieldRange, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelSuboptimalLayout.createSequentialGroup()
+                                .addComponent(jRadioButtonRandom)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jFormattedTextFieldRandom, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanelSuboptimalLayout.createSequentialGroup()
+                                .addComponent(jLabelRandom)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 209, Short.MAX_VALUE)
+                                .addComponent(jButtonFoldSuboptimal))
+                            .addComponent(jLabelRange))))
+                .addContainerGap())
         );
         jPanelSuboptimalLayout.setVerticalGroup(
             jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 372, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSuboptimalLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPaneSuboptimal, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRadioButtonRange)
+                    .addComponent(jFormattedTextFieldRange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelRange))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonFoldSuboptimal)
+                    .addComponent(jRadioButtonRandom)
+                    .addComponent(jFormattedTextFieldRandom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelRandom))
+                .addGap(11, 11, 11))
         );
 
         jTabbedPane.addTab("Suboptimal structures", jPanelSuboptimal);
 
-        jTableMultiple.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Name", "Free energy", "Ensemble diversity"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
+        jTableMultiple.setAutoCreateRowSorter(true);
         jScrollPaneMultiple.setViewportView(jTableMultiple);
-        jTableMultiple.getColumnModel().getColumn(1).setResizable(false);
-        jTableMultiple.getColumnModel().getColumn(1).setPreferredWidth(10);
-        jTableMultiple.getColumnModel().getColumn(2).setPreferredWidth(10);
 
         jButtonFoldMultiple.setText("Fold selected sequences");
 
@@ -347,41 +441,40 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jPanelMultipleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelMultipleLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPaneMultiple, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPaneMultiple, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButtonFoldMultiple)
                 .addContainerGap())
         );
 
         jTabbedPane.addTab("Multiple runs", jPanelMultiple);
 
-        jPanelOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("RNAfold"));
-
+        jFormattedTextFieldTemperature.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
         jFormattedTextFieldTemperature.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jFormattedTextFieldTemperature.setText("37.0");
+        jFormattedTextFieldTemperature.setText("37");
 
         jLabelTemperature.setText("°C");
 
         buttonGroupGUPairs.add(jRadioButtonGU);
-        jRadioButtonGU.setSelected(true);
         jRadioButtonGU.setText("Allow GU pairs");
 
         buttonGroupGUPairs.add(jRadioButtonNoCloseGU);
         jRadioButtonNoCloseGU.setText("Disallow GU pairs at ends of helices");
 
         buttonGroupGUPairs.add(jRadioButtonNoGU);
+        jRadioButtonNoGU.setSelected(true);
         jRadioButtonNoGU.setText("Disallow GU pairs");
 
         jCheckBoxCirc.setText("Assume circular RNA");
 
         buttonGroupDanglingEnds.add(jRadioButtonD0);
+        jRadioButtonD0.setSelected(true);
         jRadioButtonD0.setText("Ignore dangling ends");
 
         buttonGroupDanglingEnds.add(jRadioButtonD1);
         jRadioButtonD1.setText("Only unpaired bases can participate in at most one dangling end");
 
         buttonGroupDanglingEnds.add(jRadioButtonD2);
-        jRadioButtonD2.setSelected(true);
         jRadioButtonD2.setText("Dangling energies will be added for the bases adjacent to a helix on both sides");
 
         buttonGroupDanglingEnds.add(jRadioButtonD3);
@@ -397,13 +490,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         buttonGroupTemperature.add(jRadioButtonTemperatureRange);
         jRadioButtonTemperatureRange.setText("Test temperature range");
 
+        jFormattedTextFieldTemperatureLower.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
         jFormattedTextFieldTemperatureLower.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jFormattedTextFieldTemperatureLower.setText("37.0");
+        jFormattedTextFieldTemperatureLower.setText("37");
 
         jLabelTemperatureRange.setText("°C");
 
+        jFormattedTextFieldTemperatureUpper.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
         jFormattedTextFieldTemperatureUpper.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jFormattedTextFieldTemperatureUpper.setText("37.0");
+        jFormattedTextFieldTemperatureUpper.setText("37");
 
         jLabelHyphen.setText("-");
 
@@ -418,7 +513,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jPanelOptions.setLayout(jPanelOptionsLayout);
         jPanelOptionsLayout.setHorizontalGroup(
             jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelOptionsLayout.createSequentialGroup()
+                .addContainerGap(577, Short.MAX_VALUE)
+                .addComponent(jButtonRefold)
+                .addContainerGap())
             .addGroup(jPanelOptionsLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanelOptionsLayout.createSequentialGroup()
                         .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -446,15 +546,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     .addComponent(jRadioButtonD3)
                     .addComponent(jRadioButtonGU)
                     .addComponent(jRadioButtonNoCloseGU)
-                    .addGroup(jPanelOptionsLayout.createSequentialGroup()
-                        .addComponent(jRadioButtonNoGU)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 454, Short.MAX_VALUE)
-                        .addComponent(jButtonRefold)))
-                .addContainerGap())
+                    .addComponent(jRadioButtonNoGU))
+                .addContainerGap(243, Short.MAX_VALUE))
         );
         jPanelOptionsLayout.setVerticalGroup(
             jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelOptionsLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelOptionsLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRadioButtonTemperature)
                     .addComponent(jFormattedTextFieldTemperature, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -484,9 +582,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 .addComponent(jRadioButtonNoCloseGU)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jRadioButtonNoGU)
-                .addContainerGap(20, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelOptionsLayout.createSequentialGroup()
-                .addContainerGap(314, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 4, Short.MAX_VALUE)
                 .addComponent(jButtonRefold)
                 .addContainerGap())
         );
@@ -512,11 +608,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPaneQueries, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+                .addComponent(jScrollPaneQueries, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTabbedPane, 0, 0, Short.MAX_VALUE)
-                    .addComponent(svgPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(svgPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -525,15 +621,21 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private class TableListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            JTable table = (JTable) ((DefaultListSelectionModel) e.getSource()).getListSelectionListeners()[1];
+            int row = table.getSelectedRow();
+            if (row > -1) {
+                String sequence = test + "\n" + table.getValueAt(row, 2);
+                generatePlot(sequence);
+            }
+        }
+    }
+
     private void jButtonFoldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFoldActionPerformed
-        long start = System.currentTimeMillis();
-        // change to get actual string, extract name string
-        String test = ">test\nGGGCUAUUAGCUCAGUUGGUUAGAGCGCACCCCUGAUAAGGGUGAGGUCGCUGAUUCGAAUUCAGCAUAGCCCA";
-        jTextAreaFoldOutput.setText(RNAFolder.foldSequence(test, buildOptionsString()));
-        String svgPath = ColorAnnotator.annnotateSVG("test_ss.svg", jRadioButtonPositionalEntropy.isSelected());
-        loadSVG(svgPath);
-        long after = System.currentTimeMillis();
-        System.out.println("Total: " + (after - start));
+        String output = RNAFolder.foldSequence(test, " -p" + buildOptionsString());
+        generatePlot(output);
     }//GEN-LAST:event_jButtonFoldActionPerformed
 
     private void jButtonRefoldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRefoldActionPerformed
@@ -541,27 +643,68 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jButtonRefoldActionPerformed
 
     private void jRadioButtonPairProbabilitiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonPairProbabilitiesActionPerformed
-        jButtonFoldActionPerformed(evt);
+        String output = jTextAreaFoldOutput.getText();
+        if (!output.isEmpty())
+            generatePlot(output);
     }//GEN-LAST:event_jRadioButtonPairProbabilitiesActionPerformed
 
     private void jRadioButtonPositionalEntropyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonPositionalEntropyActionPerformed
-        jButtonFoldActionPerformed(evt);
+        jRadioButtonPairProbabilitiesActionPerformed(evt);
     }//GEN-LAST:event_jRadioButtonPositionalEntropyActionPerformed
+
+    private void jButtonFoldSuboptimalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFoldSuboptimalActionPerformed
+        StringBuilder sb = new StringBuilder(buildOptionsString());
+        if (jRadioButtonRange.isSelected()) {
+            sb.append(" -e ");
+            sb.append(jFormattedTextFieldRange.getText());
+        } else {
+            sb.append(" -p ");
+            sb.append(jFormattedTextFieldRandom.getText());
+        }
+
+        String output = RNAFolder.foldSuboptimals(test, sb.toString());
+        String[] outputLines = output.split("[\r|\n]+");
+        String name = outputLines[0];
+
+        jTableSuboptimal.clearSelection();
+        DefaultTableModel newModel;
+        if (jRadioButtonRange.isSelected()) {
+            newModel = new DefaultTableModel(standardColumns, 0);
+            for (int i = 3; i < outputLines.length; i++) {
+                String[] line = outputLines[i].split("\\s");
+                Object[] row = {(Integer) (i-2), name, line[0], line[1]};
+                newModel.addRow(row);
+            }
+        } else {
+            newModel = new DefaultTableModel(suboptimalRandomColumns, 0);
+            for (int i = 2; i < outputLines.length; i++) {
+                Object[] row = {(Integer) (i-1), name, outputLines[i], "-"};
+                newModel.addRow(row);
+            }
+        }
+        jTableSuboptimal.setModel(newModel);
+    }//GEN-LAST:event_jButtonFoldSuboptimalActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupColorAnnotation;
     private javax.swing.ButtonGroup buttonGroupDanglingEnds;
     private javax.swing.ButtonGroup buttonGroupGUPairs;
+    private javax.swing.ButtonGroup buttonGroupSuboptimal;
     private javax.swing.ButtonGroup buttonGroupTemperature;
     private javax.swing.JButton jButtonFold;
     private javax.swing.JButton jButtonFoldMultiple;
+    private javax.swing.JButton jButtonFoldSuboptimal;
     private javax.swing.JButton jButtonRefold;
     private javax.swing.JCheckBox jCheckBoxCirc;
     private javax.swing.JCheckBox jCheckBoxNoLP;
+    private javax.swing.JFormattedTextField jFormattedTextFieldRandom;
+    private javax.swing.JFormattedTextField jFormattedTextFieldRange;
     private javax.swing.JFormattedTextField jFormattedTextFieldTemperature;
     private javax.swing.JFormattedTextField jFormattedTextFieldTemperatureLower;
     private javax.swing.JFormattedTextField jFormattedTextFieldTemperatureUpper;
     private javax.swing.JLabel jLabelHyphen;
+    private javax.swing.JLabel jLabelRandom;
+    private javax.swing.JLabel jLabelRange;
     private javax.swing.JLabel jLabelTemperature;
     private javax.swing.JLabel jLabelTemperatureRange;
     private javax.swing.JList jListQueries;
@@ -578,13 +721,17 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JRadioButton jRadioButtonNoGU;
     private javax.swing.JRadioButton jRadioButtonPairProbabilities;
     private javax.swing.JRadioButton jRadioButtonPositionalEntropy;
+    private javax.swing.JRadioButton jRadioButtonRandom;
+    private javax.swing.JRadioButton jRadioButtonRange;
     private javax.swing.JRadioButton jRadioButtonTemperature;
     private javax.swing.JRadioButton jRadioButtonTemperatureRange;
     private javax.swing.JScrollPane jScrollPaneFoldOutput;
     private javax.swing.JScrollPane jScrollPaneMultiple;
     private javax.swing.JScrollPane jScrollPaneQueries;
+    private javax.swing.JScrollPane jScrollPaneSuboptimal;
     private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTable jTableMultiple;
+    private javax.swing.JTable jTableSuboptimal;
     private javax.swing.JTextArea jTextAreaFoldOutput;
     private com.kitfox.svg.app.beans.SVGPanel svgPanel;
     // End of variables declaration//GEN-END:variables
