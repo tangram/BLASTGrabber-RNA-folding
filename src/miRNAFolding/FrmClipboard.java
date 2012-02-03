@@ -10,16 +10,19 @@ import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Locale;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -111,11 +114,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private String buildOptionsString() {
         StringBuilder sb = new StringBuilder();
 
-        if (jRadioButtonTemperature.isSelected()) {
+        if (jCheckBoxTemperature.isSelected()) {
             sb.append(" -T ");
             sb.append(jFormattedTextFieldTemperature.getText());
-        } else {
-
         }
         if (jCheckBoxCirc.isSelected())
             sb.append(" --circ");
@@ -133,6 +134,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             sb.append(" --noClosingGU");
         else if (jRadioButtonNoGU.isSelected())
             sb.append(" --noGU");
+        if (jCheckBoxParamFile.isSelected()) {
+            File file = new File(jTextFieldParamFile.getText());
+            if (file.exists()) {
+                sb.append(" -P ");
+                sb.append(file.getPath());
+            }
+        }
 
         return sb.toString();
     }
@@ -200,7 +208,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         buttonGroupColorAnnotation = new javax.swing.ButtonGroup();
-        buttonGroupTemperature = new javax.swing.ButtonGroup();
         buttonGroupDanglingEnds = new javax.swing.ButtonGroup();
         buttonGroupGUPairs = new javax.swing.ButtonGroup();
         buttonGroupSuboptimal = new javax.swing.ButtonGroup();
@@ -228,6 +235,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jScrollPaneMultiple = new javax.swing.JScrollPane();
         jTableMultiple = new javax.swing.JTable();
         jButtonFoldMultiple = new javax.swing.JButton();
+        jCheckBoxTemperatureRange = new javax.swing.JCheckBox();
+        jFormattedTextFieldTemperatureLower = new javax.swing.JFormattedTextField();
+        jLabelHyphen = new javax.swing.JLabel();
+        jFormattedTextFieldTemperatureUpper = new javax.swing.JFormattedTextField();
+        jLabelTemperatureRange = new javax.swing.JLabel();
         jPanelOptions = new javax.swing.JPanel();
         jFormattedTextFieldTemperature = new javax.swing.JFormattedTextField();
         jLabelTemperature = new javax.swing.JLabel();
@@ -240,13 +252,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jRadioButtonD2 = new javax.swing.JRadioButton();
         jRadioButtonD3 = new javax.swing.JRadioButton();
         jCheckBoxNoLP = new javax.swing.JCheckBox();
-        jRadioButtonTemperature = new javax.swing.JRadioButton();
-        jRadioButtonTemperatureRange = new javax.swing.JRadioButton();
-        jFormattedTextFieldTemperatureLower = new javax.swing.JFormattedTextField();
-        jLabelTemperatureRange = new javax.swing.JLabel();
-        jFormattedTextFieldTemperatureUpper = new javax.swing.JFormattedTextField();
-        jLabelHyphen = new javax.swing.JLabel();
         jButtonRefold = new javax.swing.JButton();
+        jCheckBoxTemperature = new javax.swing.JCheckBox();
+        jTextFieldParamFile = new javax.swing.JTextField();
+        jButtonParamFile = new javax.swing.JButton();
+        jCheckBoxParamFile = new javax.swing.JCheckBox();
 
         setClosable(true);
         setIconifiable(true);
@@ -425,6 +435,25 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jScrollPaneMultiple.setViewportView(jTableMultiple);
 
         jButtonFoldMultiple.setText("Fold selected sequences");
+        jButtonFoldMultiple.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFoldMultipleActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxTemperatureRange.setText("Fold for temperature range");
+
+        jFormattedTextFieldTemperatureLower.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        jFormattedTextFieldTemperatureLower.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jFormattedTextFieldTemperatureLower.setText("37");
+
+        jLabelHyphen.setText("-");
+
+        jFormattedTextFieldTemperatureUpper.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        jFormattedTextFieldTemperatureUpper.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jFormattedTextFieldTemperatureUpper.setText("37");
+
+        jLabelTemperatureRange.setText("°C");
 
         javax.swing.GroupLayout jPanelMultipleLayout = new javax.swing.GroupLayout(jPanelMultiple);
         jPanelMultiple.setLayout(jPanelMultipleLayout);
@@ -434,7 +463,18 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(jPanelMultipleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPaneMultiple, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
-                    .addComponent(jButtonFoldMultiple))
+                    .addGroup(jPanelMultipleLayout.createSequentialGroup()
+                        .addComponent(jCheckBoxTemperatureRange)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jFormattedTextFieldTemperatureLower, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabelHyphen)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jFormattedTextFieldTemperatureUpper, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabelTemperatureRange)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 224, Short.MAX_VALUE)
+                        .addComponent(jButtonFoldMultiple)))
                 .addContainerGap())
         );
         jPanelMultipleLayout.setVerticalGroup(
@@ -443,7 +483,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addComponent(jScrollPaneMultiple, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButtonFoldMultiple)
+                .addGroup(jPanelMultipleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonFoldMultiple)
+                    .addComponent(jCheckBoxTemperatureRange)
+                    .addComponent(jFormattedTextFieldTemperatureLower, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelTemperatureRange)
+                    .addComponent(jFormattedTextFieldTemperatureUpper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelHyphen))
                 .addContainerGap())
         );
 
@@ -456,25 +502,25 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jLabelTemperature.setText("°C");
 
         buttonGroupGUPairs.add(jRadioButtonGU);
+        jRadioButtonGU.setSelected(true);
         jRadioButtonGU.setText("Allow GU pairs");
 
         buttonGroupGUPairs.add(jRadioButtonNoCloseGU);
         jRadioButtonNoCloseGU.setText("Disallow GU pairs at ends of helices");
 
         buttonGroupGUPairs.add(jRadioButtonNoGU);
-        jRadioButtonNoGU.setSelected(true);
         jRadioButtonNoGU.setText("Disallow GU pairs");
 
         jCheckBoxCirc.setText("Assume circular RNA");
 
         buttonGroupDanglingEnds.add(jRadioButtonD0);
-        jRadioButtonD0.setSelected(true);
         jRadioButtonD0.setText("Ignore dangling ends");
 
         buttonGroupDanglingEnds.add(jRadioButtonD1);
         jRadioButtonD1.setText("Only unpaired bases can participate in at most one dangling end");
 
         buttonGroupDanglingEnds.add(jRadioButtonD2);
+        jRadioButtonD2.setSelected(true);
         jRadioButtonD2.setText("Dangling energies will be added for the bases adjacent to a helix on both sides");
 
         buttonGroupDanglingEnds.add(jRadioButtonD3);
@@ -483,25 +529,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jCheckBoxNoLP.setSelected(true);
         jCheckBoxNoLP.setText("Disallow lonely pairs (helices of length 1)");
 
-        buttonGroupTemperature.add(jRadioButtonTemperature);
-        jRadioButtonTemperature.setSelected(true);
-        jRadioButtonTemperature.setText("Scale to temperature");
-
-        buttonGroupTemperature.add(jRadioButtonTemperatureRange);
-        jRadioButtonTemperatureRange.setText("Test temperature range");
-
-        jFormattedTextFieldTemperatureLower.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
-        jFormattedTextFieldTemperatureLower.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jFormattedTextFieldTemperatureLower.setText("37");
-
-        jLabelTemperatureRange.setText("°C");
-
-        jFormattedTextFieldTemperatureUpper.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
-        jFormattedTextFieldTemperatureUpper.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jFormattedTextFieldTemperatureUpper.setText("37");
-
-        jLabelHyphen.setText("-");
-
         jButtonRefold.setText("Refold");
         jButtonRefold.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -509,61 +536,66 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             }
         });
 
+        jCheckBoxTemperature.setText("Scale to temperature");
+
+        jTextFieldParamFile.setText("par/rna_andronescu2007.par");
+        jTextFieldParamFile.setPreferredSize(new java.awt.Dimension(60, 20));
+
+        jButtonParamFile.setText("...");
+        jButtonParamFile.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jButtonParamFile.setMaximumSize(new java.awt.Dimension(19, 19));
+        jButtonParamFile.setMinimumSize(new java.awt.Dimension(19, 19));
+        jButtonParamFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonParamFileActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxParamFile.setSelected(true);
+        jCheckBoxParamFile.setText("Use parameter file");
+
         javax.swing.GroupLayout jPanelOptionsLayout = new javax.swing.GroupLayout(jPanelOptions);
         jPanelOptions.setLayout(jPanelOptionsLayout);
         jPanelOptionsLayout.setHorizontalGroup(
             jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelOptionsLayout.createSequentialGroup()
-                .addContainerGap(577, Short.MAX_VALUE)
-                .addComponent(jButtonRefold)
-                .addContainerGap())
             .addGroup(jPanelOptionsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelOptionsLayout.createSequentialGroup()
+                .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelOptionsLayout.createSequentialGroup()
+                        .addComponent(jCheckBoxTemperature)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jFormattedTextFieldTemperature, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabelTemperature))
+                    .addComponent(jCheckBoxCirc, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCheckBoxNoLP, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRadioButtonD0, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRadioButtonD1, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRadioButtonD2, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRadioButtonGU, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRadioButtonNoCloseGU, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelOptionsLayout.createSequentialGroup()
                         .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jRadioButtonTemperatureRange)
-                            .addComponent(jRadioButtonTemperature))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jRadioButtonNoGU)
+                            .addComponent(jRadioButtonD3)
                             .addGroup(jPanelOptionsLayout.createSequentialGroup()
-                                .addComponent(jFormattedTextFieldTemperature, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jCheckBoxParamFile)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabelTemperature))
-                            .addGroup(jPanelOptionsLayout.createSequentialGroup()
-                                .addComponent(jFormattedTextFieldTemperatureLower, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jTextFieldParamFile, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabelHyphen)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jFormattedTextFieldTemperatureUpper, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabelTemperatureRange))))
-                    .addComponent(jCheckBoxCirc)
-                    .addComponent(jCheckBoxNoLP)
-                    .addComponent(jRadioButtonD0)
-                    .addComponent(jRadioButtonD1)
-                    .addComponent(jRadioButtonD2)
-                    .addComponent(jRadioButtonD3)
-                    .addComponent(jRadioButtonGU)
-                    .addComponent(jRadioButtonNoCloseGU)
-                    .addComponent(jRadioButtonNoGU))
-                .addContainerGap(243, Short.MAX_VALUE))
+                                .addComponent(jButtonParamFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 284, Short.MAX_VALUE)
+                        .addComponent(jButtonRefold)))
+                .addContainerGap())
         );
         jPanelOptionsLayout.setVerticalGroup(
             jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelOptionsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButtonTemperature)
+                    .addComponent(jCheckBoxTemperature)
                     .addComponent(jFormattedTextFieldTemperature, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelTemperature))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButtonTemperatureRange)
-                    .addComponent(jFormattedTextFieldTemperatureLower, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabelTemperatureRange)
-                    .addComponent(jFormattedTextFieldTemperatureUpper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabelHyphen))
                 .addGap(18, 18, 18)
                 .addComponent(jCheckBoxCirc)
                 .addGap(18, 18, 18)
@@ -582,9 +614,18 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 .addComponent(jRadioButtonNoCloseGU)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jRadioButtonNoGU)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 4, Short.MAX_VALUE)
-                .addComponent(jButtonRefold)
-                .addContainerGap())
+                .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelOptionsLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                        .addComponent(jButtonRefold)
+                        .addContainerGap())
+                    .addGroup(jPanelOptionsLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jCheckBoxParamFile)
+                            .addComponent(jTextFieldParamFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButtonParamFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())))
         );
 
         jTabbedPane.addTab("Options", jPanelOptions);
@@ -685,18 +726,54 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jTableSuboptimal.setModel(newModel);
     }//GEN-LAST:event_jButtonFoldSuboptimalActionPerformed
 
+    private void jButtonParamFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonParamFileActionPerformed
+        JFileChooser chooser = new JFileChooser("par/");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Parameter file", "par");
+        chooser.setFileFilter(filter);
+        int value = chooser.showOpenDialog(this);
+        if (value == chooser.APPROVE_OPTION) {
+            jCheckBoxParamFile.setSelected(true);
+            jTextFieldParamFile.setText(chooser.getSelectedFile().getPath());
+        }
+    }//GEN-LAST:event_jButtonParamFileActionPerformed
+
+    private void jButtonFoldMultipleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFoldMultipleActionPerformed
+        if (jCheckBoxTemperatureRange.isSelected()) {
+            jCheckBoxTemperature.setSelected(false);
+            int lower = Integer.valueOf(jFormattedTextFieldTemperatureLower.getText());
+            int upper = Integer.valueOf(jFormattedTextFieldTemperatureUpper.getText());
+            if (lower < upper) {
+                jTableMultiple.clearSelection();
+                DefaultTableModel newModel = new DefaultTableModel(new String[] {"Temperature", "ID", "Structure", "kCal/mol"}, 0);
+                for (int i = lower; i <= upper; i++) {
+                    String output = RNAFolder.foldSequence(test, " -T " + i + buildOptionsString());
+                    String[] outputLines = output.split("[\r|\n]+");
+                    String[] structure = outputLines[2].split("\\s");
+                    Object[] row = {i + "°C", outputLines[0], structure[0], structure[1]};
+                    newModel.addRow(row);
+                }
+                jTableMultiple.setModel(newModel);
+            }
+        } else {
+            // get selected items from clipboard
+        }
+    }//GEN-LAST:event_jButtonFoldMultipleActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupColorAnnotation;
     private javax.swing.ButtonGroup buttonGroupDanglingEnds;
     private javax.swing.ButtonGroup buttonGroupGUPairs;
     private javax.swing.ButtonGroup buttonGroupSuboptimal;
-    private javax.swing.ButtonGroup buttonGroupTemperature;
     private javax.swing.JButton jButtonFold;
     private javax.swing.JButton jButtonFoldMultiple;
     private javax.swing.JButton jButtonFoldSuboptimal;
+    private javax.swing.JButton jButtonParamFile;
     private javax.swing.JButton jButtonRefold;
     private javax.swing.JCheckBox jCheckBoxCirc;
     private javax.swing.JCheckBox jCheckBoxNoLP;
+    private javax.swing.JCheckBox jCheckBoxParamFile;
+    private javax.swing.JCheckBox jCheckBoxTemperature;
+    private javax.swing.JCheckBox jCheckBoxTemperatureRange;
     private javax.swing.JFormattedTextField jFormattedTextFieldRandom;
     private javax.swing.JFormattedTextField jFormattedTextFieldRange;
     private javax.swing.JFormattedTextField jFormattedTextFieldTemperature;
@@ -723,8 +800,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JRadioButton jRadioButtonPositionalEntropy;
     private javax.swing.JRadioButton jRadioButtonRandom;
     private javax.swing.JRadioButton jRadioButtonRange;
-    private javax.swing.JRadioButton jRadioButtonTemperature;
-    private javax.swing.JRadioButton jRadioButtonTemperatureRange;
     private javax.swing.JScrollPane jScrollPaneFoldOutput;
     private javax.swing.JScrollPane jScrollPaneMultiple;
     private javax.swing.JScrollPane jScrollPaneQueries;
@@ -733,6 +808,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JTable jTableMultiple;
     private javax.swing.JTable jTableSuboptimal;
     private javax.swing.JTextArea jTextAreaFoldOutput;
+    private javax.swing.JTextField jTextFieldParamFile;
     private com.kitfox.svg.app.beans.SVGPanel svgPanel;
     // End of variables declaration//GEN-END:variables
 }

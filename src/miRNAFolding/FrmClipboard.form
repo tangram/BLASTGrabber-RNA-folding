@@ -4,8 +4,6 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="buttonGroupColorAnnotation">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroupTemperature">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroupDanglingEnds">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroupGUPairs">
@@ -402,7 +400,19 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="jScrollPaneMultiple" alignment="0" pref="630" max="32767" attributes="0"/>
-                          <Component id="jButtonFoldMultiple" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="jCheckBoxTemperatureRange" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jFormattedTextFieldTemperatureLower" min="-2" pref="35" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jLabelHyphen" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jFormattedTextFieldTemperatureUpper" min="-2" pref="35" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jLabelTemperatureRange" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="224" max="32767" attributes="0"/>
+                              <Component id="jButtonFoldMultiple" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -414,7 +424,14 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jScrollPaneMultiple" pref="320" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jButtonFoldMultiple" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jButtonFoldMultiple" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jCheckBoxTemperatureRange" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jFormattedTextFieldTemperatureLower" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabelTemperatureRange" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jFormattedTextFieldTemperatureUpper" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabelHyphen" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -442,6 +459,42 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Fold selected sequences"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonFoldMultipleActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="jCheckBoxTemperatureRange">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Fold for temperature range"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JFormattedTextField" name="jFormattedTextFieldTemperatureLower">
+              <Properties>
+                <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">
+                  <Format format="#0" subtype="-1" type="0"/>
+                </Property>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="37"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabelHyphen">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="-"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JFormattedTextField" name="jFormattedTextFieldTemperatureUpper">
+              <Properties>
+                <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">
+                  <Format format="#0" subtype="-1" type="0"/>
+                </Property>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="37"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabelTemperatureRange">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="&#xb0;C"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>
@@ -460,48 +513,40 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace pref="577" max="32767" attributes="0"/>
-                      <Component id="jButtonRefold" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jRadioButtonTemperatureRange" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jRadioButtonTemperature" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jFormattedTextFieldTemperature" min="-2" pref="35" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jLabelTemperature" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jFormattedTextFieldTemperatureLower" min="-2" pref="35" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jLabelHyphen" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jFormattedTextFieldTemperatureUpper" min="-2" pref="35" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jLabelTemperatureRange" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
+                              <Component id="jCheckBoxTemperature" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jFormattedTextFieldTemperature" min="-2" pref="35" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jLabelTemperature" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jCheckBoxCirc" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jCheckBoxNoLP" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jRadioButtonD0" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jRadioButtonD1" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jRadioButtonD2" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jRadioButtonD3" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jRadioButtonGU" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jRadioButtonNoCloseGU" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jRadioButtonNoGU" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jRadioButtonNoGU" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jRadioButtonD3" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="jCheckBoxParamFile" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jTextFieldParamFile" pref="149" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jButtonParamFile" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace pref="284" max="32767" attributes="0"/>
+                              <Component id="jButtonRefold" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
-                      <EmptySpace pref="243" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -510,17 +555,9 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jRadioButtonTemperature" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jCheckBoxTemperature" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jFormattedTextFieldTemperature" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabelTemperature" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jRadioButtonTemperatureRange" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jFormattedTextFieldTemperatureLower" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabelTemperatureRange" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jFormattedTextFieldTemperatureUpper" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabelHyphen" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jCheckBoxCirc" min="-2" max="-2" attributes="0"/>
@@ -540,9 +577,22 @@
                       <Component id="jRadioButtonNoCloseGU" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jRadioButtonNoGU" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="4" max="32767" attributes="0"/>
-                      <Component id="jButtonRefold" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <EmptySpace pref="30" max="32767" attributes="0"/>
+                              <Component id="jButtonRefold" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="jCheckBoxParamFile" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jTextFieldParamFile" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jButtonParamFile" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -567,6 +617,7 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="buttonGroupGUPairs"/>
                 </Property>
+                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Allow GU pairs"/>
               </Properties>
             </Component>
@@ -583,7 +634,6 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="buttonGroupGUPairs"/>
                 </Property>
-                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Disallow GU pairs"/>
               </Properties>
             </Component>
@@ -597,7 +647,6 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="buttonGroupDanglingEnds"/>
                 </Property>
-                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Ignore dangling ends"/>
               </Properties>
             </Component>
@@ -614,6 +663,7 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="buttonGroupDanglingEnds"/>
                 </Property>
+                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Dangling energies will be added for the bases adjacent to a helix on both sides"/>
               </Properties>
             </Component>
@@ -631,51 +681,6 @@
                 <Property name="text" type="java.lang.String" value="Disallow lonely pairs (helices of length 1)"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JRadioButton" name="jRadioButtonTemperature">
-              <Properties>
-                <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                  <ComponentRef name="buttonGroupTemperature"/>
-                </Property>
-                <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" value="Scale to temperature"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JRadioButton" name="jRadioButtonTemperatureRange">
-              <Properties>
-                <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                  <ComponentRef name="buttonGroupTemperature"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Test temperature range"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JFormattedTextField" name="jFormattedTextFieldTemperatureLower">
-              <Properties>
-                <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">
-                  <Format format="#0" subtype="-1" type="0"/>
-                </Property>
-                <Property name="horizontalAlignment" type="int" value="4"/>
-                <Property name="text" type="java.lang.String" value="37"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabelTemperatureRange">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="&#xb0;C"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JFormattedTextField" name="jFormattedTextFieldTemperatureUpper">
-              <Properties>
-                <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">
-                  <Format format="#0" subtype="-1" type="0"/>
-                </Property>
-                <Property name="horizontalAlignment" type="int" value="4"/>
-                <Property name="text" type="java.lang.String" value="37"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabelHyphen">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="-"/>
-              </Properties>
-            </Component>
             <Component class="javax.swing.JButton" name="jButtonRefold">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Refold"/>
@@ -683,6 +688,42 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonRefoldActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="jCheckBoxTemperature">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Scale to temperature"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="jTextFieldParamFile">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="par/rna_andronescu2007.par"/>
+                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[60, 20]"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButtonParamFile">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="..."/>
+                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                  <Insets value="[0, 0, 0, 0]"/>
+                </Property>
+                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[19, 19]"/>
+                </Property>
+                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[19, 19]"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonParamFileActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="jCheckBoxParamFile">
+              <Properties>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" value="Use parameter file"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>

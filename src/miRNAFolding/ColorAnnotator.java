@@ -26,6 +26,23 @@ import nu.xom.Serializer;
  * @author Eirik Krogstad
  */
 public class ColorAnnotator {
+    /**
+     * JavaScript string to replace existing script
+     */
+    private static final String newScript =
+        "<![CDATA[" +
+        "var shown = 1;" +
+        "function click() {" +
+        "     var seq = document.getElementById(\"seq\");" +
+        "     if (shown==1) {" +
+        "       seq.setAttribute(\"style\", \"visibility: hidden\");" +
+        "       shown = 0;" +
+        "     } else {" +
+        "       seq.setAttribute(\"style\", \"visibility: visible\"); " +
+        "       shown = 1;" +
+        "     }" +
+        "}" +
+        "]]>";
 
     /**
      * A small data structure to combine data points and pair info
@@ -209,7 +226,7 @@ public class ColorAnnotator {
         circles.addAttribute(new Attribute("id", "circles"));
         g.insertChild(circles, 0);
 
-        final int nCol = (int) (dataset.max * 100);
+        final int nCol = 100;
         Color[] colors = generateColors(nCol, computeEntropy);
 
         for (int i = 0; i < n; i++) {
@@ -219,12 +236,43 @@ public class ColorAnnotator {
             circle.addAttribute(new Attribute("cx", point[0]));
             circle.addAttribute(new Attribute("cy", point[1]));
             circle.addAttribute(new Attribute("r", "7"));
-            int color = (int) (values[i] * (nCol - 1));
-            if (computeEntropy)
-                color /= dataset.max;
+            int color = (int) ((values[i] / dataset.max) * (nCol - 1));
             circle.addAttribute(new Attribute("fill", getHex(colors[color])));
             circles.appendChild(circle);
         }
+
+        // build legend
+        Element legend = new Element("g", svg);
+        legend.addAttribute(new Attribute("style", "stroke-width: 0"));
+        legend.addAttribute(new Attribute("transform", "translate(340 0)"));
+        legend.addAttribute(new Attribute("id", "legend"));
+        Element min = new Element("text", svg);
+        min.addAttribute(new Attribute("x", "0"));
+        min.addAttribute(new Attribute("y", "20"));
+        min.appendChild("0");
+        legend.appendChild(min);
+        Element max = new Element("text", svg);
+        max.addAttribute(new Attribute("x", "84"));
+        max.addAttribute(new Attribute("y", "20"));
+        max.appendChild(Double.toString(dataset.max));
+        legend.appendChild(max);
+        root.appendChild(legend);
+
+        for (int i = 0; i < nCol; i += 5) {
+            Element rect = new Element("rect", svg);
+            rect.addAttribute(new Attribute("x", Integer.toString(i)));
+            rect.addAttribute(new Attribute("y", "20"));
+            rect.addAttribute(new Attribute("width", "5"));
+            rect.addAttribute(new Attribute("height", "10"));
+            String col = getHex(colors[i]);
+            rect.addAttribute(new Attribute("style", "fill: " + col));
+            legend.appendChild(rect);
+        }
+
+        // replace javascript
+        //Element script = root.getFirstChildElement("script", svg);
+        //script.removeChildren();
+        //script.appendChild(newScript);
 
         String newFilepath = filepath.substring(0, filepath.length() - 4) + "_color.svg";
 
