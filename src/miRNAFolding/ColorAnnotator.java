@@ -27,24 +27,6 @@ import nu.xom.Serializer;
  */
 public class ColorAnnotator {
     /**
-     * JavaScript string to replace existing script
-     */
-    private static final String newScript =
-        "<![CDATA[" +
-        "var shown = 1;" +
-        "function click() {" +
-        "     var seq = document.getElementById(\"seq\");" +
-        "     if (shown==1) {" +
-        "       seq.setAttribute(\"style\", \"visibility: hidden\");" +
-        "       shown = 0;" +
-        "     } else {" +
-        "       seq.setAttribute(\"style\", \"visibility: visible\"); " +
-        "       shown = 1;" +
-        "     }" +
-        "}" +
-        "]]>";
-
-    /**
      * A small data structure to combine data points and pair info
      */
     public static class Dataset {
@@ -120,7 +102,7 @@ public class ColorAnnotator {
      * @return          String on the form "#ffffff"
      */
     public static String getHex(Color color) {
-        return "#" + Integer.toHexString(color.getRGB()).substring(2, 8);
+        return "#" + Integer.toHexString(color.getRGB() & 0xffffff);
     }
 
      /**
@@ -128,19 +110,19 @@ public class ColorAnnotator {
      * Should only ever be called for SVGs output by RNAplot. Bases are circled and colored according to a color map.
      * The plot is also slightly scaled and translated to make room for circles.
      *
-     * @param filepath  String containing filepath to the SVG file to be annotated
+     * @param filepath  String containing the first 42 characters of the sequence name, or up to the first space
      * @param data      Dataset containing pair identifiers and pair probabilities or positional entropy
      * @return          String containing filepath to new SVG file
      */
-    public static String annnotateSVG(String filepath, boolean computeEntropy) {
+    public static String annnotateSVG(String name, boolean computeEntropy) {
         Builder parser = new Builder();
         Document doc = null;
 
-        Dataset dataset = readPairProbabilities(filepath.substring(0, filepath.length() - 7) + "_dp.ps");
+        Dataset dataset = readPairProbabilities(name + "_dp.ps");
 
         // read svg file
         try {
-            doc = parser.build(new BufferedReader(new FileReader(filepath)));
+            doc = parser.build(new BufferedReader(new FileReader(name + "_ss.svg")));
         } catch (ParsingException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
@@ -151,6 +133,7 @@ public class ColorAnnotator {
 
         Element root = doc.getRootElement();
         root.setNamespaceURI(svg);
+        root.addAttribute(new Attribute("preserveAspectRatio", "xMinYMin meet"));
         Element g = root.getFirstChildElement("g", svg);
 
         // get transform data from first g element, set new values so circles do not overflow bounds
@@ -167,7 +150,7 @@ public class ColorAnnotator {
 
         // scale slightly down, and translate slightly down and to the left
         for (int i = 0; i < 2; i++) {
-            Float f = Float.valueOf(scale[i]) * 0.97f;
+            Float f = Float.valueOf(scale[i]) * 0.97f * 0.885f;
             scale[i] = f.toString();
             f = Float.valueOf(translate[i]) + 4.4f;
             translate[i] = f.toString();
@@ -244,7 +227,7 @@ public class ColorAnnotator {
         // build legend
         Element legend = new Element("g", svg);
         legend.addAttribute(new Attribute("style", "stroke-width: 0"));
-        legend.addAttribute(new Attribute("transform", "translate(340 0)"));
+        legend.addAttribute(new Attribute("transform", "scale(0.885 0.885) translate(340 0)"));
         legend.addAttribute(new Attribute("id", "legend"));
         Element min = new Element("text", svg);
         min.addAttribute(new Attribute("x", "0"));
@@ -269,12 +252,10 @@ public class ColorAnnotator {
             legend.appendChild(rect);
         }
 
-        // replace javascript
-        //Element script = root.getFirstChildElement("script", svg);
-        //script.removeChildren();
-        //script.appendChild(newScript);
-
-        String newFilepath = filepath.substring(0, filepath.length() - 4) + "_color.svg";
+        String type = "pairprob";
+        if (computeEntropy)
+            type = "entropy";
+        String newFilepath = name + "_ss_" + type + ".svg";
 
         // write new svg file
         try {
