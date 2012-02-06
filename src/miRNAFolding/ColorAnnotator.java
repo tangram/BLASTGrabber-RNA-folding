@@ -152,7 +152,7 @@ public class ColorAnnotator {
         for (int i = 0; i < 2; i++) {
             Float f = Float.valueOf(scale[i]) * 0.97f * 0.885f;
             scale[i] = f.toString();
-            f = Float.valueOf(translate[i]) + 4.4f;
+            f = Float.valueOf(translate[i]) + 6.0f;
             translate[i] = f.toString();
         }
         g.getAttribute("transform").setValue(
@@ -165,7 +165,7 @@ public class ColorAnnotator {
                 .getAttributeValue("points")
                 .split("\\s+");
 
-        // compute pair probabilities or positional entropy
+        // compute pair probabilities and positional entropy
         int n = coord.length - 1;
 
         double[] pp = new double[n];
@@ -201,7 +201,6 @@ public class ColorAnnotator {
                     dataset.max = values[i];
             }
         }
-        dataset.max = Math.round(10.0 * dataset.max) / 10.0;
 
         // build circle elements
         Element circles = new Element("g", svg);
@@ -237,7 +236,7 @@ public class ColorAnnotator {
         Element max = new Element("text", svg);
         max.addAttribute(new Attribute("x", "84"));
         max.addAttribute(new Attribute("y", "20"));
-        max.appendChild(Double.toString(dataset.max));
+        max.appendChild(Double.toString(Math.round(10.0 * dataset.max) / 10.0));
         legend.appendChild(max);
         root.appendChild(legend);
 

@@ -5,9 +5,7 @@ package miRNAFolding;
 
 import BLASTGrabber.Facade.BLASTGrabberHit;
 import BLASTGrabber.Facade.BLASTGrabberQuery;
-import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
-import com.kitfox.svg.xml.StyleAttribute;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.HashMap;
@@ -142,7 +140,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     /**
-     * Load an SVG file from filename into svgPanel, set current SVGElements plot and legend
+     * Load an SVG file from filename into svgPanel, set current SVGElements plot and legend for easy reference.
+     * Takes into consideration current scale level, even if no prior SVG was loaded
      *
      * @param filename  String containing the filename to load
      */
@@ -158,11 +157,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             double[] pt = plot.getPresAbsolute("transform").getDoubleList();
             double[] lt = legend.getPresAbsolute("transform").getDoubleList();
             if (first) {
+                // ensures scale is kept, in case svgPanel was resized
                 for (int i = 0; i < 4; i++) {
                     plotTransform[i] += pt[i];
                     legendTransform[i] += lt[i];
                 }
             } else {
+                // keep current scale level, set only translate
                 plotTransform[2] = pt[2];
                 plotTransform[3] = pt[3];
             }
@@ -194,6 +195,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         updateLegend();
     }
 
+    /**
+     * Set new transform attribute for plot and repaint
+     */
     private void updatePlot() {
         if (plot != null) {
             StringBuilder sb = new StringBuilder("scale(");
@@ -211,6 +215,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         }
     }
 
+    /**
+     * Set new transform attribute for legend and repaint
+     */
     private void updateLegend() {
         if (legend != null) {
             StringBuilder sb = new StringBuilder("scale(");
