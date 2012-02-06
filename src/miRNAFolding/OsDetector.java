@@ -28,4 +28,11 @@ public class OsDetector {
 	public static boolean isSolaris() {
 		return (getOSName().toLowerCase().indexOf("sun") >= 0);
 	}
+
+    public static String getOSExtension() {
+        String osExtension = "";
+        if (OsDetector.isWindows())
+            osExtension = ".exe";
+        return osExtension;
+    }
 }
