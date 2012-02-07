@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" ?>
 
-<Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JInternalFrameFormInfo">
+<Form version="1.7" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JInternalFrameFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="buttonGroupColorAnnotation">
     </Component>
@@ -78,12 +78,11 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JList" name="jListQueries">
+        <Component class="javax.swing.JTree" name="jTreeQueries">
           <Properties>
-            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-              <StringArray count="0"/>
+            <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.editors2.TreeModelEditor">
+              <TreeModel code="hsa-let-7f-2 MI0000068 (example query, hits follow:)&#xa; &gt;ref|NR_031807.1| Rattus norvegicus microRNA let-7f-2 (Mirlet7f-2), microRNA&#xa; &gt;ref|NR_032360.1| Macaca mulatta microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_031268.1| Bos taurus microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_029484.1| Homo sapiens microRNA let-7f-2 (MIRLET7F2), microRNA&#xa; &gt;ref|NR_029732.1| Mus musculus microRNA let7f-2 (Mirlet7f-2), microRNA &#xa; &gt;ref|NR_035555.1| Pan troglodytes microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_034852.1| Ornithorhynchus anatinus microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_034952.1| Monodelphis domestica microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_029989.1| Danio rerio microRNA let7g-2 (mirlet7g-2), microRNA&#xa; &gt;ref|NR_032225.1| Monodelphis domestica microRNA let-7a-3 (MIRLET7A-3), microRNA"/>
             </Property>
-            <Property name="selectionMode" type="int" value="0"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -212,6 +211,9 @@
                       <Font name="Monospaced" size="11" style="0"/>
                     </Property>
                     <Property name="rows" type="int" value="5"/>
+                    <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                      <Color id="Text Cursor"/>
+                    </Property>
                   </Properties>
                 </Component>
               </SubComponents>

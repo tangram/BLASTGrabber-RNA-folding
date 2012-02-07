@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Locale;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
@@ -25,6 +26,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /**
  * @author Eirik Krogstad
@@ -64,16 +67,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         this.facade = facade;
 
         listModel = new DefaultListModel();
-        jListQueries.setModel(listModel);
-
-        suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
-        jTableSuboptimal.setModel(suboptimalTableModel);
-        jTableSuboptimal.getSelectionModel().addListSelectionListener(new TableListener());
-
-        multipleTableModel = new DefaultTableModel(suboptimalRandomColumns, 0);
-        jTableMultiple.setModel(multipleTableModel);
-        jTableMultiple.getSelectionModel().addListSelectionListener(new TableListener());
-
+        //jTreeQueries.setModel(listModel);
+        
         int pos = 0;
         Iterator<String> itQ = queries.keySet().iterator();
 
@@ -87,7 +82,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 listModel.add(pos, "  " + itH.next().SequenceHeader);
             }
         }
-
+        
         /*
         ArrayList<String> fasta = facade.getFASTACustomDBSequences(queries);
 
@@ -97,6 +92,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jTextAreaTemp.setText(itS.next());
         }
         */
+
+        suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
+        jTableSuboptimal.setModel(suboptimalTableModel);
+        jTableSuboptimal.getSelectionModel().addListSelectionListener(new TableListener());
+
+        multipleTableModel = new DefaultTableModel(standardColumns, 0);
+        jTableMultiple.setModel(multipleTableModel);
+        jTableMultiple.getSelectionModel().addListSelectionListener(new TableListener());
     }
 
     /**
@@ -234,6 +237,20 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             svgPanel.repaint();
         }
     }
+    
+    /**
+     * Simple method to resize the columns of a given table. Results depend on autoResizeMode.
+     * 
+     * @param table     JTable to resize
+     * @param sizes     int... of sizes or int[] of sizes
+     */
+    private void setColumnSizes(JTable table, int... sizes) {
+        TableColumnModel cols = table.getColumnModel();
+        for (int i = 0; i < sizes.length; i++) {
+            cols.getColumn(i).setPreferredWidth(sizes[i]);
+        }
+        table.doLayout();
+    }
 
     // to be removed - for testing purposes
     public static void main(String[] args) {
@@ -275,7 +292,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         buttonGroupGUPairs = new javax.swing.ButtonGroup();
         buttonGroupSuboptimal = new javax.swing.ButtonGroup();
         jScrollPaneQueries = new javax.swing.JScrollPane();
-        jListQueries = new javax.swing.JList();
+        jTreeQueries = new javax.swing.JTree();
         svgPanel = new com.kitfox.svg.app.beans.SVGPanel();
         jTabbedPane = new javax.swing.JTabbedPane();
         jPanelMFE = new javax.swing.JPanel();
@@ -328,8 +345,29 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setPreferredSize(new java.awt.Dimension(1101, 705));
 
-        jListQueries.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPaneQueries.setViewportView(jListQueries);
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("hsa-let-7f-2 MI0000068 (example query, hits follow:)");
+        javax.swing.tree.DefaultMutableTreeNode treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_031807.1| Rattus norvegicus microRNA let-7f-2 (Mirlet7f-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_032360.1| Macaca mulatta microRNA let-7f-2 (MIRLET7F-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_031268.1| Bos taurus microRNA let-7f-2 (MIRLET7F-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_029484.1| Homo sapiens microRNA let-7f-2 (MIRLET7F2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_029732.1| Mus musculus microRNA let7f-2 (Mirlet7f-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_035555.1| Pan troglodytes microRNA let-7f-2 (MIRLET7F-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_034852.1| Ornithorhynchus anatinus microRNA let-7f-2 (MIRLET7F-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_034952.1| Monodelphis domestica microRNA let-7f-2 (MIRLET7F-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_029989.1| Danio rerio microRNA let7g-2 (mirlet7g-2), microRNA");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(">ref|NR_032225.1| Monodelphis domestica microRNA let-7a-3 (MIRLET7A-3), microRNA");
+        treeNode1.add(treeNode2);
+        jTreeQueries.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        jScrollPaneQueries.setViewportView(jTreeQueries);
 
         svgPanel.setBackground(new java.awt.Color(255, 255, 255));
         svgPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
@@ -381,6 +419,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jTextAreaFoldOutput.setEditable(false);
         jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         jTextAreaFoldOutput.setRows(5);
+        jTextAreaFoldOutput.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         jScrollPaneFoldOutput.setViewportView(jTextAreaFoldOutput);
 
         jRadioButtonPairProbabilities.setBackground(new java.awt.Color(255, 255, 255));
@@ -810,6 +849,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             }
         }
         jTableSuboptimal.setModel(newModel);
+        if (jRadioButtonRange.isSelected())
+            setColumnSizes(jTableSuboptimal, 50, 100, 300, 50);
+        else
+            setColumnSizes(jTableSuboptimal, 50, 100, 300);
     }//GEN-LAST:event_jButtonFoldSuboptimalActionPerformed
 
     private void jButtonParamFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonParamFileActionPerformed
@@ -817,7 +860,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Parameter file", "par");
         chooser.setFileFilter(filter);
         int value = chooser.showOpenDialog(this);
-        if (value == chooser.APPROVE_OPTION) {
+        if (value == JFileChooser.APPROVE_OPTION) {
             jCheckBoxParamFile.setSelected(true);
             jTextFieldParamFile.setText(chooser.getSelectedFile().getPath());
         }
@@ -839,6 +882,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     newModel.addRow(row);
                 }
                 jTableMultiple.setModel(newModel);
+                setColumnSizes(jTableMultiple, 50, 100, 300, 50);                
             }
         } else {
             // get selected items from clipboard
@@ -910,7 +954,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabelRange;
     private javax.swing.JLabel jLabelTemperature;
     private javax.swing.JLabel jLabelTemperatureRange;
-    private javax.swing.JList jListQueries;
     private javax.swing.JPanel jPanelMFE;
     private javax.swing.JPanel jPanelMultiple;
     private javax.swing.JPanel jPanelOptions;
@@ -935,6 +978,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JTable jTableSuboptimal;
     private javax.swing.JTextArea jTextAreaFoldOutput;
     private javax.swing.JTextField jTextFieldParamFile;
+    private javax.swing.JTree jTreeQueries;
     private com.kitfox.svg.app.beans.SVGPanel svgPanel;
     // End of variables declaration//GEN-END:variables
 }
