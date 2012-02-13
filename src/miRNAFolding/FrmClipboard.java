@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Locale;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
@@ -21,12 +20,14 @@ import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 /**
@@ -34,6 +35,12 @@ import javax.swing.table.TableColumnModel;
  * @author Petter Hannevold
  */
 public class FrmClipboard extends javax.swing.JInternalFrame {
+    // for jar compile:
+    public final static String BASEPATH =
+    //        new File(FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().concat("/");
+    // for project testing:
+            "";
+
     private HashMap<String, BLASTGrabberQuery> queries;
     private JDesktopPane desktop;
     private BLASTGrabber.Facade facade;
@@ -42,7 +49,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private DefaultTableModel suboptimalTableModel;
     private DefaultTableModel multipleTableModel;
     private String[] standardColumns = {"Number", "ID", "Structure", "kCal/mol"};
-    private String[] suboptimalRandomColumns = {"Number", "ID", "Structure"};
+    private String[] tempRangeColumns = {"Temperature", "ID", "Structure", "kCal/mol"};
     private SVGElement plot;
     private SVGElement legend;
     private double[] plotTransform = {0.0, 0.0, 0.0, 0.0};
@@ -68,7 +75,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         listModel = new DefaultListModel();
         //jTreeQueries.setModel(listModel);
-        
+
         int pos = 0;
         Iterator<String> itQ = queries.keySet().iterator();
 
@@ -82,7 +89,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 listModel.add(pos, "  " + itH.next().SequenceHeader);
             }
         }
-        
+
         /*
         ArrayList<String> fasta = facade.getFASTACustomDBSequences(queries);
 
@@ -100,15 +107,17 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         multipleTableModel = new DefaultTableModel(standardColumns, 0);
         jTableMultiple.setModel(multipleTableModel);
         jTableMultiple.getSelectionModel().addListSelectionListener(new TableListener());
+
     }
 
     /**
      * Build a String with common command line parameters for Vienna RNA command line tools from
      * selected GUI components.
      *
-     * @return  String with selected command line parameters
+     * @param tool  String containing the tool to use
+     * @return      String with selected command line parameters
      */
-    private String buildOptionsString() {
+    private String buildOptionsString(String tool) {
         StringBuilder sb = new StringBuilder();
 
         if (jCheckBoxTemperature.isSelected()) {
@@ -117,7 +126,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         }
         if (jCheckBoxCirc.isSelected())
             sb.append(" --circ");
-        if (jCheckBoxNoLP.isSelected())
+        if (jCheckBoxNoLP.isSelected() && !tool.equals("RNAeval"))
             sb.append(" --noLP");
         if (jRadioButtonD0.isSelected())
             sb.append(" -d0");
@@ -237,10 +246,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             svgPanel.repaint();
         }
     }
-    
+
     /**
      * Simple method to resize the columns of a given table. Results depend on autoResizeMode.
-     * 
+     *
      * @param table     JTable to resize
      * @param sizes     int... of sizes or int[] of sizes
      */
@@ -250,6 +259,18 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             cols.getColumn(i).setPreferredWidth(sizes[i]);
         }
         table.doLayout();
+    }
+
+    private String stripParantheses(String s) {
+        return s.substring(1, s.length()-1).trim();
+    }
+
+    private String[] splitFirstSpace(String s) {
+        String[] sa = new String[2];
+        int p = s.indexOf(" ");
+        sa[0] = s.substring(0, p);
+        sa[1] = s.substring(p+1);
+        return sa;
     }
 
     // to be removed - for testing purposes
@@ -800,7 +821,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     private void jButtonFoldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFoldActionPerformed
-        String output = RNAFolder.foldSequence(test, " -p" + buildOptionsString());
+        String output = RNAFolder.foldSequence(test, " -p" + buildOptionsString("RNAFold"));
         generatePlot(output);
     }//GEN-LAST:event_jButtonFoldActionPerformed
 
@@ -819,7 +840,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jRadioButtonPositionalEntropyActionPerformed
 
     private void jButtonFoldSuboptimalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFoldSuboptimalActionPerformed
-        StringBuilder sb = new StringBuilder(buildOptionsString());
+        StringBuilder sb = new StringBuilder(buildOptionsString("RNAsubopt"));
         if (jRadioButtonRange.isSelected()) {
             sb.append(" -e ");
             sb.append(jFormattedTextFieldRange.getText());
@@ -832,31 +853,39 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         String[] outputLines = output.split("[\r|\n]+");
         String name = outputLines[0];
 
+        if (jRadioButtonRandom.isSelected()) {
+            sb = new StringBuilder();
+            for (int i = 2; i < outputLines.length; i++)
+                sb.append(test.split("\n")[1]).append("\n").append(outputLines[i]).append("\n");
+            output = RNAFolder.evalSuboptimals(sb.append("@").toString(), buildOptionsString("RNAeval"));
+            outputLines = output.split("[\r|\n]+");
+        }
+
         jTableSuboptimal.clearSelection();
-        DefaultTableModel newModel;
+        DefaultTableModel newModel = new DefaultTableModel(standardColumns, 0);
         if (jRadioButtonRange.isSelected()) {
-            newModel = new DefaultTableModel(standardColumns, 0);
             for (int i = 3; i < outputLines.length; i++) {
-                String[] line = outputLines[i].split("\\s");
-                Object[] row = {(Integer) (i-2), name, line[0], line[1]};
+                String[] line = splitFirstSpace(outputLines[i]);
+                Object[] row = {(Integer) (i-2), name, line[0], stripParantheses(line[1])};
                 newModel.addRow(row);
             }
         } else {
-            newModel = new DefaultTableModel(suboptimalRandomColumns, 0);
-            for (int i = 2; i < outputLines.length; i++) {
-                Object[] row = {(Integer) (i-1), name, outputLines[i], "-"};
+            for (int i = 1; i < outputLines.length; i += 2) {
+                String[] line = splitFirstSpace(outputLines[i]);
+                Object[] row = {(Integer) ((i/2)+1), name, line[0], stripParantheses(line[1])};
                 newModel.addRow(row);
             }
         }
         jTableSuboptimal.setModel(newModel);
-        if (jRadioButtonRange.isSelected())
-            setColumnSizes(jTableSuboptimal, 50, 100, 300, 50);
-        else
-            setColumnSizes(jTableSuboptimal, 50, 100, 300);
+        setColumnSizes(jTableSuboptimal, 10, 100, 300, 10);
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+        r.setHorizontalAlignment(SwingConstants.RIGHT);
+        jTableSuboptimal.getColumn("Number").setCellRenderer(r);
+        jTableSuboptimal.getColumn("kCal/mol").setCellRenderer(r);
     }//GEN-LAST:event_jButtonFoldSuboptimalActionPerformed
 
     private void jButtonParamFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonParamFileActionPerformed
-        JFileChooser chooser = new JFileChooser("par/");
+        JFileChooser chooser = new JFileChooser(BASEPATH + "par/");
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Parameter file", "par");
         chooser.setFileFilter(filter);
         int value = chooser.showOpenDialog(this);
@@ -873,16 +902,19 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             int upper = Integer.valueOf(jFormattedTextFieldTemperatureUpper.getText());
             if (lower < upper) {
                 jTableMultiple.clearSelection();
-                DefaultTableModel newModel = new DefaultTableModel(new String[] {"Temperature", "ID", "Structure", "kCal/mol"}, 0);
+                DefaultTableModel newModel = new DefaultTableModel(tempRangeColumns, 0);
                 for (int i = lower; i <= upper; i++) {
-                    String output = RNAFolder.foldSequence(test, " -T " + i + buildOptionsString());
+                    String output = RNAFolder.foldSequence(test, " -T " + i + buildOptionsString("RNAfold"));
                     String[] outputLines = output.split("[\r|\n]+");
-                    String[] structure = outputLines[2].split("\\s");
-                    Object[] row = {i + "°C", outputLines[0], structure[0], structure[1]};
+                    String[] line = splitFirstSpace(outputLines[2]);
+                    Object[] row = {i + "°C", outputLines[0], line[0], stripParantheses(line[1])};
                     newModel.addRow(row);
                 }
                 jTableMultiple.setModel(newModel);
-                setColumnSizes(jTableMultiple, 50, 100, 300, 50);                
+                setColumnSizes(jTableMultiple, 10, 100, 300, 10);
+                DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+                r.setHorizontalAlignment(SwingConstants.RIGHT);
+                jTableMultiple.getColumn("kCal/mol").setCellRenderer(r);
             }
         } else {
             // get selected items from clipboard
