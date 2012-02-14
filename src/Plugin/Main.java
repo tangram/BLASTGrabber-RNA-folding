@@ -54,7 +54,7 @@ public class Main implements Facade {
     @Override
     public void processSelectedClipboardItems(HashMap<String, BLASTGrabberQuery> queries) {
         
-        Test frame = new Test(queries);
+        Test frame = new Test(queries, facade);
         desktop.add(frame);
         frame.setVisible(true);
     }

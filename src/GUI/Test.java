@@ -4,13 +4,18 @@
  */
 package GUI;
 
+import BLASTGrabber.Facade;
 import BLASTGrabber.Facade.BLASTGrabberHit;
 import BLASTGrabber.Facade.BLASTGrabberQuery;
 import BLASTGrabber.Facade.BLASTGrabberStatistic;
 import Data.miRNAHit;
 import Data.miRNAQuery;
+import Plugin.Main;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
@@ -20,32 +25,67 @@ import javax.swing.tree.TreeModel;
  *
  * @author Petter
  */
-public class Test extends javax.swing.JInternalFrame {
+public class Test extends javax.swing.JInternalFrame implements TreeSelectionListener{
 
     /**
      * Creates new form Test
      */
     
-    public Test(HashMap<String, BLASTGrabberQuery> queries) {
+    private Main main;
+    private Facade facade;
+    private HashMap<String, BLASTGrabberQuery> queries;
     
+    public Test(HashMap<String, BLASTGrabberQuery> queries, Facade facade) {
+    
+        this.main = Main.getMain();
+        this.facade = facade;
+        this.queries = queries;
         initComponents();
         initTree(convertQueries(queries));
         
+        
     }
     
-    private HashMap<String, miRNAQuery> convertQueries(HashMap<String, BLASTGrabberQuery> BGQueries){
-        HashMap<String, miRNAQuery> miRNAQueries = new HashMap<String, miRNAQuery>();
+    
+    @Override
+    public void valueChanged(TreeSelectionEvent e) {
         
-        Iterator<String> queryIterator = BGQueries.keySet().iterator();
+        jTextArea1.setText(null);
         
-        BLASTGrabberQuery currentQuery;
-        String currentKey;
-        while(queryIterator.hasNext()){
-            currentKey = queryIterator.next();
-            miRNAQueries.put(currentKey, new miRNAQuery(BGQueries.get(currentKey)));
+       
+        
+        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)jTree1.getLastSelectedPathComponent();
+        Object current = currentNode.getUserObject();
+        
+        
+        if(current instanceof miRNAHit){
+            miRNAHit hit = (miRNAHit) current;
+            HashMap<String, BLASTGrabberQuery> bgQuery = new HashMap<String, BLASTGrabberQuery>();
+            DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)currentNode.getParent();
+            miRNAQuery query = (miRNAQuery)queryNode.getUserObject();
+            ArrayList<String> sequence;
+            
+//            StringBuilder hitData = new StringBuilder();
+//            for(BLASTGrabberStatistic i : hit.Statistics)
+//                if(!i.Key.equals(""))
+//                    hitData.append(i.Key + ":\t " + i.Name + ":\t " + i.Value + "\n");
+//            jTextArea1.setText(hitData.toString());
+            
+            
+//            bgQuery.put(query.Name, query);
+            sequence = facade.getFASTACustomDBSequences(queries);
+            if(sequence != null)
+                for(String s: sequence)
+                    jTextArea1.append(s + "/n");
+            else
+                jTextArea1.setText("No sequence data");
+            
+            
+            
         }
         
-        return miRNAQueries;
+        else
+            jTextArea1.setText(null);
     }
     
     
@@ -68,6 +108,22 @@ public class Test extends javax.swing.JInternalFrame {
         
         TreeModel tm = new DefaultTreeModel(top);
         jTree1.setModel(tm);
+        jTree1.addTreeSelectionListener(this);
+    }
+    
+        private HashMap<String, miRNAQuery> convertQueries(HashMap<String, BLASTGrabberQuery> BGQueries){
+        HashMap<String, miRNAQuery> miRNAQueries = new HashMap<String, miRNAQuery>();
+        
+        Iterator<String> queryIterator = BGQueries.keySet().iterator();
+        
+        BLASTGrabberQuery currentQuery;
+        String currentKey;
+        while(queryIterator.hasNext()){
+            currentKey = queryIterator.next();
+            miRNAQueries.put(currentKey, new miRNAQuery(BGQueries.get(currentKey)));
+        }
+        
+        return miRNAQueries;
     }
 
     /**
@@ -133,4 +189,6 @@ public class Test extends javax.swing.JInternalFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
+
+   
 }
