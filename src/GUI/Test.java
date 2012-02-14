@@ -60,23 +60,38 @@ public class Test extends javax.swing.JInternalFrame implements TreeSelectionLis
         
         if(current instanceof miRNAHit){
             miRNAHit hit = (miRNAHit) current;
-            HashMap<String, BLASTGrabberQuery> bgQuery = new HashMap<String, BLASTGrabberQuery>();
+            HashMap<String, BLASTGrabberQuery> bgQuery;
+            StringBuilder sequenceBuilder;
+            int start = 0, stop = 0;
+            String sequence;
+
+            for(BLASTGrabberStatistic i : hit.Statistics){
+                if(i.Key.equals("QueryFrom"))
+                    start = (int)i.Value;
+                else if(i.Key.equals("QueryTo"))
+                    stop = (int)i.Value;
+            }
+            
             DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)currentNode.getParent();
             miRNAQuery query = (miRNAQuery)queryNode.getUserObject();
-            ArrayList<String> sequence;
             
-//            StringBuilder hitData = new StringBuilder();
-//            for(BLASTGrabberStatistic i : hit.Statistics)
-//                if(!i.Key.equals(""))
-//                    hitData.append(i.Key + ":\t " + i.Name + ":\t " + i.Value + "\n");
-//            jTextArea1.setText(hitData.toString());
+            bgQuery = new HashMap<String, BLASTGrabberQuery>();
+            bgQuery.put(query.Name, queries.get(query.Name));
+
+            
+            ArrayList<String> querySequence = facade.getFASTACustomDBSequences(bgQuery);
+            sequenceBuilder = new StringBuilder();
+            Iterator<String> qit = querySequence.iterator();
+            qit.next();
+            while(qit.hasNext())
+                sequenceBuilder.append(qit.next());
+            sequence = sequenceBuilder.subSequence(start, stop).toString();
             
             
-//            bgQuery.put(query.Name, query);
-            sequence = facade.getFASTACustomDBSequences(queries);
-            if(sequence != null)
-                for(String s: sequence)
-                    jTextArea1.append(s + "/n");
+            if(!sequence.equals("") && sequence != null){
+                jTextArea1.append(sequence);
+                jTextArea1.append("\nStart: " + start + "\nStop: " + stop);
+            }
             else
                 jTextArea1.setText("No sequence data");
             
