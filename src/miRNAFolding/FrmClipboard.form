@@ -42,28 +42,28 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Component id="svgPanel" max="32767" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jTabbedPane" pref="655" max="32767" attributes="0"/>
                   </Group>
                   <Component id="jScrollPaneQueries" alignment="0" pref="1073" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="jScrollPaneQueries" pref="230" max="32767" attributes="0"/>
+              <Component id="jScrollPaneQueries" pref="236" max="32767" attributes="0"/>
               <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jTabbedPane" min="0" pref="0" max="32767" attributes="2"/>
-                  <Component id="svgPanel" alignment="0" pref="404" max="32767" attributes="2"/>
+                  <Component id="jTabbedPane" alignment="1" min="0" pref="0" max="32767" attributes="3"/>
+                  <Component id="svgPanel" alignment="1" max="32767" attributes="2"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -71,22 +71,6 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="javax.swing.JScrollPane" name="jScrollPaneQueries">
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="javax.swing.JTree" name="jTreeQueries">
-          <Properties>
-            <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.editors2.TreeModelEditor">
-              <TreeModel code="hsa-let-7f-2 MI0000068 (example query, hits follow:)&#xa; &gt;ref|NR_031807.1| Rattus norvegicus microRNA let-7f-2 (Mirlet7f-2), microRNA&#xa; &gt;ref|NR_032360.1| Macaca mulatta microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_031268.1| Bos taurus microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_029484.1| Homo sapiens microRNA let-7f-2 (MIRLET7F2), microRNA&#xa; &gt;ref|NR_029732.1| Mus musculus microRNA let7f-2 (Mirlet7f-2), microRNA &#xa; &gt;ref|NR_035555.1| Pan troglodytes microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_034852.1| Ornithorhynchus anatinus microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_034952.1| Monodelphis domestica microRNA let-7f-2 (MIRLET7F-2), microRNA&#xa; &gt;ref|NR_029989.1| Danio rerio microRNA let7g-2 (mirlet7g-2), microRNA&#xa; &gt;ref|NR_032225.1| Monodelphis domestica microRNA let-7a-3 (MIRLET7A-3), microRNA"/>
-            </Property>
-          </Properties>
-        </Component>
-      </SubComponents>
-    </Container>
     <Container class="com.kitfox.svg.app.beans.SVGPanel" name="svgPanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -122,7 +106,7 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="402" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="398" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -173,7 +157,7 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jScrollPaneFoldOutput" min="-2" pref="138" max="-2" attributes="0"/>
-                      <EmptySpace pref="170" max="32767" attributes="0"/>
+                      <EmptySpace pref="166" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="jButtonFold" min="-2" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
@@ -308,7 +292,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPaneSuboptimal" pref="294" max="32767" attributes="0"/>
+                      <Component id="jScrollPaneSuboptimal" pref="250" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jRadioButtonRange" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -322,7 +306,7 @@
                           <Component id="jFormattedTextFieldRandom" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabelRandom" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="51" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -438,7 +422,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPaneMultiple" pref="320" max="32767" attributes="0"/>
+                      <Component id="jScrollPaneMultiple" pref="316" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jButtonFoldMultiple" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -553,12 +537,12 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="jCheckBoxParamFile" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jTextFieldParamFile" pref="149" max="32767" attributes="0"/>
+                                      <Component id="jTextFieldParamFile" pref="151" max="32767" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jButtonParamFile" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace pref="284" max="32767" attributes="0"/>
+                              <EmptySpace pref="282" max="32767" attributes="0"/>
                               <Component id="jButtonRefold" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -595,7 +579,7 @@
                       <Component id="jRadioButtonNoGU" min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <EmptySpace pref="30" max="32767" attributes="0"/>
+                              <EmptySpace pref="26" max="32767" attributes="0"/>
                               <Component id="jButtonRefold" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
@@ -743,6 +727,70 @@
             </Component>
           </SubComponents>
         </Container>
+        <Container class="javax.swing.JPanel" name="jPanel1">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Sequence">
+                <Property name="tabTitle" type="java.lang.String" value="Sequence"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" pref="630" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" pref="350" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTextArea" name="jTextArea1">
+                  <Properties>
+                    <Property name="columns" type="int" value="20"/>
+                    <Property name="rows" type="int" value="5"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+          </SubComponents>
+        </Container>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JScrollPane" name="jScrollPaneQueries">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTree" name="jTreeQueries">
+          <Properties>
+            <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.editors2.TreeModelEditor">
+              <TreeModel code=""/>
+            </Property>
+            <Property name="rootVisible" type="boolean" value="false"/>
+          </Properties>
+        </Component>
       </SubComponents>
     </Container>
   </SubComponents>

@@ -3,6 +3,7 @@ package Plugin;
 import BLASTGrabber.Facade.BLASTGrabberQuery;
 import miRNAFolding.FrmMain;
 import miRNAFolding.FrmClipboard;
+import GUI.Test;
 import java.util.HashMap;
 import javax.swing.JDesktopPane;
 
@@ -52,9 +53,12 @@ public class Main implements Facade {
 
     @Override
     public void processSelectedClipboardItems(HashMap<String, BLASTGrabberQuery> queries) {
-        FrmClipboard frmClipboard = new FrmClipboard();
-        frmClipboard.init(queries, desktop, facade);
-        desktop.add(frmClipboard);
-        frmClipboard.setVisible(true);
+        
+        FrmClipboard frame = new FrmClipboard();
+        try{
+        frame.init(queries, desktop, facade);
+        }catch(Exception e){e.printStackTrace();}
+        desktop.add(frame);
+        frame.setVisible(true);
     }
 }
