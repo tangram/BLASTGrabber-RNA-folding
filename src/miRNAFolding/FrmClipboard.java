@@ -43,9 +43,9 @@ import javax.swing.tree.TreeModel;
 public class FrmClipboard extends javax.swing.JInternalFrame {
     // for jar compile:
     public final static String BASEPATH =
-    //        new File(FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().concat("/");
+            new File(FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().concat("/");
     // for project testing:
-            "";
+    //        "";
 
     private HashMap<String, BLASTGrabberQuery> queries;
     private JDesktopPane desktop;
@@ -79,7 +79,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         this.queries = queries;
         this.desktop = desktop;
         this.facade = facade;
-
+        
         initTree(convertQueries(queries));
 
         suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
@@ -297,9 +297,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 currentQueryNode.add(new DefaultMutableTreeNode(hit));
             }
         }
-
+        
         TreeModel tm = new DefaultTreeModel(top);
         jTreeQueries.setModel(tm);
+        this.treeListener = new TreeListener();
         jTreeQueries.addTreeSelectionListener(treeListener);
     }
 
@@ -986,6 +987,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 if (!sequence.equals("") && sequence != null){
                     jTextArea1.append(sequence);
                     jTextArea1.append("\nStart: " + start + "\nStop: " + stop);
+                    test = sequence;
                 }
                 else
                     jTextArea1.setText("No sequence data");

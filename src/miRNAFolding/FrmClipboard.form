@@ -45,11 +45,11 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="svgPanel" max="32767" attributes="0"/>
+                      <Component id="svgPanel" pref="396" max="32767" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="jTabbedPane" pref="655" max="32767" attributes="0"/>
+                      <Component id="jTabbedPane" pref="651" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jScrollPaneQueries" alignment="0" pref="1073" max="32767" attributes="0"/>
+                  <Component id="jScrollPaneQueries" alignment="0" pref="1065" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -101,7 +101,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="398" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="394" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -138,13 +138,13 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jScrollPaneFoldOutput" alignment="0" pref="630" max="32767" attributes="0"/>
+                          <Component id="jScrollPaneFoldOutput" alignment="0" pref="626" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="jRadioButtonPairProbabilities" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="jRadioButtonPositionalEntropy" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="436" max="32767" attributes="0"/>
+                              <EmptySpace pref="432" max="32767" attributes="0"/>
                               <Component id="jButtonFold" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -259,7 +259,7 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jScrollPaneSuboptimal" alignment="0" pref="630" max="32767" attributes="0"/>
+                          <Component id="jScrollPaneSuboptimal" alignment="0" pref="626" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                   <Group type="102" alignment="0" attributes="1">
@@ -277,7 +277,7 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
                                       <Component id="jLabelRandom" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="209" max="32767" attributes="0"/>
+                                      <EmptySpace pref="205" max="32767" attributes="0"/>
                                       <Component id="jButtonFoldSuboptimal" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="jLabelRange" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -399,7 +399,7 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jScrollPaneMultiple" alignment="0" pref="630" max="32767" attributes="0"/>
+                          <Component id="jScrollPaneMultiple" alignment="0" pref="626" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="jCheckBoxTemperatureRange" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -410,7 +410,7 @@
                               <Component id="jFormattedTextFieldTemperatureUpper" min="-2" pref="35" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabelTemperatureRange" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="224" max="32767" attributes="0"/>
+                              <EmptySpace pref="220" max="32767" attributes="0"/>
                               <Component id="jButtonFoldMultiple" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -537,12 +537,12 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="jCheckBoxParamFile" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jTextFieldParamFile" pref="151" max="32767" attributes="0"/>
+                                      <Component id="jTextFieldParamFile" pref="149" max="32767" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jButtonParamFile" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace pref="282" max="32767" attributes="0"/>
+                              <EmptySpace pref="280" max="32767" attributes="0"/>
                               <Component id="jButtonRefold" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -741,7 +741,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="630" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="626" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
