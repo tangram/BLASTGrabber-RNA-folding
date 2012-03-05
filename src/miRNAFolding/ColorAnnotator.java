@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import javax.swing.JOptionPane;
 import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -71,9 +72,9 @@ public class ColorAnnotator {
             }
             reader.close();
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
 
         return dataset;
@@ -124,9 +125,9 @@ public class ColorAnnotator {
         try {
             doc = parser.build(new BufferedReader(new FileReader(name + "_ss.svg")));
         } catch (ParsingException e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
 
         String svg = "http://www.w3.org/2000/svg";
@@ -266,7 +267,7 @@ public class ColorAnnotator {
             stream.flush();
             stream.close();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
 
         return newFilepath;

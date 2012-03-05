@@ -6,9 +6,7 @@ package BLASTGrabber;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import javax.swing.JDesktopPane;
-import javax.swing.JInternalFrame;
 
 /**
  *
