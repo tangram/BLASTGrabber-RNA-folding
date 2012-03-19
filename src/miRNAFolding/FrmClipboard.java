@@ -973,7 +973,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 miRNAQuery query = (miRNAQuery)queryNode.getUserObject();
 
                 bgQuery = new HashMap<String, BLASTGrabberQuery>();
-                bgQuery.put(query.Name, queries.get(query.Name));
+                bgQuery.put(query.Name, query);
 
                 ArrayList<String> querySequence = facade.getFASTACustomDBSequences(bgQuery);
                 sequenceBuilder = new StringBuilder();
