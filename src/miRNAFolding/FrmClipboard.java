@@ -284,12 +284,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private void initTree(HashMap<String, miRNAQuery> queries, HashMap<String, miRNAQuery> hits){
         DefaultMutableTreeNode top = new DefaultMutableTreeNode();
 
-        Iterator<String> qIt = queries.keySet().iterator();
+        Iterator<String> qIt = hits.keySet().iterator();
         String currentKey;
         miRNAQuery currentQuery;
         while(qIt.hasNext()){
             currentKey = qIt.next();
-            currentQuery = queries.get(currentKey);
+            currentQuery = hits.get(currentKey);
             DefaultMutableTreeNode currentQueryNode = new DefaultMutableTreeNode(currentQuery);
             top.add(currentQueryNode);
 
@@ -879,25 +879,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 miRNAQuery query = (miRNAQuery) queryNode.getUserObject();
 
                 bgQuery = new HashMap<String, BLASTGrabberQuery>();
-                bgQuery.put(query.Name, queries.get(query.Name));
+                bgQuery.put(query.Name, hits.get(query.Name));
 
                 HashMap<String, String> querySequence = facade.getFASTACustomDBSequences(bgQuery);
                 if (querySequence != null) {
                     sequenceBuilder = new StringBuilder();
-                    Iterator qit = querySequence.entrySet().iterator();
-                    if (qit.hasNext())
-                        qit.next();  // skip header of fasta file
-                    else
-                        return;
-                    // TODO: Error message before return
 
-                    while(qit.hasNext()) {
-                        Map.Entry<String, String> entry = (Map.Entry<String, String>) qit.next();
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        sequenceBuilder.append(key).append("\n").append(value).append("\n");
-                        jTextArea1.setText(sequenceBuilder.toString());
-                    }
+                    sequenceBuilder.append(querySequence.get(query.Name));
 
                     if (stop < start) {
                         int temp = stop;
