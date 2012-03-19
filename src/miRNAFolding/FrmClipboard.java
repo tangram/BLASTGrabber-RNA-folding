@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Map;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
@@ -45,10 +45,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     public final static String BASEPATH =
             new File(FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().concat("/");
     // for project testing:
-    //        "";
+    //public final static String BASEPATH = "";
 
     private HashMap<String, BLASTGrabberQuery> queries;
-    private JDesktopPane desktop;
+    private HashMap<String, BLASTGrabberQuery> hits;
     private BLASTGrabber.Facade facade;
 
     private TreeSelectionListener treeListener;
@@ -64,7 +64,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private int lastY;
     private int lastW = 400;
 
-   // actual pre-miRNA from human X chromosome for testing
+   // pre-miRNA from human X chromosome for testing
    private String currentSequence = ">hsa-let-7f-2 MI0000068\nUGUGGGAUGAGGUAGUAGAUUGUAUAGUUUUAGGGUCAUACCCCAUCUUGGAGAUAACUAUACAGUCUACUGUCUUUCCCACG";
 
     /** Creates new form FrmClipboard */
@@ -74,12 +74,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         initComponents();
     }
 
-    public void init(HashMap<String, BLASTGrabberQuery> queries, JDesktopPane desktop, BLASTGrabber.Facade facade) {
+    public void init(HashMap<String, BLASTGrabberQuery> queries, HashMap<String, BLASTGrabberQuery> hits, BLASTGrabber.Facade facade) {
         this.queries = queries;
-        this.desktop = desktop;
+        this.hits = hits;
         this.facade = facade;
 
-        initTree(convertQueries(queries));
+        initTree(convertQueries(queries), convertQueries(hits));
 
         suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
         jTableSuboptimal.setModel(suboptimalTableModel);
@@ -157,7 +157,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     legendTransform[i] += lt[i];
                 }
             } else {
-                // keep current scale level, set only translate
                 plotTransform[2] = pt[2];
                 plotTransform[3] = pt[3];
             }
@@ -205,6 +204,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, e.getMessage());
             }
+
             svgPanel.repaint();
         }
     }
@@ -269,7 +269,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         main.add(desktop);
 
         FrmClipboard intFrm = new FrmClipboard();
-        intFrm.init(new HashMap<String, BLASTGrabberQuery>(), desktop, null);
+        intFrm.init(new HashMap<String, BLASTGrabberQuery>(), new HashMap<String, BLASTGrabberQuery>(), null);
         desktop.add(intFrm);
 
         intFrm.setVisible(true);
@@ -281,7 +281,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         main.pack();
     }
 
-    private void initTree(HashMap<String, miRNAQuery> queries){
+    private void initTree(HashMap<String, miRNAQuery> queries, HashMap<String, miRNAQuery> hits){
         DefaultMutableTreeNode top = new DefaultMutableTreeNode();
 
         Iterator<String> qIt = queries.keySet().iterator();
@@ -876,23 +876,29 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 }
 
                 DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode) currentNode.getParent();
-                miRNAQuery query = (miRNAQuery)queryNode.getUserObject();
+                miRNAQuery query = (miRNAQuery) queryNode.getUserObject();
 
                 bgQuery = new HashMap<String, BLASTGrabberQuery>();
                 bgQuery.put(query.Name, queries.get(query.Name));
 
-                ArrayList<String> querySequence = facade.getFASTACustomDBSequences(bgQuery);
+                HashMap<String, String> querySequence = facade.getFASTACustomDBSequences(bgQuery);
                 if (querySequence != null) {
                     sequenceBuilder = new StringBuilder();
-                    Iterator<String> qit = querySequence.iterator();
+                    Iterator qit = querySequence.entrySet().iterator();
                     if (qit.hasNext())
-                        qit.next();
+                        qit.next();  // skip header of fasta file
                     else
                         return;
                     // TODO: Error message before return
-                    
-                    while(qit.hasNext())
-                        sequenceBuilder.append(qit.next());
+
+                    while(qit.hasNext()) {
+                        Map.Entry<String, String> entry = (Map.Entry<String, String>) qit.next();
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        sequenceBuilder.append(key).append("\n").append(value).append("\n");
+                        jTextArea1.setText(sequenceBuilder.toString());
+                    }
+
                     if (stop < start) {
                         int temp = stop;
                         stop = start + qstart;
@@ -902,8 +908,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                         stop += length - qstop;
                     }
                     //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
-                    
-                    System.out.println("OK so far!");
+
                     if (stop < sequenceBuilder.length())
                         sequence = sequenceBuilder.subSequence(start, stop).toString();
                     else
@@ -953,7 +958,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         }
 
         String output = RNAFolder.foldSuboptimals(currentSequence, sb.toString());
-        String[] outputLines = output.split("[\r|\n]+");
+        jTextArea1.setText(output);
+        String[] outputLines = output.split("[\r\n]+");
         String name = outputLines[0];
 
         if (jRadioButtonRandom.isSelected()) {
@@ -961,7 +967,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             for (int i = 2; i < outputLines.length; i++)
                 sb.append(currentSequence.split("\n")[1]).append("\n").append(outputLines[i]).append("\n");
             output = RNAFolder.evalSuboptimals(sb.append("@").toString(), buildOptionsString("RNAeval"));
-            outputLines = output.split("[\r|\n]+");
+            outputLines = output.split("[\r\n]+");
         }
 
         jTableSuboptimal.clearSelection();
@@ -1027,10 +1033,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             int rot = evt.getWheelRotation();
             plotTransform[0] += (-rot * 0.05);
             plotTransform[1] += (-rot * 0.05);
-            //int x = evt.getX() - (svgPanel.getWidth()/2);
-            //int y = evt.getY() - (svgPanel.getHeight()/2);
-            //plotTransform[2] += (-x * 0.05);
-            //plotTransform[3] += (-y * 0.05);
+            int x = (svgPanel.getWidth()/2);
+            int y = (svgPanel.getHeight()/2);
+            if (rot > 0) {
+                x = -x;
+                y = -y;
+            }
+            plotTransform[2] += (-x * 0.05);
+            plotTransform[3] += (-y * 0.05);
             updatePlot();
         }
     }//GEN-LAST:event_svgPanelMouseWheelMoved

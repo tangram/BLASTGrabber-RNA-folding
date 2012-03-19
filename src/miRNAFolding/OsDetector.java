@@ -2,7 +2,6 @@ package miRNAFolding;
 
 /**
  * @author Eirik Krogstad
- * Adapted from http://www.mkyong.com/java/how-to-detect-os-in-java-systemgetpropertyosname/
  */
 public class OsDetector {
     private static String os;

@@ -3,9 +3,9 @@ package Plugin;
 import BLASTGrabber.Facade.BLASTGrabberQuery;
 import miRNAFolding.FrmMain;
 import miRNAFolding.FrmClipboard;
-import GUI.Test;
 import java.util.HashMap;
 import javax.swing.JDesktopPane;
+import javax.swing.JOptionPane;
 
 /**
  * @author Ralf Neumann
@@ -52,12 +52,15 @@ public class Main implements Facade {
     }
 
     @Override
-    public void processSelectedClipboardItems(HashMap<String, BLASTGrabberQuery> queries) {
-        
+    public void processSelectedClipboardItems
+        (HashMap<String, BLASTGrabberQuery> queries, HashMap<String, BLASTGrabberQuery> hits) {
+
         FrmClipboard frame = new FrmClipboard();
-        try{
-        frame.init(queries, desktop, facade);
-        }catch(Exception e){e.printStackTrace();}
+        try {
+            frame.init(queries, hits, facade);
+        } catch(Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
         desktop.add(frame);
         frame.setVisible(true);
     }

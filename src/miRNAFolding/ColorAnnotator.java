@@ -115,7 +115,7 @@ public class ColorAnnotator {
      * @param data      Dataset containing pair identifiers and pair probabilities or positional entropy
      * @return          String containing filepath to new SVG file
      */
-    public static String annnotateSVG(String name, boolean computeEntropy) {
+    protected static String annnotateSVG(String name, boolean computeEntropy) {
         Builder parser = new Builder();
         Document doc = null;
 
