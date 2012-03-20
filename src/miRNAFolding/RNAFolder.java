@@ -3,12 +3,12 @@ package miRNAFolding;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import javax.swing.JOptionPane;
 
 /**
  * RNAFolder contains methods for folding a sequence using the Vienna RNA package command line tools.
  *
  * @author Eirik Krogstad
- * @author Petter Hannevold
  */
 public class RNAFolder {
     public final static String BINPATH = "bin/";
@@ -49,9 +49,9 @@ public class RNAFolder {
                 process.waitFor();
 
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
 
         return sb.toString();

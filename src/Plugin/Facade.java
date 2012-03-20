@@ -15,5 +15,6 @@ public interface Facade {
     public String getName();
     public void displayMain();
     public boolean doesProcessSelectedClipboardData();
-    public void processSelectedClipboardItems(HashMap<String, BLASTGrabberQuery> queries);
+    public void processSelectedClipboardItems
+        (HashMap<String, BLASTGrabberQuery> queries, HashMap<String, BLASTGrabberQuery> hits);
 }

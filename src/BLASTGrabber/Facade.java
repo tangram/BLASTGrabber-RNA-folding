@@ -9,8 +9,7 @@ import java.util.HashMap;
 import javax.swing.JDesktopPane;
 
 /**
- *
- * @author ralfne
+ * @author Ralf Neumann
  */
 public interface Facade {
     public JDesktopPane getDesktopPane();
