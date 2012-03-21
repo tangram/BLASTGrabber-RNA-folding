@@ -221,7 +221,7 @@ public class ColorAnnotator {
             circle.addAttribute(new Attribute("r", "7"));
             int color = (int) ((values[i] / dataset.max) * (nCol - 1));
             circle.addAttribute(new Attribute("fill", getHex(colors[color])));
-            if (i > aStart && i < aStop)
+            if (i >= aStart-1 && i < aStop-1)
                 circle.addAttribute(new Attribute("style", "stroke-dasharray: 1, 1; stroke-width: 1"));
             circles.appendChild(circle);
         }
@@ -241,12 +241,24 @@ public class ColorAnnotator {
         max.addAttribute(new Attribute("y", "20"));
         max.appendChild(Double.toString(Math.round(10.0 * dataset.max) / 10.0));
         legend.appendChild(max);
+        Element dash = new Element("line", svg);
+        dash.addAttribute(new Attribute("x1", "0"));
+        dash.addAttribute(new Attribute("x2", "40"));
+        dash.addAttribute(new Attribute("y1", "40"));
+        dash.addAttribute(new Attribute("y2", "40"));
+        dash.addAttribute(new Attribute("style", "stroke: black; stroke-dasharray: 2, 2; stroke-width: 2"));
+        legend.appendChild(dash);
+        Element align = new Element("text", svg);
+        align.addAttribute(new Attribute("x", "40"));
+        align.addAttribute(new Attribute("y", "45"));
+        align.appendChild("Alignment");
+        legend.appendChild(align);
         root.appendChild(legend);
 
         for (int i = 0; i < nCol; i += 5) {
             Element rect = new Element("rect", svg);
             rect.addAttribute(new Attribute("x", Integer.toString(i)));
-            rect.addAttribute(new Attribute("y", "20"));
+            rect.addAttribute(new Attribute("y", "21"));
             rect.addAttribute(new Attribute("width", "5"));
             rect.addAttribute(new Attribute("height", "10"));
             String col = getHex(colors[i]);
