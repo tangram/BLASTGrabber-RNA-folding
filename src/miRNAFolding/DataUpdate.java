@@ -10,6 +10,8 @@ import java.util.zip.GZIPInputStream;
 import javax.swing.JOptionPane;
 
 /**
+ * DataUpdate contains methods to download or update miRNA data from http://www.mirbase.org/
+ * 
  * @author Eirik Krogstad
  */
 public class DataUpdate {

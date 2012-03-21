@@ -1,6 +1,3 @@
-/*
- * frmClipboard.java
- */
 package miRNAFolding;
 
 import BLASTGrabber.Facade.BLASTGrabberQuery;
@@ -15,7 +12,6 @@ import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
 import java.util.Locale;
-import java.util.Map;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
@@ -37,19 +33,23 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
 /**
+ * FrmClipboard is the main view and controller class for the miRNA Folding plugin.
+ *
  * @author Eirik Krogstad
  * @author Petter Hannevold
  */
 public class FrmClipboard extends javax.swing.JInternalFrame {
     // for jar compile:
-    public final static String BASEPATH =
-            new File(FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().concat("/");
+    public final static String BASEPATH = new File(
+            FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()
+            ).getParent().concat("/");
     // for project testing:
     //public final static String BASEPATH = "";
 
-    private HashMap<String, BLASTGrabberQuery> queries;
-    private HashMap<String, BLASTGrabberQuery> hits;
+    private HashMap<String, miRNAQuery> queries;
+    private HashMap<String, miRNAQuery> hits;
     private BLASTGrabber.Facade facade;
+    private HashMap<String, String> sequences;
 
     private TreeSelectionListener treeListener;
     private DefaultTableModel suboptimalTableModel;
@@ -64,8 +64,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private int lastY;
     private int lastW = 400;
 
-   // pre-miRNA from human X chromosome for testing
-   private String currentSequence = ">hsa-let-7f-2 MI0000068\nUGUGGGAUGAGGUAGUAGAUUGUAUAGUUUUAGGGUCAUACCCCAUCUUGGAGAUAACUAUACAGUCUACUGUCUUUCCCACG";
+    // pre-miRNA from human X chromosome for testing
+    private String currentSequence = ">hsa-let-7f-2 MI0000068\n"
+           + "UGUGGGAUGAGGUAGUAGAUUGUAUAGUUUUAGGGUCAUACCCCAUCUUGGAGAUAACUAUACAGUCUACUGUCUUUCCCACG";
+    private int currentAlignmentStart = 0;
+    private int currentAlignmentStop = 0;
 
     /** Creates new form FrmClipboard */
     public FrmClipboard() {
@@ -74,12 +77,24 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         initComponents();
     }
 
-    public void init(HashMap<String, BLASTGrabberQuery> queries, HashMap<String, BLASTGrabberQuery> hits, BLASTGrabber.Facade facade) {
-        this.queries = queries;
-        this.hits = hits;
+    /**
+     * Initialization of plugin data.
+     *
+     * @param queries   A set of queries, as transferred from BLASTGrabber
+     * @param hits      A set of corresponding hits, as transferred from BLASTGrabber
+     * @param facade    A reference to the BLASTGrabber Facade object
+     */
+    public void init(
+            HashMap<String, BLASTGrabberQuery> queries,
+            HashMap<String, BLASTGrabberQuery> hits,
+            BLASTGrabber.Facade facade) {
+
+        this.queries = convertQueries(queries);
+        this.hits = convertQueries(hits);
+        this.sequences = facade.getFASTACustomDBSequences(hits);
         this.facade = facade;
 
-        initTree(convertQueries(queries), convertQueries(hits));
+        initTree();
 
         suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
         jTableSuboptimal.setModel(suboptimalTableModel);
@@ -90,6 +105,34 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jTableMultiple.getSelectionModel().addListSelectionListener(new TableListener());
 
         //DataUpdate.updatemiRBaseData();
+    }
+
+    /**
+     * Main method for running the plugin independently for testing purposes.
+     */
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch(Exception e) {
+            JOptionPane.showMessageDialog(null, "Error setting native LAF: " + e);
+        }
+        JFrame main = new JFrame("Test frame");
+        main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JDesktopPane desktop = new JDesktopPane();
+        main.add(desktop);
+
+        FrmClipboard intFrm = new FrmClipboard();
+        intFrm.init(new HashMap<String, BLASTGrabberQuery>(), new HashMap<String, BLASTGrabberQuery>(), null);
+        desktop.add(intFrm);
+
+        intFrm.setVisible(true);
+        desktop.setVisible(true);
+        main.setVisible(true);
+
+        desktop.setPreferredSize(new Dimension(1300, 750));
+        desktop.setBackground(Color.BLACK);
+        main.pack();
     }
 
     /**
@@ -181,7 +224,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         String name = folding.split("\\s")[0].substring(1);
         if (name.length() > 42)
             name = name.substring(0, 42);
-        String svgPath = ColorAnnotator.annnotateSVG(name, jRadioButtonPositionalEntropy.isSelected());
+        String svgPath = ColorAnnotator.annnotateSVG(
+                name,
+                currentAlignmentStart,
+                currentAlignmentStop,
+                jRadioButtonPositionalEntropy.isSelected());
 
         loadSVG(svgPath);
         updatePlot();
@@ -243,10 +290,23 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         table.doLayout();
     }
 
+    /**
+     * Strip the first and last character of a string (for stripping parantheses).
+     *
+     * @param s     The String to strip
+     * @return      A String with the first and last character removed
+     */
     private String stripParantheses(String s) {
         return s.substring(1, s.length()-1).trim();
     }
 
+    /**
+     * Split a string on the first space, return a String array with the string leading to the
+     * first space, and the string after the first space
+     *
+     * @param s     The String to split
+     * @return      A String[] with the String components
+     */
     private String[] splitFirstSpace(String s) {
         String[] sa = new String[2];
         int p = s.indexOf(" ");
@@ -255,47 +315,21 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         return sa;
     }
 
-    // to be removed - for testing purposes
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch(Exception e) {
-            JOptionPane.showMessageDialog(null, "Error setting native LAF: " + e);
-        }
-        JFrame main = new JFrame("Test frame");
-        main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JDesktopPane desktop = new JDesktopPane();
-        main.add(desktop);
-
-        FrmClipboard intFrm = new FrmClipboard();
-        intFrm.init(new HashMap<String, BLASTGrabberQuery>(), new HashMap<String, BLASTGrabberQuery>(), null);
-        desktop.add(intFrm);
-
-        intFrm.setVisible(true);
-        desktop.setVisible(true);
-        main.setVisible(true);
-
-        desktop.setPreferredSize(new Dimension(1300, 750));
-        desktop.setBackground(Color.BLACK);
-        main.pack();
-    }
-
-    private void initTree(HashMap<String, miRNAQuery> queries, HashMap<String, miRNAQuery> hits){
+    /**
+     * Initialize the tree list
+     */
+    private void initTree() {
         DefaultMutableTreeNode top = new DefaultMutableTreeNode();
 
-        Iterator<String> qIt = hits.keySet().iterator();
-        String currentKey;
-        miRNAQuery currentQuery;
-        while(qIt.hasNext()){
-            currentKey = qIt.next();
-            currentQuery = hits.get(currentKey);
-            DefaultMutableTreeNode currentQueryNode = new DefaultMutableTreeNode(currentQuery);
-            top.add(currentQueryNode);
+        miRNAQuery query;
+        DefaultMutableTreeNode currentNode;
 
-            for(miRNAHit hit : currentQuery.miRNAHits){
-                currentQueryNode.add(new DefaultMutableTreeNode(hit));
-            }
+        for(String i : hits.keySet()) {
+            query = hits.get(i);
+            currentNode = new DefaultMutableTreeNode(query);
+            top.add(currentNode);
+            for(miRNAHit j : query.miRNAHits)
+                currentNode.add(new DefaultMutableTreeNode(j));
         }
 
         TreeModel tm = new DefaultTreeModel(top);
@@ -304,7 +338,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jTreeQueries.addTreeSelectionListener(treeListener);
     }
 
-    private HashMap<String, miRNAQuery> convertQueries(HashMap<String, BLASTGrabberQuery> BGQueries){
+    /**
+     * BLASTGrabber is extended as miRNAQuery with a toString() method in the Data package,
+     * to be able to simply add them to . This method converts a HashMap of the former to a
+     * HashMap of the latter.
+     *
+     * @param BGQueries     A HashMap<String, BLASTGrabberQuery> as transferred from BLASTGrabber
+     * @return              A translated HashMap<String, miRNAQuery>
+     */
+    private HashMap<String, miRNAQuery> convertQueries(HashMap<String, BLASTGrabberQuery> BGQueries) {
         HashMap<String, miRNAQuery> miRNAQueries = new HashMap<String, miRNAQuery>();
 
         Iterator<String> queryIterator = BGQueries.keySet().iterator();
@@ -318,8 +360,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         return miRNAQueries;
     }
 
-    /** This method is called from within the constructor to
+    /**
+     * This method is called from within the constructor to
      * initialize the form.
+     *
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
@@ -851,18 +895,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         public void valueChanged(TreeSelectionEvent e) {
 
             jTextArea1.setText(null);
-
             DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) jTreeQueries.getLastSelectedPathComponent();
             Object current = currentNode.getUserObject();
+            miRNAHit currentHit;
 
-            if (current instanceof miRNAHit){
-                miRNAHit hit = (miRNAHit) current;
-                HashMap<String, BLASTGrabberQuery> bgQuery;
-                StringBuilder sequenceBuilder;
+            if (current instanceof miRNAHit) {
+                currentHit = (miRNAHit)current;
                 int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
-                String sequence;
 
-                for (BLASTGrabberStatistic i : hit.Statistics){
+                for (BLASTGrabberStatistic i : currentHit.Statistics){
                     if (i.Key.equals("SbjctFrom"))
                         start = (int) i.Value;
                     else if (i.Key.equals("SbjctTo"))
@@ -875,44 +916,29 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                         length = (int) i.Value;
                 }
 
-                DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode) currentNode.getParent();
-                miRNAQuery query = (miRNAQuery) queryNode.getUserObject();
+                if (stop < start) {
+                    int temp = stop;
+                    stop = start + qstart;
+                    start = temp - (length - qstop);
+                } else {
+                    start -= qstart;
+                    stop += length - qstop;
+                }
+                //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
 
-                bgQuery = new HashMap<String, BLASTGrabberQuery>();
-                bgQuery.put(query.Name, hits.get(query.Name));
+                String name = currentHit.SequenceHeader;
+                String sequence = sequences.get(name).substring(start, stop);
+                if (name != null && sequence != null) {
+                    currentSequence = name + "\n" + sequence;
+                    currentAlignmentStart = qstart;
+                    currentAlignmentStop = qstop;
+                } else {
+                    JOptionPane.showMessageDialog(null, "No sequence found for this hit");
+                }
 
-                HashMap<String, String> querySequence = facade.getFASTACustomDBSequences(bgQuery);
-                if (querySequence != null) {
-                    sequenceBuilder = new StringBuilder();
-
-                    sequenceBuilder.append(querySequence.get(query.Name));
-
-                    if (stop < start) {
-                        int temp = stop;
-                        stop = start + qstart;
-                        start = temp - (length - qstop);
-                    } else {
-                        start -= qstart;
-                        stop += length - qstop;
-                    }
-                    //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
-
-                    if (stop < sequenceBuilder.length())
-                        sequence = sequenceBuilder.subSequence(start, stop).toString();
-                    else
-                        return;
-                    // TODO: Error message before return
-
-                    if (!sequence.equals("") && sequence != null){
-                        jTextArea1.append(sequence);
-                        jTextArea1.append("\nStart: " + start + "\nStop: " + stop);
-                        currentSequence = hit.SequenceHeader + "\n" + sequence;
-                    } else
-                        jTextArea1.setText("No sequence data");
-                } else
-                    JOptionPane.showMessageDialog(null, "No custom database loaded in BLASTGrabber. Consult the miRNA Folding manual for details.");
-            } else
-                jTextArea1.setText(null);
+                jTextArea1.setText(currentSequence);
+                jTextArea1.append("\nstart:\t" + start + "\nstop:\t" + stop);
+            }
         }
     }
 

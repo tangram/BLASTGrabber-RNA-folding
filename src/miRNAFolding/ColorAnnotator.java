@@ -115,7 +115,7 @@ public class ColorAnnotator {
      * @param data      Dataset containing pair identifiers and pair probabilities or positional entropy
      * @return          String containing filepath to new SVG file
      */
-    protected static String annnotateSVG(String name, boolean computeEntropy) {
+    protected static String annnotateSVG(String name, int aStart, int aStop, boolean computeEntropy) {
         Builder parser = new Builder();
         Document doc = null;
 
@@ -221,6 +221,8 @@ public class ColorAnnotator {
             circle.addAttribute(new Attribute("r", "7"));
             int color = (int) ((values[i] / dataset.max) * (nCol - 1));
             circle.addAttribute(new Attribute("fill", getHex(colors[color])));
+            if (i > aStart && i < aStop)
+                circle.addAttribute(new Attribute("style", "stroke-dasharray: 1, 1; stroke-width: 1"));
             circles.appendChild(circle);
         }
 

@@ -1,6 +1,8 @@
 package miRNAFolding;
 
 /**
+ * OsDetector contains methods to check operating system type, and return extensions for use with executables
+ * 
  * @author Eirik Krogstad
  */
 public class OsDetector {

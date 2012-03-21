@@ -24,13 +24,13 @@ public interface Facade {
         public String Name="";
         public ArrayList<BLASTGrabberHit> Hits=new ArrayList<BLASTGrabberHit>();
     }
-
+    
     public class BLASTGrabberHit{
         public int BLASTGrabberID=-1;
         public String SequenceHeader;
         public ArrayList<BLASTGrabberStatistic> Statistics= new ArrayList<BLASTGrabberStatistic>();
     }
-
+    
     public class BLASTGrabberStatistic{
         public String Name="";
         public String Key="";
