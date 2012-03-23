@@ -18,6 +18,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
 import nu.xom.Serializer;
+import Data.miRNASequence;
 
 /**
  * ColorAnnotator contains methods for reading pair probabilities from RNAfold dot plot PostScript files,
@@ -111,13 +112,17 @@ public class ColorAnnotator {
      * Should only ever be called for SVGs output by RNAplot. Bases are circled and colored according to a color map.
      * The plot is also slightly scaled and translated to make room for circles.
      *
-     * @param filepath  String containing the first 42 characters of the sequence name, or up to the first space
-     * @param data      Dataset containing pair identifiers and pair probabilities or positional entropy
-     * @return          String containing filepath to new SVG file
+     * @param sequence          miRNASequence object
+     * @param computeEntropy    Dataset containing pair identifiers and pair probabilities or positional entropy
+     * @return                  String containing filepath to new SVG file
      */
-    protected static String annnotateSVG(String name, int aStart, int aStop, boolean computeEntropy) {
+    protected static String annnotateSVG(miRNASequence sequence, boolean computeEntropy) {
         Builder parser = new Builder();
         Document doc = null;
+
+        String name = sequence.toString().split("\\s")[0].substring(1);
+        if (name.length() > 42)
+            name = name.substring(0, 42);
 
         Dataset dataset = readPairProbabilities(name + "_dp.ps");
 
@@ -221,7 +226,7 @@ public class ColorAnnotator {
             circle.addAttribute(new Attribute("r", "7"));
             int color = (int) ((values[i] / dataset.max) * (nCol - 1));
             circle.addAttribute(new Attribute("fill", getHex(colors[color])));
-            if (i >= aStart-1 && i < aStop-1)
+            if (i >= sequence.getAlignmentStart()-1 && i < sequence.getAlignmentStop()-1)
                 circle.addAttribute(new Attribute("style", "stroke-dasharray: 1, 1; stroke-width: 1"));
             circles.appendChild(circle);
         }

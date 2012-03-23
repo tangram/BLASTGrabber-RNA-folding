@@ -4,6 +4,7 @@ import BLASTGrabber.Facade.BLASTGrabberQuery;
 import BLASTGrabber.Facade.BLASTGrabberStatistic;
 import Data.miRNAHit;
 import Data.miRNAQuery;
+import Data.miRNASequence;
 import com.kitfox.svg.SVGElement;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Locale;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JDesktopPane;
@@ -28,9 +30,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 /**
  * FrmClipboard is the main view and controller class for the miRNA Folding plugin.
@@ -52,23 +56,25 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private HashMap<String, String> sequences;
 
     private TreeSelectionListener treeListener;
+
     private DefaultTableModel suboptimalTableModel;
     private DefaultTableModel multipleTableModel;
+
     private String[] standardColumns = {"Number", "ID", "Structure", "kCal/mol"};
     private String[] tempRangeColumns = {"Temperature", "ID", "Structure", "kCal/mol"};
+
     private SVGElement plot;
     private SVGElement legend;
+
     private double[] plotTransform = {0.0, 0.0, 0.0, 0.0};
     private double[] legendTransform = {0.0, 0.0, 0.0, 0.0};
+
     private int lastX;
     private int lastY;
     private int lastW = 400;
 
-    // pre-miRNA from human X chromosome for testing
-    private String currentSequence = ">hsa-let-7f-2 MI0000068\n"
-           + "UGUGGGAUGAGGUAGUAGAUUGUAUAGUUUUAGGGUCAUACCCCAUCUUGGAGAUAACUAUACAGUCUACUGUCUUUCCCACG";
-    private int currentAlignmentStart = 0;
-    private int currentAlignmentStop = 0;
+    private ArrayList<miRNASequence> currentSequences = new ArrayList<miRNASequence>();
+    private int selectedSequence = 0;
 
     /** Creates new form FrmClipboard */
     public FrmClipboard() {
@@ -133,6 +139,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         desktop.setPreferredSize(new Dimension(1300, 750));
         desktop.setBackground(Color.BLACK);
         main.pack();
+
+        // pre-miRNA from human X chromosome for testing
+        //String testSequence = ">hsa-let-7f-2 MI0000068\n"
+        //   + "UGUGGGAUGAGGUAGUAGAUUGUAUAGUUUUAGGGUCAUACCCCAUCUUGGAGAUAACUAUACAGUCUACUGUCUUUCCCACG";
     }
 
     /**
@@ -188,11 +198,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             svgPanel.getSvgUniverse().clear();
             URI uri = new File(filename).toURI();
             svgPanel.setSvgURI(uri);
+
             SVGElement root = svgPanel.getSvgUniverse().getDiagram(uri).getRoot();
             plot = root.getChild(1);
             legend = root.getChild(2);
             double[] pt = plot.getPresAbsolute("transform").getDoubleList();
             double[] lt = legend.getPresAbsolute("transform").getDoubleList();
+
             if (first) {
                 // ensures scale is kept, in case svgPanel was resized
                 for (int i = 0; i < 4; i++) {
@@ -214,22 +226,16 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     /**
      * Generate SVG plots
      *
-     * @param folding   String containing folding structure as output by RNAfold
+     * @param folding   A String with name, sequence and folding information, as output by RNAfold
      */
     private void generatePlot(String folding) {
         RNAFolder.generatePlots(folding);
 
         jTextAreaFoldOutput.setText(folding);
 
-        String name = folding.split("\\s")[0].substring(1);
-        if (name.length() > 42)
-            name = name.substring(0, 42);
         String svgPath = ColorAnnotator.annnotateSVG(
-                name,
-                currentAlignmentStart,
-                currentAlignmentStop,
+                currentSequences.get(selectedSequence),
                 jRadioButtonPositionalEntropy.isSelected());
-
         loadSVG(svgPath);
         updatePlot();
         updateLegend();
@@ -884,7 +890,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             JTable table = (JTable) ((DefaultListSelectionModel) e.getSource()).getListSelectionListeners()[1];
             int row = table.getSelectedRow();
             if (row > -1) {
-                String sequence = currentSequence + "\n" + table.getValueAt(row, 2);
+                selectedSequence = row;
+                String sequence = currentSequences.get(row).toString() + "\n" + table.getValueAt(row, 2);
                 generatePlot(sequence);
             }
         }
@@ -895,55 +902,58 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         public void valueChanged(TreeSelectionEvent e) {
 
             jTextArea1.setText(null);
-            DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) jTreeQueries.getLastSelectedPathComponent();
-            Object current = currentNode.getUserObject();
-            miRNAHit currentHit;
+            currentSequences.clear();
 
-            if (current instanceof miRNAHit) {
-                currentHit = (miRNAHit)current;
-                int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
+            for (TreePath path : jTreeQueries.getSelectionPaths())
+                for (Object node : path.getPath()) {
 
-                for (BLASTGrabberStatistic i : currentHit.Statistics){
-                    if (i.Key.equals("SbjctFrom"))
-                        start = (int) i.Value;
-                    else if (i.Key.equals("SbjctTo"))
-                        stop = (int) i.Value;
-                    else if (i.Key.equals("QueryFrom"))
-                        qstart = (int) i.Value;
-                    else if (i.Key.equals("QueryTo"))
-                        qstop = (int) i.Value;
-                    else if (i.Name.equals("Query length"))
-                        length = (int) i.Value;
+                Object current = ((DefaultMutableTreeNode) node).getUserObject();
+                miRNAHit currentHit;
+
+                if (current instanceof miRNAHit) {
+                    currentHit = (miRNAHit) current;
+                    int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
+
+                    for (BLASTGrabberStatistic i : currentHit.Statistics){
+                        if (i.Key.equals("SbjctFrom"))
+                            start = (int) i.Value;
+                        else if (i.Key.equals("SbjctTo"))
+                            stop = (int) i.Value;
+                        else if (i.Key.equals("QueryFrom"))
+                            qstart = (int) i.Value;
+                        else if (i.Key.equals("QueryTo"))
+                            qstop = (int) i.Value;
+                        else if (i.Name.equals("Query length"))
+                            length = (int) i.Value;
+                    }
+
+                    if (stop < start) {
+                        int temp = stop;
+                        stop = start + qstart;
+                        start = temp - (length - qstop);
+                    } else {
+                        start -= qstart;
+                        stop += length - qstop;
+                    }
+                    //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
+
+                    String name = currentHit.SequenceHeader;
+                    String sequence = sequences.get(name).substring(start, stop);
+                    if (name != null && sequence != null) {
+                        currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop));
+                        selectedSequence = currentSequences.size() - 1;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No sequence found for this hit");
+                    }
                 }
-
-                if (stop < start) {
-                    int temp = stop;
-                    stop = start + qstart;
-                    start = temp - (length - qstop);
-                } else {
-                    start -= qstart;
-                    stop += length - qstop;
-                }
-                //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
-
-                String name = currentHit.SequenceHeader;
-                String sequence = sequences.get(name).substring(start, stop);
-                if (name != null && sequence != null) {
-                    currentSequence = name + "\n" + sequence;
-                    currentAlignmentStart = qstart;
-                    currentAlignmentStop = qstop;
-                } else {
-                    JOptionPane.showMessageDialog(null, "No sequence found for this hit");
-                }
-
-                jTextArea1.setText(currentSequence);
-                jTextArea1.append("\nstart:\t" + start + "\nstop:\t" + stop);
             }
         }
     }
 
     private void jButtonFoldActionPerformed(java.awt.event.ActionEvent evt) {
-        String output = RNAFolder.foldSequence(currentSequence, " -p" + buildOptionsString("RNAFold"));
+        String output = RNAFolder.foldSequence(
+                currentSequences.get(selectedSequence).toString(),
+                " -p" + buildOptionsString("RNAFold"));
         generatePlot(output);
     }
 
@@ -971,7 +981,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             sb.append(jFormattedTextFieldRandom.getText());
         }
 
-        String output = RNAFolder.foldSuboptimals(currentSequence, sb.toString());
+        String output = RNAFolder.foldSuboptimals(
+                currentSequences.get(selectedSequence).toString(),
+                sb.toString());
         jTextArea1.setText(output);
         String[] outputLines = output.split("[\r\n]+");
         String name = outputLines[0];
@@ -979,7 +991,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         if (jRadioButtonRandom.isSelected()) {
             sb = new StringBuilder();
             for (int i = 2; i < outputLines.length; i++)
-                sb.append(currentSequence.split("\n")[1]).append("\n").append(outputLines[i]).append("\n");
+                sb.append(
+                        currentSequences.get(selectedSequence).toString()
+                        .split("\n")[1])
+                        .append("\n")
+                        .append(outputLines[i])
+                        .append("\n");
             output = RNAFolder.evalSuboptimals(sb.append("@").toString(), buildOptionsString("RNAeval"));
             outputLines = output.split("[\r\n]+");
         }
@@ -1027,8 +1044,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 jTableMultiple.clearSelection();
                 DefaultTableModel newModel = new DefaultTableModel(tempRangeColumns, 0);
                 for (int i = lower; i <= upper; i++) {
-                    String output = RNAFolder.foldSequence(currentSequence, " -T " + i + buildOptionsString("RNAfold"));
-                    String[] outputLines = output.split("[\r|\n]+");
+                    String output = RNAFolder.foldSequence(
+                            currentSequences.get(selectedSequence).toString(),
+                            " -T " + i + buildOptionsString("RNAfold"));
+                    String[] outputLines = output.split("[\r\n]+");
                     String[] line = splitFirstSpace(outputLines[2]);
                     Object[] row = {i + "°C", outputLines[0], line[0], stripParantheses(line[1])};
                     newModel.addRow(row);
@@ -1039,6 +1058,23 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 r.setHorizontalAlignment(SwingConstants.RIGHT);
                 jTableMultiple.getColumn("kCal/mol").setCellRenderer(r);
             }
+        } else {
+            jTableMultiple.clearSelection();
+            DefaultTableModel newModel = new DefaultTableModel(standardColumns, 0);
+            for (int i = 0; i < currentSequences.size(); i++) {
+                String output = RNAFolder.foldSequence(
+                            currentSequences.get(i).toString(),
+                            " -p " + buildOptionsString("RNAfold"));
+                    String[] outputLines = output.split("[\r\n]+");
+                    String[] line = splitFirstSpace(outputLines[2]);
+                    Object[] row = {(Integer) (i+1), outputLines[0], line[0], stripParantheses(line[1])};
+                    newModel.addRow(row);
+            }
+            jTableMultiple.setModel(newModel);
+            setColumnSizes(jTableMultiple, 10, 100, 300, 10);
+            DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+            r.setHorizontalAlignment(SwingConstants.RIGHT);
+            jTableMultiple.getColumn("kCal/mol").setCellRenderer(r);
         }
     }
 
