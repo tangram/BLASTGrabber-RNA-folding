@@ -30,7 +30,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -53,7 +52,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private HashMap<String, miRNAQuery> queries;
     private HashMap<String, miRNAQuery> hits;
     private BLASTGrabber.Facade facade;
-    private HashMap<String, String> sequences;
+    private HashMap<String, String> querySequences;
+    private HashMap<String, String> dbSequences;
 
     private TreeSelectionListener treeListener;
 
@@ -97,7 +97,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         this.queries = convertQueries(queries);
         this.hits = convertQueries(hits);
-        this.sequences = facade.getFASTACustomDBSequences(hits);
+        this.querySequences = facade.getFASTAQueries(hits);
+        this.dbSequences = facade.getFASTACustomDBSequences(hits);
         this.facade = facade;
 
         initTree();
@@ -909,12 +910,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
                 Object current = ((DefaultMutableTreeNode) node).getUserObject();
                 miRNAHit currentHit;
+                miRNAQuery currentQuery;
 
                 if (current instanceof miRNAHit) {
                     currentHit = (miRNAHit) current;
                     int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
 
-                    for (BLASTGrabberStatistic i : currentHit.Statistics){
+                    for (BLASTGrabberStatistic i : currentHit.Statistics) {
                         if (i.Key.equals("SbjctFrom"))
                             start = (int) i.Value;
                         else if (i.Key.equals("SbjctTo"))
@@ -938,12 +940,26 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
 
                     String name = currentHit.SequenceHeader;
-                    String sequence = sequences.get(name).substring(start, stop);
+                    String sequence = dbSequences.get(name).substring(start, stop);
+                    
                     if (name != null && sequence != null) {
                         currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop));
                         selectedSequence = currentSequences.size() - 1;
                     } else {
                         JOptionPane.showMessageDialog(null, "No sequence found for this hit");
+                    }
+                    
+                } else if (current instanceof miRNAQuery) {
+                    currentQuery = (miRNAQuery) current;
+                    
+                    String name = ">" + currentQuery.Name;
+                    String sequence = querySequences.get(name);
+                    
+                    if (name != null && sequence != null) {
+                        currentSequences.add(new miRNASequence(name + "\n" + sequence, 0, 0));
+                        selectedSequence = currentSequences.size() - 1;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No sequence found for this query");
                     }
                 }
             }
