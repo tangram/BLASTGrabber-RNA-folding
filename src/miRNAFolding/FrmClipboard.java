@@ -32,7 +32,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -54,12 +53,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     // for project testing:
     //public final static String BASEPATH = "";
 
-    private HashMap<String, miRNAQuery> queries;
     private HashMap<String, miRNAQuery> hits;
     private BLASTGrabber.Facade facade;
-    private HashMap<String, String> sequences;
     private MatureData matureData;
-    private HashMap<String, String> fastaSequences;
+    
+    private HashMap<String, String> querySequences;
+    private HashMap<String, String> dbSequences;
 
     private TreeSelectionListener treeListener;
 
@@ -101,12 +100,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         HashMap<String, BLASTGrabberQuery> hits,
         BLASTGrabber.Facade facade) {
 
-        this.queries = convertQueries(queries);
         this.hits = convertQueries(hits);
-        this.sequences = facade.getFASTACustomDBSequences(hits);
+        this.dbSequences = facade.getFASTACustomDBSequences(hits);
         this.facade = facade;
         this.matureData = new MatureData("plugins/data/miRNA.dat");
-        this.fastaSequences = facade.getFASTAQueries(hits);
+        this.dbSequences = facade.getFASTACustomDBSequences(hits);
+        this.querySequences = facade.getFASTAQueries(hits);
 
         initTree();
 
@@ -910,7 +909,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         Matcher matcher;
         Pattern pattern;
         ArrayList<MatureInfo> matureInfo;
-        ArrayList<String> querySequences;
+        ArrayList<String> matureSequences;
         
         @Override
         public void valueChanged(TreeSelectionEvent e) {
@@ -921,67 +920,86 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             for (TreePath path : jTreeQueries.getSelectionPaths())
                 for (Object node : path.getPath()) {
 
-                    Object current = ((DefaultMutableTreeNode) node).getUserObject();
-                    miRNAHit currentHit;
-                    String queryString;
 
-                    if (current instanceof miRNAHit) {
-                        currentHit = (miRNAHit) current;
-                        int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
+                Object current = ((DefaultMutableTreeNode) node).getUserObject();
+                miRNAHit currentHit;
+                miRNAQuery currentQuery;
+                String queryString;
+                ArrayList<String> matureSequences;
 
-                        for (BLASTGrabberStatistic i : currentHit.Statistics){
-                            if (i.Key.equals("SbjctFrom"))
-                                start = (int) i.Value;
-                            else if (i.Key.equals("SbjctTo"))
-                                stop = (int) i.Value;
-                            else if (i.Key.equals("QueryFrom"))
-                                qstart = (int) i.Value;
-                            else if (i.Key.equals("QueryTo"))
-                                qstop = (int) i.Value;
-                            else if (i.Name.equals("Query length"))
-                                length = (int) i.Value;
-                        }
+                if (current instanceof miRNAHit) {
+                    currentHit = (miRNAHit) current;
+                    int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
 
-                        if (stop < start) {
-                            int temp = stop;
-                            stop = start + qstart;
-                            start = temp - (length - qstop);
-                        } else {
-                            start -= qstart;
-                            stop += length - qstop;
-                        }
-                        //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
+                    for (BLASTGrabberStatistic i : currentHit.Statistics) {
+                        if (i.Key.equals("SbjctFrom"))
+                            start = (int) i.Value;
+                        else if (i.Key.equals("SbjctTo"))
+                            stop = (int) i.Value;
+                        else if (i.Key.equals("QueryFrom"))
+                            qstart = (int) i.Value;
+                        else if (i.Key.equals("QueryTo"))
+                            qstop = (int) i.Value;
+                        else if (i.Name.equals("Query length"))
+                            length = (int) i.Value;
+                    }
 
-                        String name = currentHit.SequenceHeader;
-                        String sequence = sequences.get(name).substring(start, stop);
-                        if (name != null && sequence != null) {
-                            currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop));
-                            selectedSequence = currentSequences.size() - 1;
-                        } else {
-                            JOptionPane.showMessageDialog(null, "No sequence found for this hit");
-                        }
+                    if (stop < start) {
+                        int temp = stop;
+                        stop = start + qstart;
+                        start = temp - (length - qstop);
+                    } else {
+                        start -= qstart;
+                        stop += length - qstop;
+                    }
+                    //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
 
-                        //getting mature data:
+                    String name = currentHit.SequenceHeader;
+                    String sequence = dbSequences.get(name).substring(start, stop);
+                    
+                    if (name != null && sequence != null) {
+                        currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop));
+                        selectedSequence = currentSequences.size() - 1;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No sequence found for this hit");
+                    }
+                    
+                    //getting mature data:
                         queryString = ((miRNAQuery)((DefaultMutableTreeNode)path.getParentPath().getLastPathComponent()).getUserObject()).Name;
                         pattern = Pattern.compile("MI\\d+");
                         matcher = pattern.matcher(queryString);
                         if (matcher.find())
                             queryString = matcher.group();
 
-                        querySequences = new ArrayList<String>();
+                        matureSequences = new ArrayList<String>();
 
                         matureInfo = matureData.getMatureIndexes(queryString);
                         jTextArea1.append(queryString + "\n");
 
                         for (MatureInfo i : matureInfo){
                             pattern = Pattern.compile(queryString);
-                            for(String j : fastaSequences.keySet()){
+                            for(String j : querySequences.keySet()){
                                 matcher = pattern.matcher(j);
                                 if(matcher.find())
-                                    jTextArea1.append(fastaSequences.get(j).substring(i.start, i.end) + "\n");
+                                    jTextArea1.append(querySequences.get(j).substring(i.start, i.end) + "\n");
                             }
                         }
+                    
+                } else if (current instanceof miRNAQuery) {
+                    currentQuery = (miRNAQuery) current;
+                    
+                    String name = ">" + currentQuery.Name;
+                    String sequence = querySequences.get(name);
+                    
+                    if (name != null && sequence != null) {
+                        currentSequences.add(new miRNASequence(name + "\n" + sequence, 0, 0));
+                        selectedSequence = currentSequences.size() - 1;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No sequence found for this query");
                     }
+                    
+                    jTextArea1.setText(name + "\n" + sequence);
+                }
             }
         }
     }
