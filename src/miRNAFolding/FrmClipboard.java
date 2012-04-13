@@ -6,22 +6,16 @@ import Data.miRNAHit;
 import Data.miRNAQuery;
 import Data.miRNASequence;
 import com.kitfox.svg.SVGElement;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Locale;
-import javax.swing.DefaultListSelectionModel;
-import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -32,7 +26,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 /**
@@ -42,20 +35,14 @@ import javax.swing.tree.TreePath;
  * @author Petter Hannevold
  */
 public class FrmClipboard extends javax.swing.JInternalFrame {
-    // for jar compile:
     public final static String BASEPATH = new File(
             FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()
             ).getParent().concat("/");
-    // for project testing:
-    //public final static String BASEPATH = "";
 
-    private HashMap<String, miRNAQuery> queries;
     private HashMap<String, miRNAQuery> hits;
     private BLASTGrabber.Facade facade;
     private HashMap<String, String> querySequences;
     private HashMap<String, String> dbSequences;
-
-    private TreeSelectionListener treeListener;
 
     private DefaultTableModel suboptimalTableModel;
     private DefaultTableModel multipleTableModel;
@@ -68,6 +55,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
     private double[] plotTransform = {0.0, 0.0, 0.0, 0.0};
     private double[] legendTransform = {0.0, 0.0, 0.0, 0.0};
+    private double plotResizeScale = 0.0;
+    private double legendResizeTranslate = 0.0;
 
     private int lastX;
     private int lastY;
@@ -75,6 +64,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
     private ArrayList<miRNASequence> currentSequences = new ArrayList<miRNASequence>();
     private int selectedSequence = 0;
+    private String lastfold = "";
 
     /** Creates new form FrmClipboard */
     public FrmClipboard() {
@@ -95,7 +85,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             HashMap<String, BLASTGrabberQuery> hits,
             BLASTGrabber.Facade facade) {
 
-        this.queries = convertQueries(queries);
         this.hits = convertQueries(hits);
         this.querySequences = facade.getFASTAQueries(hits);
         this.dbSequences = facade.getFASTACustomDBSequences(hits);
@@ -105,45 +94,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
         jTableSuboptimal.setModel(suboptimalTableModel);
-        jTableSuboptimal.getSelectionModel().addListSelectionListener(new TableListener());
+        jTableSuboptimal.getSelectionModel().addListSelectionListener(new TableSuboptimalListener());
 
         multipleTableModel = new DefaultTableModel(standardColumns, 0);
         jTableMultiple.setModel(multipleTableModel);
-        jTableMultiple.getSelectionModel().addListSelectionListener(new TableListener());
+        jTableMultiple.getSelectionModel().addListSelectionListener(new TableMultipleListener());
 
         //DataUpdate.updatemiRBaseData();
-    }
-
-    /**
-     * Main method for running the plugin independently for testing purposes.
-     */
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch(Exception e) {
-            JOptionPane.showMessageDialog(null, "Error setting native LAF: " + e);
-        }
-        JFrame main = new JFrame("Test frame");
-        main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JDesktopPane desktop = new JDesktopPane();
-        main.add(desktop);
-
-        FrmClipboard intFrm = new FrmClipboard();
-        intFrm.init(new HashMap<String, BLASTGrabberQuery>(), new HashMap<String, BLASTGrabberQuery>(), null);
-        desktop.add(intFrm);
-
-        intFrm.setVisible(true);
-        desktop.setVisible(true);
-        main.setVisible(true);
-
-        desktop.setPreferredSize(new Dimension(1300, 750));
-        desktop.setBackground(Color.BLACK);
-        main.pack();
-
-        // pre-miRNA from human X chromosome for testing
-        //String testSequence = ">hsa-let-7f-2 MI0000068\n"
-        //   + "UGUGGGAUGAGGUAGUAGAUUGUAUAGUUUUAGGGUCAUACCCCAUCUUGGAGAUAACUAUACAGUCUACUGUCUUUCCCACG";
     }
 
     /**
@@ -203,23 +160,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             SVGElement root = svgPanel.getSvgUniverse().getDiagram(uri).getRoot();
             plot = root.getChild(1);
             legend = root.getChild(2);
-            double[] pt = plot.getPresAbsolute("transform").getDoubleList();
-            double[] lt = legend.getPresAbsolute("transform").getDoubleList();
+            plotTransform = plot.getPresAbsolute("transform").getDoubleList();
+            legendTransform = legend.getPresAbsolute("transform").getDoubleList();
 
-            if (first) {
-                // ensures scale is kept, in case svgPanel was resized
-                for (int i = 0; i < 4; i++) {
-                    plotTransform[i] += pt[i];
-                    legendTransform[i] += lt[i];
-                }
-            } else {
-                plotTransform[2] = pt[2];
-                plotTransform[3] = pt[3];
-            }
             updatePlot();
             updateLegend();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error loading SVG: " + e);
         }
         svgPanel.repaint();
     }
@@ -231,8 +178,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
      */
     private void generatePlot(String folding) {
         RNAFolder.generatePlots(folding);
-
-        jTextAreaFoldOutput.setText(folding);
+        lastfold = folding;
+        formatFoldOutput(folding);
 
         String svgPath = ColorAnnotator.annnotateSVG(
                 currentSequences.get(selectedSequence),
@@ -248,15 +195,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private void updatePlot() {
         if (plot != null) {
             StringBuilder sb = new StringBuilder("scale(");
-            sb.append(plotTransform[0]).append(" ");
-            sb.append(plotTransform[1]).append(") translate(");
+            sb.append(plotTransform[0] + plotResizeScale).append(" ");
+            sb.append(plotTransform[1] + plotResizeScale).append(") translate(");
             sb.append(plotTransform[2]).append(" ");
             sb.append(plotTransform[3]).append(")");
             try {
                 plot.setAttribute("transform", 2, sb.toString());
                 plot.updateTime(0);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
+                JOptionPane.showMessageDialog(null, "Error updating plot: " + e);
             }
 
             svgPanel.repaint();
@@ -271,15 +218,37 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             StringBuilder sb = new StringBuilder("scale(");
             sb.append(legendTransform[0]).append(" ");
             sb.append(legendTransform[1]).append(") translate(");
-            sb.append(legendTransform[2]).append(" ");
+            sb.append(legendTransform[2] + legendResizeTranslate).append(" ");
             sb.append(legendTransform[3]).append(")");
             try {
                 legend.setAttribute("transform", 2, sb.toString());
                 legend.updateTime(0);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
+                JOptionPane.showMessageDialog(null, "Error updating legend: " + e);
             }
             svgPanel.repaint();
+        }
+    }
+
+    /**
+     * Method to prettify the output from the folding tools for display
+     *
+     * @param output    A String containing the output from RNAfold et al.
+     */
+    private void formatFoldOutput(String output) {
+        jTextAreaFoldOutput.setText(output);
+        String[] lines = output.split("[\r\n]+");
+        if (lines.length >= 3) {
+            String freeEnergy = stripParantheses(splitFirstSpace(lines[2])[1]);
+            jTextAreaFoldOutput.append("\nFree energy for optimal secondary structure is " + freeEnergy + " kCal/mol");
+        }
+        if (lines.length >= 4) {
+            String freeEnergy = stripParantheses(splitFirstSpace(lines[3])[1]);
+            jTextAreaFoldOutput.append("\nFree energy of the thermodynamic ensemble is " + freeEnergy + " kCal/mol");
+            String[] centroidData = splitFirstSpace(stripParantheses(splitFirstSpace(lines[4])[1]));
+            jTextAreaFoldOutput.append("\nFree energy for centroid secondary structure is " +
+                    centroidData[0] + " kCal/mol, " + centroidData[1]);
+            jTextAreaFoldOutput.append("\n\nOptimal secondary structure shown.");
         }
     }
 
@@ -339,10 +308,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 currentNode.add(new DefaultMutableTreeNode(j));
         }
 
-        TreeModel tm = new DefaultTreeModel(top);
-        jTreeQueries.setModel(tm);
-        this.treeListener = new TreeListener();
-        jTreeQueries.addTreeSelectionListener(treeListener);
+        jTreeQueries.setModel(new DefaultTreeModel(top));
+        jTreeQueries.addTreeSelectionListener(new TreeListener());
     }
 
     /**
@@ -383,13 +350,13 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         buttonGroupGUPairs = new javax.swing.ButtonGroup();
         buttonGroupSuboptimal = new javax.swing.ButtonGroup();
         svgPanel = new com.kitfox.svg.app.beans.SVGPanel();
+        jRadioButtonPairProbabilities = new javax.swing.JRadioButton();
+        jRadioButtonPositionalEntropy = new javax.swing.JRadioButton();
         jTabbedPane = new javax.swing.JTabbedPane();
         jPanelMFE = new javax.swing.JPanel();
         jButtonFold = new javax.swing.JButton();
         jScrollPaneFoldOutput = new javax.swing.JScrollPane();
         jTextAreaFoldOutput = new javax.swing.JTextArea();
-        jRadioButtonPairProbabilities = new javax.swing.JRadioButton();
-        jRadioButtonPositionalEntropy = new javax.swing.JRadioButton();
         jPanelSuboptimal = new javax.swing.JPanel();
         jScrollPaneSuboptimal = new javax.swing.JScrollPane();
         jTableSuboptimal = new javax.swing.JTable();
@@ -441,7 +408,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         svgPanel.setBackground(new java.awt.Color(255, 255, 255));
         svgPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 180, 180)));
-        svgPanel.setFont(new java.awt.Font("SansSerif", 0, 11)); // NOI18N
+        svgPanel.setFont(new java.awt.Font("SansSerif", 0, 11));
         svgPanel.setPreferredSize(new java.awt.Dimension(400, 400));
         svgPanel.setUseAntiAlias(true);
         svgPanel.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
@@ -464,33 +431,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 svgPanelMouseDragged(evt);
             }
         });
-
-        javax.swing.GroupLayout svgPanelLayout = new javax.swing.GroupLayout(svgPanel);
-        svgPanel.setLayout(svgPanelLayout);
-        svgPanelLayout.setHorizontalGroup(
-            svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 398, Short.MAX_VALUE)
-        );
-        svgPanelLayout.setVerticalGroup(
-            svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 398, Short.MAX_VALUE)
-        );
-
-        jTabbedPane.setPreferredSize(new java.awt.Dimension(555, 400));
-
-        jButtonFold.setText("Fold");
-        jButtonFold.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonFoldActionPerformed(evt);
-            }
-        });
-
-        jTextAreaFoldOutput.setColumns(20);
-        jTextAreaFoldOutput.setEditable(false);
-        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11));
-        jTextAreaFoldOutput.setRows(5);
-        jTextAreaFoldOutput.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        jScrollPaneFoldOutput.setViewportView(jTextAreaFoldOutput);
 
         jRadioButtonPairProbabilities.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroupColorAnnotation.add(jRadioButtonPairProbabilities);
@@ -516,6 +456,43 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             }
         });
 
+        javax.swing.GroupLayout svgPanelLayout = new javax.swing.GroupLayout(svgPanel);
+        svgPanel.setLayout(svgPanelLayout);
+        svgPanelLayout.setHorizontalGroup(
+            svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(svgPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRadioButtonPairProbabilities, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jRadioButtonPositionalEntropy, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap(251, Short.MAX_VALUE))
+        );
+        svgPanelLayout.setVerticalGroup(
+            svgPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, svgPanelLayout.createSequentialGroup()
+                .addContainerGap(344, Short.MAX_VALUE)
+                .addComponent(jRadioButtonPairProbabilities, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonPositionalEntropy)
+                .addContainerGap())
+        );
+
+        jTabbedPane.setPreferredSize(new java.awt.Dimension(555, 400));
+
+        jButtonFold.setText("Fold");
+        jButtonFold.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFoldActionPerformed(evt);
+            }
+        });
+
+        jTextAreaFoldOutput.setColumns(20);
+        jTextAreaFoldOutput.setEditable(false);
+        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11));
+        jTextAreaFoldOutput.setRows(5);
+        jTextAreaFoldOutput.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        jScrollPaneFoldOutput.setViewportView(jTextAreaFoldOutput);
+
         javax.swing.GroupLayout jPanelMFELayout = new javax.swing.GroupLayout(jPanelMFE);
         jPanelMFE.setLayout(jPanelMFELayout);
         jPanelMFELayout.setHorizontalGroup(
@@ -524,32 +501,23 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(jPanelMFELayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPaneFoldOutput, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
-                    .addGroup(jPanelMFELayout.createSequentialGroup()
-                        .addGroup(jPanelMFELayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jRadioButtonPairProbabilities, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jRadioButtonPositionalEntropy, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 436, Short.MAX_VALUE)
-                        .addComponent(jButtonFold)))
+                    .addComponent(jButtonFold))
                 .addContainerGap())
         );
         jPanelMFELayout.setVerticalGroup(
             jPanelMFELayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelMFELayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPaneFoldOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 166, Short.MAX_VALUE)
-                .addGroup(jPanelMFELayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButtonFold)
-                    .addGroup(jPanelMFELayout.createSequentialGroup()
-                        .addComponent(jRadioButtonPairProbabilities, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonPositionalEntropy)))
+                .addComponent(jScrollPaneFoldOutput, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButtonFold)
                 .addContainerGap())
         );
 
         jTabbedPane.addTab("MFE structure", jPanelMFE);
 
         jTableSuboptimal.setAutoCreateRowSorter(true);
+        jTableSuboptimal.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPaneSuboptimal.setViewportView(jTableSuboptimal);
 
         jButtonFoldSuboptimal.setText("Fold suboptimal structures");
@@ -582,10 +550,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jPanelSuboptimal.setLayout(jPanelSuboptimalLayout);
         jPanelSuboptimalLayout.setHorizontalGroup(
             jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSuboptimalLayout.createSequentialGroup()
+            .addGroup(jPanelSuboptimalLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPaneSuboptimal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
+                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPaneSuboptimal, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
                     .addGroup(jPanelSuboptimalLayout.createSequentialGroup()
                         .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelSuboptimalLayout.createSequentialGroup()
@@ -609,24 +577,27 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSuboptimalLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPaneSuboptimal, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButtonRange)
-                    .addComponent(jFormattedTextFieldRange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabelRange))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonFoldSuboptimal)
-                    .addComponent(jRadioButtonRandom)
-                    .addComponent(jFormattedTextFieldRandom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabelRandom))
-                .addGap(51, 51, 51))
+                .addComponent(jScrollPaneSuboptimal, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                .addGap(11, 11, 11)
+                .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanelSuboptimalLayout.createSequentialGroup()
+                        .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jRadioButtonRange)
+                            .addComponent(jFormattedTextFieldRange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelRange))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanelSuboptimalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jRadioButtonRandom)
+                            .addComponent(jFormattedTextFieldRandom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelRandom)))
+                    .addComponent(jButtonFoldSuboptimal))
+                .addContainerGap())
         );
 
         jTabbedPane.addTab("Suboptimal structures", jPanelSuboptimal);
 
         jTableMultiple.setAutoCreateRowSorter(true);
+        jTableMultiple.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPaneMultiple.setViewportView(jTableMultiple);
 
         jButtonFoldMultiple.setText("Fold selected sequences");
@@ -676,7 +647,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jPanelMultipleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelMultipleLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPaneMultiple, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
+                .addComponent(jScrollPaneMultiple, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanelMultipleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonFoldMultiple)
@@ -811,7 +782,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 .addComponent(jRadioButtonNoGU)
                 .addGroup(jPanelOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanelOptionsLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                         .addComponent(jButtonRefold)
                         .addContainerGap())
                     .addGroup(jPanelOptionsLayout.createSequentialGroup()
@@ -843,7 +814,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -872,11 +843,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPaneQueries, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+                .addComponent(jScrollPaneQueries, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, 0, 0, Short.MAX_VALUE)
-                    .addComponent(svgPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(svgPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -885,14 +856,28 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private class TableListener implements ListSelectionListener {
+    private class TableSuboptimalListener implements ListSelectionListener {
         @Override
         public void valueChanged(ListSelectionEvent e) {
-            JTable table = (JTable) ((DefaultListSelectionModel) e.getSource()).getListSelectionListeners()[1];
-            int row = table.getSelectedRow();
+            int row = jTableSuboptimal.getSelectedRow();
+            if (row > -1) {
+                String sequence = currentSequences.get(selectedSequence).toString() +
+                        "\n" + jTableSuboptimal.getValueAt(row, 2) +
+                        " (" + jTableSuboptimal.getValueAt(row, 3) + ")";
+                generatePlot(sequence);
+            }
+        }
+    }
+
+    private class TableMultipleListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            int row = jTableMultiple.getSelectedRow();
             if (row > -1) {
                 selectedSequence = row;
-                String sequence = currentSequences.get(row).toString() + "\n" + table.getValueAt(row, 2);
+                String sequence = currentSequences.get(row).toString() +
+                        "\n" + jTableMultiple.getValueAt(row, 2) +
+                        " (" + jTableMultiple.getValueAt(row, 3) + ")";
                 generatePlot(sequence);
             }
         }
@@ -905,9 +890,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jTextArea1.setText(null);
             currentSequences.clear();
 
-            for (TreePath path : jTreeQueries.getSelectionPaths())
-                for (Object node : path.getPath()) {
-
+            for (TreePath path : jTreeQueries.getSelectionPaths()) {
+                Object node = path.getPathComponent(path.getPathCount()-1);
                 Object current = ((DefaultMutableTreeNode) node).getUserObject();
                 miRNAHit currentHit;
                 miRNAQuery currentQuery;
@@ -941,20 +925,20 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
                     String name = currentHit.SequenceHeader;
                     String sequence = dbSequences.get(name).substring(start, stop);
-                    
+
                     if (name != null && sequence != null) {
                         currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop));
                         selectedSequence = currentSequences.size() - 1;
                     } else {
                         JOptionPane.showMessageDialog(null, "No sequence found for this hit");
                     }
-                    
+
                 } else if (current instanceof miRNAQuery) {
                     currentQuery = (miRNAQuery) current;
-                    
+
                     String name = ">" + currentQuery.Name;
                     String sequence = querySequences.get(name);
-                    
+
                     if (name != null && sequence != null) {
                         currentSequences.add(new miRNASequence(name + "\n" + sequence, 0, 0));
                         selectedSequence = currentSequences.size() - 1;
@@ -978,9 +962,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     private void jRadioButtonPairProbabilitiesActionPerformed(java.awt.event.ActionEvent evt) {
-        String output = jTextAreaFoldOutput.getText();
-        if (!output.isEmpty())
-            generatePlot(output);
+        if (!lastfold.isEmpty())
+            generatePlot(lastfold);
     }
 
     private void jRadioButtonPositionalEntropyActionPerformed(java.awt.event.ActionEvent evt) {
@@ -1099,14 +1082,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             int rot = evt.getWheelRotation();
             plotTransform[0] += (-rot * 0.05);
             plotTransform[1] += (-rot * 0.05);
-            int x = (svgPanel.getWidth()/2);
-            int y = (svgPanel.getHeight()/2);
-            if (rot > 0) {
-                x = -x;
-                y = -y;
-            }
-            plotTransform[2] += (-x * 0.05);
-            plotTransform[3] += (-y * 0.05);
             updatePlot();
         }
     }//GEN-LAST:event_svgPanelMouseWheelMoved
@@ -1130,12 +1105,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
     private void svgPanelResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_svgPanelResized
         int w = svgPanel.getWidth();
-        plotTransform[0] += (w - lastW) * 0.0019;
-        plotTransform[1] += (w - lastW) * 0.0019;
-        legendTransform[2] += (w - lastW) * 1.13;
+        plotResizeScale += (w - lastW) * 0.0019;
+        legendResizeTranslate += (w - lastW) * 1.13;
         lastW = w;
-        updateLegend();
         updatePlot();
+        updateLegend();
     }//GEN-LAST:event_svgPanelResized
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

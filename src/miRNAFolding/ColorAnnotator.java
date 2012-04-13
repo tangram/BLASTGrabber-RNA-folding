@@ -19,6 +19,7 @@ import nu.xom.Element;
 import nu.xom.ParsingException;
 import nu.xom.Serializer;
 import Data.miRNASequence;
+import java.io.File;
 
 /**
  * ColorAnnotator contains methods for reading pair probabilities from RNAfold dot plot PostScript files,
@@ -73,9 +74,9 @@ public class ColorAnnotator {
             }
             reader.close();
         } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            JOptionPane.showMessageDialog(null, "File does not exist: " + e);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error reading file: " + e);
         }
 
         return dataset;
@@ -123,6 +124,7 @@ public class ColorAnnotator {
         String name = sequence.toString().split("\\s")[0].substring(1);
         if (name.length() > 42)
             name = name.substring(0, 42);
+        name = RNAFolder.WORKINGDIR + File.separator + name;
 
         Dataset dataset = readPairProbabilities(name + "_dp.ps");
 
@@ -130,9 +132,9 @@ public class ColorAnnotator {
         try {
             doc = parser.build(new BufferedReader(new FileReader(name + "_ss.svg")));
         } catch (ParsingException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error parsing file: " + e);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error reading file: " + e);
         }
 
         String svg = "http://www.w3.org/2000/svg";
@@ -232,6 +234,7 @@ public class ColorAnnotator {
         }
 
         // build legend
+        // color key
         Element legend = new Element("g", svg);
         legend.addAttribute(new Attribute("style", "stroke-width: 0"));
         legend.addAttribute(new Attribute("transform", "scale(0.885 0.885) translate(340 0)"));
@@ -246,20 +249,6 @@ public class ColorAnnotator {
         max.addAttribute(new Attribute("y", "20"));
         max.appendChild(Double.toString(Math.round(10.0 * dataset.max) / 10.0));
         legend.appendChild(max);
-        Element dash = new Element("line", svg);
-        dash.addAttribute(new Attribute("x1", "0"));
-        dash.addAttribute(new Attribute("x2", "40"));
-        dash.addAttribute(new Attribute("y1", "40"));
-        dash.addAttribute(new Attribute("y2", "40"));
-        dash.addAttribute(new Attribute("style", "stroke: black; stroke-dasharray: 2, 2; stroke-width: 2"));
-        legend.appendChild(dash);
-        Element align = new Element("text", svg);
-        align.addAttribute(new Attribute("x", "40"));
-        align.addAttribute(new Attribute("y", "45"));
-        align.appendChild("Alignment");
-        legend.appendChild(align);
-        root.appendChild(legend);
-
         for (int i = 0; i < nCol; i += 5) {
             Element rect = new Element("rect", svg);
             rect.addAttribute(new Attribute("x", Integer.toString(i)));
@@ -270,6 +259,22 @@ public class ColorAnnotator {
             rect.addAttribute(new Attribute("style", "fill: " + col));
             legend.appendChild(rect);
         }
+        // alignment
+        if (sequence.getAlignmentStop() != 0) {
+            Element dash = new Element("line", svg);
+            dash.addAttribute(new Attribute("x1", "0"));
+            dash.addAttribute(new Attribute("x2", "40"));
+            dash.addAttribute(new Attribute("y1", "40"));
+            dash.addAttribute(new Attribute("y2", "40"));
+            dash.addAttribute(new Attribute("style", "stroke: black; stroke-dasharray: 2, 2; stroke-width: 2"));
+            legend.appendChild(dash);
+            Element align = new Element("text", svg);
+            align.addAttribute(new Attribute("x", "40"));
+            align.addAttribute(new Attribute("y", "45"));
+            align.appendChild("Alignment");
+            legend.appendChild(align);
+        }
+        root.appendChild(legend);
 
         String type = "pairprob";
         if (computeEntropy)
@@ -286,7 +291,7 @@ public class ColorAnnotator {
             stream.flush();
             stream.close();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error writing SVG file: " + e);
         }
 
         return newFilepath;
