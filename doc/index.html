@@ -76,7 +76,7 @@ h6 {
 	miRNA Folding adresses a very specific need for researchers working with microRNA (miRNA). BLAST searches will frequently return a large number of hits. When searching for short sequences of miRNA, usually 18-24 bases in length, the number of hits can be overwhelming. A number of these sequences may not be actual candidates for miRNA.
 </p>
 <p>
-	This plugin allows the user to fold precursor sequences of miRNA according to the Vienna RNA tools RNAfold algorithm, to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.
+	This plugin allows the user to fold precursor sequences of miRNA using the Vienna RNA tools RNAfold algorithm, to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.
 </p>
 <h2><a name="h.kku3gvvbv38q"></a>Accessing the plugin</h2>
 <p>
@@ -144,7 +144,7 @@ h6 {
 	The Suboptimal structures tab can be used to fold structures that deviate from the MFE structure. The first option gives structures that deviate from the MFE structure by a set in kcal/mol. The second option gives a random selection of <em>n</em>&nbsp;structures, drawn with probabilities equal to their Boltzmann weights via stochastic backtracking in the partition function.
 </p>
 <p>
-	Be aware that the number of suboptimal results increases exponentially with kCal/mol . A high setting (&gt; 12-13 kCal/mol) will likely run you out of memory. Refer to the BLASTGrabber manual to allow for a larger heap space.
+	Be aware that the number of suboptimal results increases exponentially with kcal/mol . A high setting (&gt; 12-13 kcal/mol) will likely run you out of memory. Refer to the BLASTGrabber manual to allow for a larger heap space.
 </p>
 <p>
 	On pressing Fold suboptimal structures, the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view.

@@ -2,6 +2,8 @@ package miRNAFolding;
 
 import BLASTGrabber.Facade.BLASTGrabberQuery;
 import BLASTGrabber.Facade.BLASTGrabberStatistic;
+import Data.MatureData;
+import Data.MatureInfo;
 import Data.miRNAHit;
 import Data.miRNAQuery;
 import Data.miRNASequence;
@@ -27,6 +29,8 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * FrmClipboard is the main view and controller class for the miRNA Folding plugin.
@@ -41,14 +45,16 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
     private HashMap<String, miRNAQuery> hits;
     private BLASTGrabber.Facade facade;
+    private MatureData matureData;
+
     private HashMap<String, String> querySequences;
     private HashMap<String, String> dbSequences;
 
     private DefaultTableModel suboptimalTableModel;
     private DefaultTableModel multipleTableModel;
 
-    private String[] standardColumns = {"Number", "ID", "Structure", "kCal/mol"};
-    private String[] tempRangeColumns = {"Temperature", "ID", "Structure", "kCal/mol"};
+    private String[] standardColumns = {"Number", "ID", "Structure", "kcal/mol"};
+    private String[] tempRangeColumns = {"Temperature", "ID", "Structure", "kcal/mol"};
 
     private SVGElement plot;
     private SVGElement legend;
@@ -65,7 +71,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private ArrayList<miRNASequence> currentSequences = new ArrayList<miRNASequence>();
     private int selectedSequence = 0;
     private String lastfold = "";
-    
+
     private boolean treeCollapsed = true;
 
     /** Creates new form FrmClipboard */
@@ -83,14 +89,17 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
      * @param facade    A reference to the BLASTGrabber Facade object
      */
     public void init(
-            HashMap<String, BLASTGrabberQuery> queries,
-            HashMap<String, BLASTGrabberQuery> hits,
-            BLASTGrabber.Facade facade) {
+        HashMap<String, BLASTGrabberQuery> queries,
+        HashMap<String, BLASTGrabberQuery> hits,
+        BLASTGrabber.Facade facade) {
 
         this.hits = convertQueries(hits);
-        this.querySequences = facade.getFASTAQueries(hits);
-        this.dbSequences = facade.getFASTACustomDBSequences(hits);
         this.facade = facade;
+        this.dbSequences = facade.getFASTACustomDBSequences(hits);
+        this.querySequences = facade.getFASTAQueries(hits);
+
+        DataUpdate.updatemiRBaseData();
+        this.matureData = new MatureData(DataUpdate.BASEPATH + DataUpdate.DATAPATH + "miRNA.dat");
 
         initTree();
 
@@ -101,8 +110,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         multipleTableModel = new DefaultTableModel(standardColumns, 0);
         jTableMultiple.setModel(multipleTableModel);
         jTableMultiple.getSelectionModel().addListSelectionListener(new TableMultipleListener());
-
-        //DataUpdate.updatemiRBaseData();
     }
 
     /**
@@ -242,14 +249,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         String[] lines = output.split("[\r\n]+");
         if (lines.length >= 3) {
             String freeEnergy = stripParantheses(splitFirstSpace(lines[2])[1]);
-            jTextAreaFoldOutput.append("\n\nFree energy for optimal secondary structure (shown) is " + freeEnergy + " kCal/mol");
+            jTextAreaFoldOutput.append("\n\nFree energy for optimal secondary structure (shown) is " + freeEnergy + " kcal/mol");
         }
         if (lines.length >= 4) {
             String freeEnergy = stripParantheses(splitFirstSpace(lines[3])[1]);
-            jTextAreaFoldOutput.append("\n\nFree energy of the thermodynamic ensemble is " + freeEnergy + " kCal/mol");
+            jTextAreaFoldOutput.append("\n\nFree energy of the thermodynamic ensemble is " + freeEnergy + " kcal/mol");
             String[] centroidData = splitFirstSpace(stripParantheses(splitFirstSpace(lines[4])[1]));
             jTextAreaFoldOutput.append("\n\nFree energy for centroid secondary structure is " +
-                    centroidData[0] + " kCal/mol, " + centroidData[1]);
+                    centroidData[0] + " kcal/mol, " + centroidData[1]);
         }
     }
 
@@ -494,7 +501,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         jTextAreaFoldOutput.setColumns(20);
         jTextAreaFoldOutput.setEditable(false);
-        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11));
+        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         jTextAreaFoldOutput.setRows(5);
         jTextAreaFoldOutput.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         jScrollPaneFoldOutput.setViewportView(jTextAreaFoldOutput);
@@ -548,7 +555,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jFormattedTextFieldRange.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jFormattedTextFieldRange.setText("1.0");
 
-        jLabelRange.setText("kCal/mol of MFE structure");
+        jLabelRange.setText("kcal/mol of MFE structure");
 
         jLabelRandom.setText("suboptimal structures");
 
@@ -804,6 +811,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jPanelOptions.getAccessibleContext().setAccessibleName("");
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
@@ -944,6 +952,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     private class TreeListener implements TreeSelectionListener {
+
+        Matcher matcher;
+        Pattern pattern;
+        ArrayList<MatureInfo> matureInfo;
+        ArrayList<String> matureSequences;
+
         @Override
         public void valueChanged(TreeSelectionEvent e) {
 
@@ -955,6 +969,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 Object current = ((DefaultMutableTreeNode) node).getUserObject();
                 miRNAHit currentHit;
                 miRNAQuery currentQuery;
+                String queryString;
 
                 if (current instanceof miRNAHit) {
                     currentHit = (miRNAHit) current;
@@ -993,6 +1008,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                         JOptionPane.showMessageDialog(null, "No sequence found for this hit");
                     }
 
+                    jTextArea1.setText(name + "\n" + sequence);
+
                 } else if (current instanceof miRNAQuery) {
                     currentQuery = (miRNAQuery) current;
 
@@ -1004,6 +1021,29 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                         selectedSequence = currentSequences.size() - 1;
                     } else {
                         JOptionPane.showMessageDialog(null, "No sequence found for this query");
+                    }
+
+                    jTextArea1.setText(name + "\n" + sequence);
+
+                    //getting mature data
+                    queryString = ((miRNAQuery) current).Name;
+                    pattern = Pattern.compile("MI\\d+");
+                    matcher = pattern.matcher(queryString);
+                    if (matcher.find())
+                        queryString = matcher.group();
+
+                    matureSequences = new ArrayList<String>();
+
+                    matureInfo = matureData.getMatureIndexes(queryString);
+                    jTextArea1.append("\n" + queryString + "\n");
+
+                    for (MatureInfo i : matureInfo) {
+                        pattern = Pattern.compile(queryString);
+                        for (String j : querySequences.keySet()) {
+                            matcher = pattern.matcher(j);
+                            if (matcher.find())
+                                jTextArea1.append(querySequences.get(j).substring(i.start, i.end) + "\n");
+                        }
                     }
                 }
             }
@@ -1080,7 +1120,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         DefaultTableCellRenderer r = new DefaultTableCellRenderer();
         r.setHorizontalAlignment(SwingConstants.RIGHT);
         jTableSuboptimal.getColumn("Number").setCellRenderer(r);
-        jTableSuboptimal.getColumn("kCal/mol").setCellRenderer(r);
+        jTableSuboptimal.getColumn("kcal/mol").setCellRenderer(r);
     }
 
     private void jButtonParamFileActionPerformed(java.awt.event.ActionEvent evt) {
@@ -1115,7 +1155,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 setColumnSizes(jTableMultiple, 10, 100, 300, 10);
                 DefaultTableCellRenderer r = new DefaultTableCellRenderer();
                 r.setHorizontalAlignment(SwingConstants.RIGHT);
-                jTableMultiple.getColumn("kCal/mol").setCellRenderer(r);
+                jTableMultiple.getColumn("kcal/mol").setCellRenderer(r);
             }
         } else {
             jTableMultiple.clearSelection();
@@ -1133,7 +1173,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             setColumnSizes(jTableMultiple, 10, 100, 300, 10);
             DefaultTableCellRenderer r = new DefaultTableCellRenderer();
             r.setHorizontalAlignment(SwingConstants.RIGHT);
-            jTableMultiple.getColumn("kCal/mol").setCellRenderer(r);
+            jTableMultiple.getColumn("Number").setCellRenderer(r);
+            jTableMultiple.getColumn("kcal/mol").setCellRenderer(r);
         }
     }
 

@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 
 /**
  * DataUpdate contains methods to download or update miRNA data from http://www.mirbase.org/
- * 
+ *
  * @author Eirik Krogstad
  */
 public class DataUpdate {
@@ -27,6 +27,7 @@ public class DataUpdate {
                     JOptionPane.YES_NO_OPTION);
             if (choice == JOptionPane.YES_OPTION) {
                 try {
+                    new File(BASEPATH + DATAPATH).mkdir();
                     URL miRNADataURL = new URL("ftp://mirbase.org/pub/mirbase/CURRENT/miRNA.dat.gz");
                     ReadableByteChannel channel = Channels.newChannel(miRNADataURL.openStream());
                     FileOutputStream outputstream = new FileOutputStream(BASEPATH + DATAPATH + "miRNA.dat.gz");
