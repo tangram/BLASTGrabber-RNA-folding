@@ -3,7 +3,6 @@ package Data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -31,7 +30,7 @@ public class MatureData {
             String accession;
             String hairpin;
 
-            int start, end;
+            int start, stop;
 
             String line = reader.readLine();
             while (line != null) {
@@ -55,7 +54,7 @@ public class MatureData {
                                 else
                                     throw new IOException("Something wrong with mature indexing in miRNA.dat");
                                 if (matcher.find())
-                                    end = Integer.parseInt(matcher.group());
+                                    stop = Integer.parseInt(matcher.group());
                                 else
                                     throw new IOException("Something wrong with mature indexing in miRNA.dat " + hairpin);
 
@@ -66,7 +65,7 @@ public class MatureData {
                                 else
                                     throw new IOException("Something wrong with mature indexing in miRNA.dat");
 
-                                matureInfoList.add(new MatureInfo(start, end, accession));
+                                matureInfoList.add(new MatureInfo(start, stop, accession));
                             }
                             line = reader.readLine();
                         }
@@ -80,34 +79,6 @@ public class MatureData {
             reader.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void regexTest() {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
-            while (true) {
-                System.out.println("Enter text to search:");
-                Pattern pattern = Pattern.compile(reader.readLine());
-
-                System.out.println("Enter regex:");
-                Matcher matcher = pattern.matcher(reader.readLine());
-
-                boolean found = false;
-                while (matcher.find()) {
-                    System.out.println("I found the text \"" + matcher.group() +
-                            "\" starting at index " + matcher.start() +
-                            " and ending at index \n" + matcher.end());
-                    found = true;
-                }
-                if (!found)
-                    System.out.println("No match found");
-
-            }
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }

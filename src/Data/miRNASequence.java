@@ -19,12 +19,12 @@ public class miRNASequence {
         matureStop = 0;
     }
 
-    public miRNASequence(String s, int aStart, int aStop) {
+    public miRNASequence(String s, int aStart, int aStop, int mStart, int mStop) {
         sequence = s;
         alignmentStart = aStart;
         alignmentStop = aStop;
-        matureStart = 0;
-        matureStop = 0;
+        matureStart = mStart;
+        matureStop = mStop;
     }
 
     public int getAlignmentStart() {
@@ -33,6 +33,14 @@ public class miRNASequence {
 
     public int getAlignmentStop() {
         return alignmentStop;
+    }
+
+    public int getMatureStart() {
+        return matureStart;
+    }
+
+    public int getMatureStop() {
+        return matureStop;
     }
 
     @Override

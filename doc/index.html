@@ -147,7 +147,7 @@ h6 {
 	Be aware that the number of suboptimal results increases exponentially with kcal/mol . A high setting (&gt; 12-13 kcal/mol) will likely run you out of memory. Refer to the BLASTGrabber manual to allow for a larger heap space.
 </p>
 <p>
-	On pressing Fold suboptimal structures, the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view.
+	On pressing Fold suboptimal structures, the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view. Additional result data, as per a single sequence, can be found by switching to the MFE structure tab.
 </p>
 <h3><a name="h.g8ptrhbjzwlx"></a>Folding multiple structures</h3>
 <p>
@@ -157,16 +157,16 @@ h6 {
 	There is an option to fold a single sequence over a range of temperatures. With this option checked and a temperature range set, folding is repeated in 1&deg; increments.
 </p>
 <p>
-	On pressing Fold selected sequences, the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view.
+	On pressing Fold selected sequences, the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view. Additional result data, as per a single sequence, can be found by switching to the MFE structure tab.
 </p>
 <h3><a name="h.suu6wjhzdhxy"></a>Understanding the folding output</h3>
 <h4><a name="h.3ezbxedcf6yc"></a>The graphical view</h4>
 <p>
-	This window shows you a graphic representation of the secondary structure. If Show pair probabilities is set, colors represent pair probabilities as given by the legend in the upper-right corner. For unpaired bases, colors represent the probability of being unpaired. If Show positional entropy is set, colors represent positional entropy as given by the legend. If the folded sequence is a BLAST hit, the BLAST alignment is given as the bases outlined in dots.
+	This window shows you a graphic representation of the secondary structure. If Show pair probabilities is set, colors represent pair probabilities as given by the legend in the upper-right corner. For unpaired bases, colors represent the probability of being unpaired. If Show positional entropy is set, colors represent positional entropy as given by the legend. If an Accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is outlined in dashes. If the folded sequence is a BLAST hit, the BLAST alignment is given as the bases outlined in dots.
 </p>
 <h4><a name="h.p2wyok9kv1tn"></a>The parameter readout</h4>
 <p>
-	The first and second lines of the parameter readout shows the name and base sequence of the folded sequence. The third line shows the structure in dot-parenthesis form and free energy value for the MFE structure. The fourth and fifth lines show the structure and free energy value of the thermodynamic ensemble and centroid structure, respectively. The sixth line shows additional parameters for the resulting thermodynamic ensemble. The free energy values are repeated below for clarity.
+	The first and second lines of the parameter readout shows the name and base sequence of the folded sequence. The third line shows the structure in dot-parenthesis form and free energy value for the MFE structure. The fourth and fifth lines show the structure and free energy value of the thermodynamic ensemble and centroid structure, respectively. The sixth line shows additional parameters for the resulting thermodynamic ensemble. The free energy values are repeated below for clarity. If an Accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is shown. For hits, the alignment between query and hit is shown.
 </p>
 </body>
 </html>

@@ -50,6 +50,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private HashMap<String, String> querySequences;
     private HashMap<String, String> dbSequences;
 
+    private ArrayList<miRNASequence> currentSequences = new ArrayList<miRNASequence>();
+    private int selectedSequence = 0;
+    private String lastfold = "";
+
     private DefaultTableModel suboptimalTableModel;
     private DefaultTableModel multipleTableModel;
 
@@ -61,16 +65,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
     private double[] plotTransform = {0.0, 0.0, 0.0, 0.0};
     private double[] legendTransform = {0.0, 0.0, 0.0, 0.0};
+    private double[] plotResizeTranslate = {0.0, 0.0};
     private double plotResizeScale = 0.0;
     private double legendResizeTranslate = 0.0;
 
     private int lastX;
     private int lastY;
     private int lastW = 400;
-
-    private ArrayList<miRNASequence> currentSequences = new ArrayList<miRNASequence>();
-    private int selectedSequence = 0;
-    private String lastfold = "";
+    private int lastH = 400;
 
     private boolean treeCollapsed = true;
 
@@ -161,7 +163,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
      */
     private void loadSVG(String filename) {
         try {
-            boolean first = (svgPanel.getSvgURI() == null);
             svgPanel.getSvgUniverse().clear();
             URI uri = new File(filename).toURI();
             svgPanel.setSvgURI(uri);
@@ -206,8 +207,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             StringBuilder sb = new StringBuilder("scale(");
             sb.append(plotTransform[0] + plotResizeScale).append(" ");
             sb.append(plotTransform[1] + plotResizeScale).append(") translate(");
-            sb.append(plotTransform[2]).append(" ");
-            sb.append(plotTransform[3]).append(")");
+            sb.append(plotTransform[2] + plotResizeTranslate[0]).append(" ");
+            sb.append(plotTransform[3] + plotResizeTranslate[1]).append(")");
             try {
                 plot.setAttribute("transform", 2, sb.toString());
                 plot.updateTime(0);
@@ -249,14 +250,32 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         String[] lines = output.split("[\r\n]+");
         if (lines.length >= 3) {
             String freeEnergy = stripParantheses(splitFirstSpace(lines[2])[1]);
-            jTextAreaFoldOutput.append("\n\nFree energy for optimal secondary structure (shown) is " + freeEnergy + " kcal/mol");
+            jTextAreaFoldOutput.append("\nFree energy for the optimal secondary structure (shown) is " + freeEnergy + " kcal/mol");
         }
         if (lines.length >= 4) {
             String freeEnergy = stripParantheses(splitFirstSpace(lines[3])[1]);
-            jTextAreaFoldOutput.append("\n\nFree energy of the thermodynamic ensemble is " + freeEnergy + " kcal/mol");
+            jTextAreaFoldOutput.append("\nFree energy of the thermodynamic ensemble is " + freeEnergy + " kcal/mol");
+            /*
+            Pattern p = Pattern.compile("[a-z\\s]+(\\d+\\.\\d+)\\;[a-z\\s]+(\\d+\\.\\d+)");
+            Matcher m = p.matcher(lines[5]);
+            m.find();
+            String freq = m.group(1);
+            String div = m.group(2);
+            jTextAreaFoldOutput.append("\nFrequency of MFE structure in the ensemble is " + freq + " %");
+            jTextAreaFoldOutput.append("\nEnsemble diversity is " + div);
+            */
             String[] centroidData = splitFirstSpace(stripParantheses(splitFirstSpace(lines[4])[1]));
-            jTextAreaFoldOutput.append("\n\nFree energy for centroid secondary structure is " +
-                    centroidData[0] + " kcal/mol, " + centroidData[1]);
+            jTextAreaFoldOutput.append("\nFree energy for the centroid secondary structure is " +
+                    centroidData[0] + " kcal/mol, d = " + centroidData[1].substring(2));
+
+            miRNASequence current = currentSequences.get(selectedSequence);
+            String seq = current.toString().split("[\r\n]+")[1].replace('T', 'U');
+            if (current.getAlignmentStart() > 0 && current.getAlignmentStop() > 0)
+                jTextAreaFoldOutput.append("\n\nAlignment between query and hit:\n" +
+                    seq.substring(current.getAlignmentStart()-1, current.getAlignmentStop()-1));
+            if (current.getMatureStart() > 0 && current.getMatureStop() > 0)
+                jTextAreaFoldOutput.append("\n\nMature miRNA sequence found in miRBase data:\n" +
+                    seq.substring(current.getMatureStart()-1, current.getMatureStop()-1));
         }
     }
 
@@ -501,7 +520,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         jTextAreaFoldOutput.setColumns(20);
         jTextAreaFoldOutput.setEditable(false);
-        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        jTextAreaFoldOutput.setFont(new java.awt.Font("Monospaced", 0, 11));
         jTextAreaFoldOutput.setRows(5);
         jTextAreaFoldOutput.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         jScrollPaneFoldOutput.setViewportView(jTextAreaFoldOutput);
@@ -811,7 +830,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jPanelOptions.getAccessibleContext().setAccessibleName("");
 
         jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 11));
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
@@ -832,7 +851,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
-        jTabbedPane.addTab("Sequence", jPanel1);
+        jTabbedPane.addTab("Sequence test output", jPanel1);
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
         jTreeQueries.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
@@ -929,10 +948,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         public void valueChanged(ListSelectionEvent e) {
             int row = jTableSuboptimal.getSelectedRow();
             if (row > -1) {
-                String sequence = currentSequences.get(selectedSequence).toString() +
-                        "\n" + jTableSuboptimal.getValueAt(row, 2) +
-                        " (" + jTableSuboptimal.getValueAt(row, 3) + ")";
-                generatePlot(sequence);
+                selectedSequence = row;
+                jButtonFoldActionPerformed(null);
             }
         }
     }
@@ -943,21 +960,12 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             int row = jTableMultiple.getSelectedRow();
             if (row > -1) {
                 selectedSequence = row;
-                String sequence = currentSequences.get(row).toString() +
-                        "\n" + jTableMultiple.getValueAt(row, 2) +
-                        " (" + jTableMultiple.getValueAt(row, 3) + ")";
-                generatePlot(sequence);
+                jButtonFoldActionPerformed(null);
             }
         }
     }
 
     private class TreeListener implements TreeSelectionListener {
-
-        Matcher matcher;
-        Pattern pattern;
-        ArrayList<MatureInfo> matureInfo;
-        ArrayList<String> matureSequences;
-
         @Override
         public void valueChanged(TreeSelectionEvent e) {
 
@@ -969,7 +977,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 Object current = ((DefaultMutableTreeNode) node).getUserObject();
                 miRNAHit currentHit;
                 miRNAQuery currentQuery;
-                String queryString;
 
                 if (current instanceof miRNAHit) {
                     currentHit = (miRNAHit) current;
@@ -1001,14 +1008,17 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     String name = currentHit.SequenceHeader;
                     String sequence = dbSequences.get(name).substring(start, stop);
 
+                    jTextArea1.setText(name + "\n" + sequence);
+                    jTextArea1.append("\n" + sequence.substring(qstart-1, qstop-1));
+                    jTextArea1.append("\nStart: " + qstart + "\n");
+                    jTextArea1.append("Stop: " + qstop + "\n");
+
                     if (name != null && sequence != null) {
-                        currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop));
+                        currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop, 0, 0));
                         selectedSequence = currentSequences.size() - 1;
                     } else {
                         JOptionPane.showMessageDialog(null, "No sequence found for this hit");
                     }
-
-                    jTextArea1.setText(name + "\n" + sequence);
 
                 } else if (current instanceof miRNAQuery) {
                     currentQuery = (miRNAQuery) current;
@@ -1016,34 +1026,38 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     String name = ">" + currentQuery.Name;
                     String sequence = querySequences.get(name);
 
-                    if (name != null && sequence != null) {
-                        currentSequences.add(new miRNASequence(name + "\n" + sequence, 0, 0));
-                        selectedSequence = currentSequences.size() - 1;
-                    } else {
-                        JOptionPane.showMessageDialog(null, "No sequence found for this query");
-                    }
-
                     jTextArea1.setText(name + "\n" + sequence);
 
                     //getting mature data
-                    queryString = ((miRNAQuery) current).Name;
-                    pattern = Pattern.compile("MI\\d+");
-                    matcher = pattern.matcher(queryString);
+                    String queryString = currentQuery.Name;
+                    Pattern pattern = Pattern.compile("MI\\d+");
+                    Matcher matcher = pattern.matcher(queryString);
                     if (matcher.find())
                         queryString = matcher.group();
 
-                    matureSequences = new ArrayList<String>();
+                    ArrayList<MatureInfo> matureInfo = matureData.getMatureIndexes(queryString);
 
-                    matureInfo = matureData.getMatureIndexes(queryString);
-                    jTextArea1.append("\n" + queryString + "\n");
-
+                    int matureStart = 0;
+                    int matureStop = 0;
                     for (MatureInfo i : matureInfo) {
                         pattern = Pattern.compile(queryString);
                         for (String j : querySequences.keySet()) {
                             matcher = pattern.matcher(j);
-                            if (matcher.find())
-                                jTextArea1.append(querySequences.get(j).substring(i.start, i.end) + "\n");
+                            if (matcher.find()) {
+                                jTextArea1.append("\n" + sequence.substring(i.start-1, i.stop-1));
+                                jTextArea1.append("\nStart: " + i.start + "\n");
+                                jTextArea1.append("Stop: " + i.stop + "\n");
+                                matureStart = i.start;
+                                matureStop = i.stop;
+                            }
                         }
+                    }
+
+                    if (name != null && sequence != null) {
+                        currentSequences.add(new miRNASequence(name + "\n" + sequence, 0, 0, matureStart, matureStop));
+                        selectedSequence = currentSequences.size() - 1;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No sequence found for this query");
                     }
                 }
             }
@@ -1181,8 +1195,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private void svgPanelMouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_svgPanelMouseWheelMoved
         if (plot != null) {
             int rot = evt.getWheelRotation();
-            plotTransform[0] += (-rot * 0.05);
-            plotTransform[1] += (-rot * 0.05);
+            double trans = rot * 0.05;
+            plotTransform[0] += -trans;
+            plotTransform[1] += -trans;
             updatePlot();
         }
     }//GEN-LAST:event_svgPanelMouseWheelMoved
@@ -1206,9 +1221,19 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
     private void svgPanelResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_svgPanelResized
         int w = svgPanel.getWidth();
-        plotResizeScale += (w - lastW) * 0.0019;
-        legendResizeTranslate += (w - lastW) * 1.13;
+        int h = svgPanel.getHeight();
+        int hDiff = h - lastH;
+        int wDiff = w - lastW;
+        if (w > h) {
+            plotResizeScale += hDiff * 0.0019;
+            plotResizeTranslate[0] += wDiff * 0.25;
+        } else {
+            plotResizeScale += wDiff * 0.0019;
+            plotResizeTranslate[1] += hDiff * 0.25;
+        }
+        legendResizeTranslate += wDiff * 1.13;
         lastW = w;
+        lastH = h;
         updatePlot();
         updateLegend();
     }//GEN-LAST:event_svgPanelResized
