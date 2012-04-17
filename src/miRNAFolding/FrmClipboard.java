@@ -78,7 +78,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private int lastY;
     private int lastW = 400;
 
-    private ArrayList<miRNASequence> currentSequences = new ArrayList<miRNASequence>();
+    private ArrayList<miRNASequence> currentSequences;
     private int selectedSequence = 0;
 
     /** Creates new form FrmClipboard */
@@ -106,6 +106,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         this.matureData = new MatureData("plugins/data/miRNA.dat");
         this.dbSequences = facade.getFASTACustomDBSequences(hits);
         this.querySequences = facade.getFASTAQueries(hits);
+        this.currentSequences = new ArrayList<miRNASequence>();
 
         initTree();
 
@@ -980,8 +981,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                             pattern = Pattern.compile(queryString);
                             for(String j : querySequences.keySet()){
                                 matcher = pattern.matcher(j);
-                                if(matcher.find())
+                                if(matcher.find()){
                                     jTextArea1.append(querySequences.get(j).substring(i.start, i.end) + "\n");
+                                    currentSequences.get(selectedSequence).addMatureSequence(querySequences.get(j).substring(i.start, i.end));
+                                }
                             }
                         }
                     
