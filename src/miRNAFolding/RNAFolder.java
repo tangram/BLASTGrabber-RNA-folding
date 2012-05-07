@@ -2,6 +2,7 @@ package miRNAFolding;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import javax.swing.JOptionPane;
 
@@ -14,6 +15,7 @@ public class RNAFolder {
     public final static String BINPATH = "bin/";
     public final static String EXTENSION = OsDetector.getOSExtension();
     public final static String BASEPATH = FrmClipboard.BASEPATH;
+    public final static File WORKINGDIR = new File(BASEPATH + "plots/");
 
     /**
      * General method for running processes with a given input
@@ -29,8 +31,10 @@ public class RNAFolder {
         byte[] buffer = new byte[512];
         int read = 1;
 
+        WORKINGDIR.mkdir();
+
         try {
-            Process process = runtime.exec(commandline);
+            Process process = runtime.exec(commandline, null, WORKINGDIR);
 
             BufferedOutputStream stdin = new BufferedOutputStream(process.getOutputStream());
             BufferedInputStream stdout = new BufferedInputStream(process.getInputStream());

@@ -36,14 +36,34 @@ public class miRNASequence {
         matureStop = 0;
         matureSequences = new ArrayList<String>();
     }
+    
+    public static void main(String[] args){
+        String queryString = "GAGGUAGUAGGUUGUAUAGUU";
+        String sequence ="UACACUGUGGAUCCGGGAGGUAGUAGGUUGUAUAGUUUGGAAUAUUACCACCGGUGAAC";
+        
+        RNASequence target = new RNASequence(sequence, AmbiguityRNACompoundSet.getRNACompoundSet());
+        RNASequence query  = new RNASequence(queryString, AmbiguityRNACompoundSet.getRNACompoundSet());
+        SubstitutionMatrix<NucleotideCompound> matrix = SubstitutionMatrixHelper.getNuc4_4();
+        SimpleGapPenalty gapP = new SimpleGapPenalty();
+        
+        SequencePair<RNASequence, NucleotideCompound> sequencePair =
+                Alignments.getPairwiseAlignment(query, target, PairwiseSequenceAlignerType.LOCAL, gapP, matrix);
+        
+        System.out.println(sequencePair.getIndexInTargetAt(1));
+        
+        
+        
+        
+        
+    }
 
-    public miRNASequence(String s, int aStart, int aStop) {
+    public miRNASequence(String s, int aStart, int aStop, int mStart, int mStop) {
         sequence = s;
         alignmentStart = aStart;
         alignmentStop = aStop;
-        matureStart = 0;
-        matureStop = 0;
-        matureSequences = new ArrayList<String>();
+
+        matureStart = mStart;
+        matureStop = mStop;
     }
 
     public int getAlignmentStart() {
@@ -72,7 +92,15 @@ public class miRNASequence {
         
         System.out.println(sequencePair.getIndexInTargetForQueryAt(0));
                 
-        return new MatureInfo(0,1, "hei");
+        return new MatureInfo(0,1, "test");
+    }
+
+    public int getMatureStart() {
+        return matureStart;
+    }
+
+    public int getMatureStop() {
+        return matureStop;
     }
 
     @Override
