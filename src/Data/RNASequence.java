@@ -1,17 +1,18 @@
 package Data;
 
 /**
+ * A data object containing a header/sequence string and alignment/mature sequence data
  *
  * @author Eirik Krogstad
  */
-public class miRNASequence {
+public class RNASequence {
     private String sequence;
     private int alignmentStart;
     private int alignmentStop;
     private int matureStart;
     private int matureStop;
 
-    public miRNASequence() {
+    public RNASequence() {
         sequence = null;
         alignmentStart = 0;
         alignmentStop = 0;
@@ -19,7 +20,7 @@ public class miRNASequence {
         matureStop = 0;
     }
 
-    public miRNASequence(String s, int aStart, int aStop, int mStart, int mStop) {
+    public RNASequence(String s, int aStart, int aStop, int mStart, int mStop) {
         sequence = s;
         alignmentStart = aStart;
         alignmentStop = aStop;

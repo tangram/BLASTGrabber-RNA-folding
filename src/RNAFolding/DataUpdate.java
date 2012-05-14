@@ -1,4 +1,4 @@
-package miRNAFolding;
+package RNAFolding;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,10 +19,15 @@ public class DataUpdate {
     public final static String DATAPATH = "dat/";
     public final static int MAXTRANSFER = 10000000;
 
+    /**
+     * Checks if miRBase data is present, if not, prompts the user with the choice to download.
+     * Upon accepting, the file is downloaded and extracted.
+     */
     public static void updatemiRBaseData() {
         if (!new File(BASEPATH + DATAPATH + "miRNA.dat").exists()) {
             int choice = JOptionPane.showConfirmDialog(null,
-                    "No miRNA data exists. Download from http://www.mirbase.org/?\nThis will take a few seconds, depending on your connection",
+                    "No miRNA data exists. Download from http://www.mirbase.org/?\n" +
+                    "This will take a few seconds, depending on your connection",
                     "miRNA data download",
                     JOptionPane.YES_NO_OPTION);
             if (choice == JOptionPane.YES_OPTION) {

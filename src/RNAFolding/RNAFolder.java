@@ -1,4 +1,4 @@
-package miRNAFolding;
+package RNAFolding;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -62,7 +62,7 @@ public class RNAFolder {
     }
 
     /**
-     * Folds an RNA sequence using the Vienna RNA package command line tool RNAfold
+     * Folds a RNA sequence using the Vienna RNA package command line tool RNAfold
      *
      * @param sequence  String containing a single input sequence in FASTA format
      * @param options   String containing command line parameters for RNAfold

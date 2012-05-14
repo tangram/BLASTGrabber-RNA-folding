@@ -12,23 +12,23 @@ import java.util.ArrayList;
  *
  * @author Petter
  */
-public class miRNAQuery extends BLASTGrabberQuery{
-    
-    public ArrayList<miRNAHit> miRNAHits;
-    
-    public miRNAQuery(BLASTGrabberQuery BGQuery){
+public class RNAQuery extends BLASTGrabberQuery{
+
+    public ArrayList<RNAHit> RNAHits;
+
+    public RNAQuery(BLASTGrabberQuery BGQuery){
         this.Name = BGQuery.Name;
         this.BLASTGrabberID = BGQuery.BLASTGrabberID;
-        this.miRNAHits = convertHits(BGQuery.Hits);
+        this.RNAHits = convertHits(BGQuery.Hits);
     }
-    
+
     @Override
     public String toString () { return Name; }
-    
-    private ArrayList<miRNAHit> convertHits(ArrayList<BLASTGrabberHit> bghits){
-        ArrayList<miRNAHit> hits = new ArrayList<miRNAHit>();
+
+    private ArrayList<RNAHit> convertHits(ArrayList<BLASTGrabberHit> bghits){
+        ArrayList<RNAHit> hits = new ArrayList<RNAHit>();
         for(BLASTGrabberHit hit : bghits){
-            hits.add(new miRNAHit(hit));
+            hits.add(new RNAHit(hit));
         }
         return hits;
     }
