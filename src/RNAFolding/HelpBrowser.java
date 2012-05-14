@@ -1,4 +1,4 @@
-package miRNAFolding;
+package RNAFolding;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;

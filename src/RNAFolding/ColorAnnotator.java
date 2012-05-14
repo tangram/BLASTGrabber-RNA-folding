@@ -1,4 +1,4 @@
-package miRNAFolding;
+package RNAFolding;
 
 import java.awt.Color;
 import java.io.BufferedOutputStream;
@@ -18,7 +18,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
 import nu.xom.Serializer;
-import Data.miRNASequence;
+import Data.RNASequence;
 import java.io.File;
 
 /**
@@ -111,13 +111,14 @@ public class ColorAnnotator {
      /**
      * Calls XML routines to write pair probabilities or positional entropy as color annotation to a new SVG file.
      * Should only ever be called for SVGs output by RNAplot. Bases are circled and colored according to a color map.
-     * The plot is also slightly scaled and translated to make room for circles.
+     * The plot is also slightly scaled and translated to make room for circles. Annotation for subsequences are added.
+     * This is a long and ugly method. Think of it more as a script.
      *
-     * @param sequence          miRNASequence object
+     * @param sequence          RNASequence object
      * @param computeEntropy    Dataset containing pair identifiers and pair probabilities or positional entropy
      * @return                  String containing filepath to new SVG file
      */
-    protected static String annnotateSVG(miRNASequence sequence, boolean computeEntropy) {
+    protected static String annnotateSVG(RNASequence sequence, boolean computeEntropy) {
         Builder parser = new Builder();
         Document doc = null;
 
@@ -230,12 +231,10 @@ public class ColorAnnotator {
             circle.addAttribute(new Attribute("fill", getHex(colors[color])));
             boolean align = i >= sequence.getAlignmentStart()-1 && i < sequence.getAlignmentStop()-1;
             boolean mature = i >= sequence.getMatureStart()-1 && i < sequence.getMatureStop()-1;
-            //if (align && mature)
-            //    circle.addAttribute(new Attribute("style", "stroke-dasharray: 2, 1, 1, 1; stroke-width: 1"));
-            // else if -->
+            // outline alignment or mature sequence
             if (align)
                 circle.addAttribute(new Attribute("style", "stroke-dasharray: 1, 1; stroke-width: 1"));
-            if (mature)
+            else if (mature)
                 circle.addAttribute(new Attribute("style", "stroke-dasharray: 2, 1; stroke-width: 1"));
             circles.appendChild(circle);
         }
@@ -281,7 +280,7 @@ public class ColorAnnotator {
             align.appendChild("Alignment");
             legend.appendChild(align);
         }
-        // mature
+        // mature sequence
         if (sequence.getMatureStart() != 0 && sequence.getMatureStop() != 0) {
             Element dash = new Element("line", svg);
             dash.addAttribute(new Attribute("x1", "0"));

@@ -1,8 +1,8 @@
-package miRNAFolding;
+package RNAFolding;
 
 /**
  * OsDetector contains methods to check operating system type, and return extensions for use with executables
- * 
+ *
  * @author Eirik Krogstad
  */
 public class OsDetector {
@@ -34,6 +34,8 @@ public class OsDetector {
         String osExtension = "";
         if (OsDetector.isWindows())
             osExtension = ".exe";
+        if (OsDetector.isMac())
+            osExtension = ".app";
         return osExtension;
     }
 }

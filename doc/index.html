@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>miRNA Folding User Manual</title>
+<title>RNA Folding User Manual</title>
 <style type="text/css">
 p {
 	margin:11pt 0;
@@ -68,26 +68,23 @@ h6 {
 </style>
 </head>
 <body>
-<h1><a name="h.p4l9ktylu9fq"></a>miRNA Folding User Manual</h1>
+<h1><a name="h.p4l9ktylu9fq"></a>RNA Folding User Manual</h1>
 <p>
-	miRNA Folding is a plugin for BLASTGrabber, a BLAST result management and analysis tool developed by the Molecular Evolution Research Group (MERG) at the Department of Biology, University of Oslo. miRNA Folding not usable outside of the BLASTGrabber environment.
+	RNA Folding is a plugin for BLASTGrabber, a BLAST result management and analysis tool developed by the Molecular Evolution Research Group (MERG) at the Department of Biology, University of Oslo. RNA Folding not usable outside of the BLASTGrabber environment.
 </p>
 <p>
-	miRNA Folding adresses a very specific need for researchers working with microRNA (miRNA). BLAST searches will frequently return a large number of hits. When searching for short sequences of miRNA, usually 18-24 bases in length, the number of hits can be overwhelming. A number of these sequences may not be actual candidates for miRNA.
-</p>
-<p>
-	This plugin allows the user to fold precursor sequences of miRNA using the Vienna RNA tools RNAfold algorithm, to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.
+	RNA Folding will fold any RNA sequence or set of sequences using the Vienna RNA tools RNAfold algorithm. RNA Folding was made to adress a very specific need for researchers working with microRNA (miRNA). BLAST searches will frequently return a large number of hits. When searching for relatively short sequences of miRNA, the number of hits can be overwhelming. A number of these sequences may not be actual candidates for miRNA. The plugin allows researchers to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.
 </p>
 <h2><a name="h.kku3gvvbv38q"></a>Accessing the plugin</h2>
 <p>
 	The plugin accepts data from BLASTGrabber through the latter&rsquo;s Clipboard view. A dataset needs to be either opened or imported in BLASTGrabber, and viewed through the Sequence viewer, Matrix viewer or Description viewer. Select candidate sequences from either of these by marking them. Optionally several can be marked with Ctrl+left mouse button or Shift+left mouse button. Right click selected sequences and select Quick-grab selected sequences from the context menu.
 </p>
 <p>
-	From the Clipboard view, mark selected sequences (or Select all) and right-click again. Select Plugins &gt; miRNA Folding from the context menu. The marked sequences are exported to miRNA Folding, and you are presented with the miRNA Folding main window.
+	From the Clipboard view, mark selected sequences (or Select all) and right-click again. Select Plugins &gt; RNA Folding from the context menu. The marked sequences are exported to RNA Folding, and you are presented with the RNA Folding main window.
 </p>
 <h2><a name="h.4kxod1myfmav"></a>Using the plugin</h2>
 <p>
-	The top tree view lists the sequences that were imported to miRNA Folding. Each folder is a BLAST query, under which corresponding hits can be found. Buttons to the left of the tree view allow you to expand and collapse the tree, select queries only, hits only, or all sequences. Help is available at any time by pressing the Help button. The bottom-left window panel displays a graphical view of the folding stucture. The bottom-right panel contains several tabs with commands and data outputs.
+	The top tree view lists the sequences that were imported to RNA Folding. Each folder is a BLAST query, under which corresponding hits can be found. Buttons to the left of the tree view allow you to expand and collapse the tree, select queries only, hits only, or all sequences. Help is available at any time by pressing the Help button. The bottom-left window panel displays a graphical view of the folding stucture. The bottom-right panel contains several tabs with commands and data outputs.
 </p>
 <h3><a name="h.uxsl9jatyr1o"></a>Understanding and setting options</h3>
 <p>
@@ -162,11 +159,11 @@ h6 {
 <h3><a name="h.suu6wjhzdhxy"></a>Understanding the folding output</h3>
 <h4><a name="h.3ezbxedcf6yc"></a>The graphical view</h4>
 <p>
-	This window shows you a graphic representation of the secondary structure. If Show pair probabilities is set, colors represent pair probabilities as given by the legend in the upper-right corner. For unpaired bases, colors represent the probability of being unpaired. If Show positional entropy is set, colors represent positional entropy as given by the legend. If an Accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is outlined in dashes. If the folded sequence is a BLAST hit, the BLAST alignment is given as the bases outlined in dots.
+	This window shows you a graphic representation of the secondary structure. If Show pair probabilities is set, colors represent pair probabilities as given by the legend in the upper-right corner. For unpaired bases, colors represent the probability of being unpaired. If Show positional entropy is set, colors represent positional entropy as given by the legend. If a miRBase accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is outlined in dashes. If the folded sequence is a BLAST hit, the BLAST alignment is given as the bases outlined in dots.
 </p>
 <h4><a name="h.p2wyok9kv1tn"></a>The parameter readout</h4>
 <p>
-	The first and second lines of the parameter readout shows the name and base sequence of the folded sequence. The third line shows the structure in dot-parenthesis form and free energy value for the MFE structure. The fourth and fifth lines show the structure and free energy value of the thermodynamic ensemble and centroid structure, respectively. The sixth line shows additional parameters for the resulting thermodynamic ensemble. The free energy values are repeated below for clarity. If an Accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is shown. For hits, the alignment between query and hit is shown.
+	The first and second lines of the parameter readout shows the name and base sequence of the folded sequence. The third line shows the structure in dot-parenthesis form and free energy value for the MFE structure. The fourth and fifth lines show the structure and free energy value of the thermodynamic ensemble and centroid structure, respectively. The sixth line shows additional parameters for the resulting thermodynamic ensemble. The free energy values are repeated below for clarity. If a miRBase accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is shown. For hits, the alignment between query and hit is shown.
 </p>
 </body>
 </html>

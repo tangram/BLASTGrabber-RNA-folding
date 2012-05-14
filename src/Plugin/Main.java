@@ -1,8 +1,8 @@
 package Plugin;
 
 import BLASTGrabber.Facade.BLASTGrabberQuery;
-import miRNAFolding.FrmMain;
-import miRNAFolding.FrmClipboard;
+import RNAFolding.FrmMain;
+import RNAFolding.FrmClipboard;
 import java.util.HashMap;
 import javax.swing.JDesktopPane;
 import javax.swing.JOptionPane;
@@ -17,7 +17,7 @@ public class Main implements Facade {
     private BLASTGrabber.Facade facade = null;
     private JDesktopPane desktop = null;
 
-    public static final String NAME = "miRNA Folding";
+    public static final String NAME = "RNA Folding";
 
     public static Main getMain() {
         return me;

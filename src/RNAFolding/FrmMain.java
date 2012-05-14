@@ -1,7 +1,7 @@
 /*
  * frmMain.java
  */
-package miRNAFolding;
+package RNAFolding;
 
 /**
  * @author Eirik Krogstad

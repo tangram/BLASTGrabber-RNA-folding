@@ -1,12 +1,12 @@
-package miRNAFolding;
+package RNAFolding;
 
 import BLASTGrabber.Facade.BLASTGrabberQuery;
 import BLASTGrabber.Facade.BLASTGrabberStatistic;
 import Data.MatureData;
 import Data.MatureInfo;
-import Data.miRNAHit;
-import Data.miRNAQuery;
-import Data.miRNASequence;
+import Data.RNAHit;
+import Data.RNAQuery;
+import Data.RNASequence;
 import com.kitfox.svg.SVGElement;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * FrmClipboard is the main view and controller class for the miRNA Folding plugin.
+ * FrmClipboard is the main view and controller class for the RNA Folding plugin.
  *
  * @author Eirik Krogstad
  * @author Petter Hannevold
@@ -43,14 +43,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()
             ).getParent().concat("/");
 
-    private HashMap<String, miRNAQuery> hits;
+    private HashMap<String, RNAQuery> hits;
     private BLASTGrabber.Facade facade;
     private MatureData matureData;
 
     private HashMap<String, String> querySequences;
     private HashMap<String, String> dbSequences;
 
-    private ArrayList<miRNASequence> currentSequences = new ArrayList<miRNASequence>();
+    private ArrayList<RNASequence> currentSequences = new ArrayList<RNASequence>();
     private int selectedSequence = 0;
     private String lastfold = "";
 
@@ -99,7 +99,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         this.facade = facade;
         this.dbSequences = facade.getFASTACustomDBSequences(hits);
         this.querySequences = facade.getFASTAQueries(hits);
-        this.currentSequences = new ArrayList<miRNASequence>();
+        this.currentSequences = new ArrayList<RNASequence>();
 
         DataUpdate.updatemiRBaseData();
         this.matureData = new MatureData(DataUpdate.BASEPATH + DataUpdate.DATAPATH + "miRNA.dat");
@@ -269,7 +269,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jTextAreaFoldOutput.append("\nFree energy for the centroid secondary structure is " +
                     centroidData[0] + " kcal/mol, d = " + centroidData[1].substring(2));
 
-            miRNASequence current = currentSequences.get(selectedSequence);
+            RNASequence current = currentSequences.get(selectedSequence);
             String seq = current.toString().split("[\r\n]+")[1].replace('T', 'U');
             if (current.getAlignmentStart() > 0 && current.getAlignmentStop() > 0)
                 jTextAreaFoldOutput.append("\n\nAlignment between query and hit:\n" +
@@ -325,14 +325,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private void initTree() {
         DefaultMutableTreeNode top = new DefaultMutableTreeNode();
 
-        miRNAQuery query;
+        RNAQuery query;
         DefaultMutableTreeNode currentNode;
 
         for(String i : hits.keySet()) {
             query = hits.get(i);
             currentNode = new DefaultMutableTreeNode(query);
             top.add(currentNode);
-            for(miRNAHit j : query.miRNAHits)
+            for(RNAHit j : query.RNAHits)
                 currentNode.add(new DefaultMutableTreeNode(j));
         }
 
@@ -341,25 +341,25 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     /**
-     * BLASTGrabber is extended as miRNAQuery with a toString() method in the Data package,
+     * BLASTGrabber is extended as RNAQuery with a toString() method in the Data package,
      * to be able to simply add them to jTreeQueries. This method converts a HashMap of the former to a
      * HashMap of the latter.
      *
      * @param BGQueries     A HashMap<String, BLASTGrabberQuery> as transferred from BLASTGrabber
-     * @return              A translated HashMap<String, miRNAQuery>
+     * @return              A translated HashMap<String, RNAQuery>
      */
-    private HashMap<String, miRNAQuery> convertQueries(HashMap<String, BLASTGrabberQuery> BGQueries) {
-        HashMap<String, miRNAQuery> miRNAQueries = new HashMap<String, miRNAQuery>();
+    private HashMap<String, RNAQuery> convertQueries(HashMap<String, BLASTGrabberQuery> BGQueries) {
+        HashMap<String, RNAQuery> rnaQueries = new HashMap<String, RNAQuery>();
 
         Iterator<String> queryIterator = BGQueries.keySet().iterator();
 
         String currentKey;
         while(queryIterator.hasNext()){
             currentKey = queryIterator.next();
-            miRNAQueries.put(currentKey, new miRNAQuery(BGQueries.get(currentKey)));
+            rnaQueries.put(currentKey, new RNAQuery(BGQueries.get(currentKey)));
         }
 
-        return miRNAQueries;
+        return rnaQueries;
     }
 
     /**
@@ -976,11 +976,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             for (TreePath path : jTreeQueries.getSelectionPaths()) {
                 Object node = path.getLastPathComponent();
                 Object current = ((DefaultMutableTreeNode) node).getUserObject();
-                miRNAHit currentHit;
-                miRNAQuery currentQuery;
+                RNAHit currentHit;
+                RNAQuery currentQuery;
 
-                if (current instanceof miRNAHit) {
-                    currentHit = (miRNAHit) current;
+                if (current instanceof RNAHit) {
+                    currentHit = (RNAHit) current;
                     int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
 
                     for (BLASTGrabberStatistic i : currentHit.Statistics) {
@@ -1009,25 +1009,18 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     String name = currentHit.SequenceHeader;
                     String sequence = dbSequences.get(name).substring(start, stop);
 
-                    jTextArea1.setText(name + "\n" + sequence);
-                    jTextArea1.append("\n" + sequence.substring(qstart-1, qstop-1));
-                    jTextArea1.append("\nStart: " + qstart + "\n");
-                    jTextArea1.append("Stop: " + qstop + "\n");
-
                     if (name != null && sequence != null) {
-                        currentSequences.add(new miRNASequence(name + "\n" + sequence, qstart, qstop, 0, 0));
+                        currentSequences.add(new RNASequence(name + "\n" + sequence, qstart, qstop, 0, 0));
                         selectedSequence = currentSequences.size() - 1;
                     } else {
                         JOptionPane.showMessageDialog(null, "No sequence found for this hit");
                     }
 
-                } else if (current instanceof miRNAQuery) {
-                    currentQuery = (miRNAQuery) current;
+                } else if (current instanceof RNAQuery) {
+                    currentQuery = (RNAQuery) current;
 
                     String name = ">" + currentQuery.Name;
                     String sequence = querySequences.get(name);
-
-                    jTextArea1.setText(name + "\n" + sequence);
 
                     //getting mature data
                     String queryString = currentQuery.Name;
@@ -1045,9 +1038,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                         for (String j : querySequences.keySet()) {
                             matcher = pattern.matcher(j);
                             if (matcher.find()) {
-                                jTextArea1.append("\n" + sequence.substring(i.start-1, i.stop-1));
-                                jTextArea1.append("\nStart: " + i.start + "\n");
-                                jTextArea1.append("Stop: " + i.stop + "\n");
                                 matureStart = i.start;
                                 matureStop = i.stop;
                             }
@@ -1055,7 +1045,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     }
 
                     if (name != null && sequence != null) {
-                        currentSequences.add(new miRNASequence(name + "\n" + sequence, 0, 0, matureStart, matureStop));
+                        currentSequences.add(new RNASequence(name + "\n" + sequence, 0, 0, matureStart, matureStop));
                         selectedSequence = currentSequences.size() - 1;
                     } else {
                         JOptionPane.showMessageDialog(null, "No sequence found for this query");
@@ -1255,7 +1245,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         for (int i = 0; i < jTreeQueries.getRowCount(); i++) {
             Object node = jTreeQueries.getPathForRow(i).getLastPathComponent();
             Object object = ((DefaultMutableTreeNode) node).getUserObject();
-            if (object instanceof miRNAQuery)
+            if (object instanceof RNAQuery)
                 jTreeQueries.addSelectionRow(i);
         }
     }//GEN-LAST:event_jButtonSelectQueriesActionPerformed
@@ -1264,7 +1254,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         for (int i = 0; i < jTreeQueries.getRowCount(); i++) {
             Object node = jTreeQueries.getPathForRow(i).getLastPathComponent();
             Object object = ((DefaultMutableTreeNode) node).getUserObject();
-            if (object instanceof miRNAHit)
+            if (object instanceof RNAHit)
                 jTreeQueries.addSelectionRow(i);
         }
     }//GEN-LAST:event_jButtonSelectHitsActionPerformed
