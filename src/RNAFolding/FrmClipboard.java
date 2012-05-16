@@ -43,6 +43,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             FrmClipboard.class.getProtectionDomain().getCodeSource().getLocation().getPath()
             ).getParent().concat("/");
 
+    private final static int FOLDWARNINGLIMIT = 50;
+
     private HashMap<String, RNAQuery> hits;
     private BLASTGrabber.Facade facade;
     private MatureData matureData;
@@ -57,8 +59,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private DefaultTableModel suboptimalTableModel;
     private DefaultTableModel multipleTableModel;
 
-    private String[] standardColumns = {"Number", "ID", "Structure", "kcal/mol"};
-    private String[] tempRangeColumns = {"Temperature", "ID", "Structure", "kcal/mol"};
+    private final static String[] STANDARDCOLUMNS = {"Number", "ID", "Structure", "kcal/mol"};
+    private final static String[] TEMPRANGECOLUMNS = {"Temperature", "ID", "Structure", "kcal/mol"};
 
     private SVGElement plot;
     private SVGElement legend;
@@ -105,11 +107,11 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
 
         initTree();
 
-        suboptimalTableModel = new DefaultTableModel(standardColumns, 0);
+        suboptimalTableModel = new DefaultTableModel(STANDARDCOLUMNS, 0);
         jTableSuboptimal.setModel(suboptimalTableModel);
         jTableSuboptimal.getSelectionModel().addListSelectionListener(new TableSuboptimalListener());
 
-        multipleTableModel = new DefaultTableModel(standardColumns, 0);
+        multipleTableModel = new DefaultTableModel(STANDARDCOLUMNS, 0);
         jTableMultiple.setModel(multipleTableModel);
         jTableMultiple.getSelectionModel().addListSelectionListener(new TableMultipleListener());
     }
@@ -182,7 +184,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     /**
-     * Generate SVG plots
+     * Generate SVG plot, colorize it, and load it in the SVG view
      *
      * @param folding   A String with name, sequence and folding information, as output by RNAfold
      */
@@ -191,16 +193,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         lastfold = folding;
         formatFoldOutput(folding);
 
-        String svgPath = ColorAnnotator.annnotateSVG(
+        String svgPath = ColorAnnotator.annotateSVG(
                 currentSequences.get(selectedSequence),
-                jRadioButtonPositionalEntropy.isSelected());
+                jRadioButtonPositionalEntropy.isSelected(),
+                true);
         loadSVG(svgPath);
-        updatePlot();
-        updateLegend();
     }
 
     /**
-     * Set new transform attribute for plot and repaint
+     * Updates the plot with new transform attributes (scale, translate) and repaints
      */
     private void updatePlot() {
         if (plot != null) {
@@ -221,7 +222,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     /**
-     * Set new transform attribute for legend and repaint
+     * Updates the plot legend with new transform attributes (scale, translate) and repaints
      */
     private void updateLegend() {
         if (legend != null) {
@@ -319,7 +320,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     }
 
     /**
-     * Initialize the tree list
+     * Initialize the tree list with query and hit names
      */
     private void initTree() {
         DefaultMutableTreeNode top = new DefaultMutableTreeNode();
@@ -359,6 +360,39 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         }
 
         return rnaQueries;
+    }
+
+    /**
+     * Gets start and stop indices for mature miRNA from miRBase database, if available
+     *
+     * @param name      Name of the query or hit to search for
+     * @return          Array of int, where [0] is start index and [1] is stop index
+     */
+    private int[] getMatureStartStop(String name) {
+        int matureStart = 0;
+        int matureStop = 0;
+        Pattern pattern = Pattern.compile("MI\\d+");
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            name = matcher.group();
+
+            ArrayList<MatureInfo> matureInfo = matureData.getMatureIndexes(name);
+
+            if (matureInfo != null) {
+                for (MatureInfo i : matureInfo) {
+                    pattern = Pattern.compile(name);
+                    for (String j : querySequences.keySet()) {
+                        matcher = pattern.matcher(j);
+                        if (matcher.find()) {
+                            matureStart = i.start;
+                            matureStop = i.stop;
+                        }
+                    }
+                }
+            }
+        }
+        int[] matureArray = {matureStart, matureStop};
+        return matureArray;
     }
 
     /**
@@ -420,9 +454,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jTextFieldParamFile = new javax.swing.JTextField();
         jButtonParamFile = new javax.swing.JButton();
         jCheckBoxParamFile = new javax.swing.JCheckBox();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
         jScrollPaneQueries = new javax.swing.JScrollPane();
         jTreeQueries = new javax.swing.JTree();
         jButtonExpandCollapse = new javax.swing.JButton();
@@ -829,30 +860,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         jTabbedPane.addTab("Options", jPanelOptions);
         jPanelOptions.getAccessibleContext().setAccessibleName("");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 11));
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jTabbedPane.addTab("Sequence test output", jPanel1);
-
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
         jTreeQueries.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
         jTreeQueries.setRootVisible(false);
@@ -943,17 +950,36 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Listener class for the Suboptimal structures table
+     * Folds the selected row
+     * Special case, since dot plots are not available for suboptimal foldings
+     */
     private class TableSuboptimalListener implements ListSelectionListener {
         @Override
         public void valueChanged(ListSelectionEvent e) {
             int row = jTableSuboptimal.getSelectedRow();
             if (row > -1) {
-                selectedSequence = row;
-                jButtonFoldActionPerformed(null);
+                String sequence = currentSequences.get(selectedSequence).toString();
+                String folding = (String) jTableSuboptimal.getValueAt(row, 2);
+                String freeEnergy = (String) jTableSuboptimal.getValueAt(row, 3);
+                String structure = sequence + "\n" + folding + " (" + freeEnergy + ")";
+                RNAFolder.generatePlots(structure);
+                lastfold = "";
+                formatFoldOutput(structure);
+                String svgPath = ColorAnnotator.annotateSVG(
+                        currentSequences.get(selectedSequence),
+                        jRadioButtonPositionalEntropy.isSelected(),
+                        false);
+                loadSVG(svgPath);
             }
         }
     }
 
+    /**
+     * Listener class for the Multiple runs table
+     * Folds the selected row
+     */
     private class TableMultipleListener implements ListSelectionListener {
         @Override
         public void valueChanged(ListSelectionEvent e) {
@@ -965,11 +991,14 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         }
     }
 
+    /**
+     * Listener class for the tree list
+     * Populates current and selected sequences containers with data
+     */
     private class TreeListener implements TreeSelectionListener {
         @Override
         public void valueChanged(TreeSelectionEvent e) {
 
-            jTextArea1.setText(null);
             currentSequences.clear();
 
             for (TreePath path : jTreeQueries.getSelectionPaths()) {
@@ -1003,13 +1032,22 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                         start -= qstart;
                         stop += length - qstop;
                     }
-                    //TODO: start - qstart or stop + (length - qstop) may be out of bounds in database
 
                     String name = currentHit.SequenceHeader;
-                    String sequence = dbSequences.get(name).substring(start, stop);
+                    String sequence = dbSequences.get(name);
+                    int end = sequence.length();
+                    if (start > end || stop > end)
+                        sequence = null;
+                    else
+                        sequence = sequence.substring(start, stop);
+
+                    // get mature data
+                    int[] matureArray = getMatureStartStop(name);
+                    int matureStart = matureArray[0];
+                    int matureStop = matureArray[1];
 
                     if (name != null && sequence != null) {
-                        currentSequences.add(new RNASequence(name + "\n" + sequence, qstart, qstop, 0, 0));
+                        currentSequences.add(new RNASequence(name + "\n" + sequence, qstart, qstop, matureStart, matureStop));
                         selectedSequence = currentSequences.size() - 1;
                     } else {
                         JOptionPane.showMessageDialog(null, "No sequence found for this hit");
@@ -1021,27 +1059,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     String name = ">" + currentQuery.Name;
                     String sequence = querySequences.get(name);
 
-                    //getting mature data
-                    String queryString = currentQuery.Name;
-                    Pattern pattern = Pattern.compile("MI\\d+");
-                    Matcher matcher = pattern.matcher(queryString);
-                    if (matcher.find())
-                        queryString = matcher.group();
-
-                    ArrayList<MatureInfo> matureInfo = matureData.getMatureIndexes(queryString);
-
-                    int matureStart = 0;
-                    int matureStop = 0;
-                    for (MatureInfo i : matureInfo) {
-                        pattern = Pattern.compile(queryString);
-                        for (String j : querySequences.keySet()) {
-                            matcher = pattern.matcher(j);
-                            if (matcher.find()) {
-                                matureStart = i.start;
-                                matureStop = i.stop;
-                            }
-                        }
-                    }
+                    // get mature data
+                    int[] matureArray = getMatureStartStop(name);
+                    int matureStart = matureArray[0];
+                    int matureStop = matureArray[1];
 
                     if (name != null && sequence != null) {
                         currentSequences.add(new RNASequence(name + "\n" + sequence, 0, 0, matureStart, matureStop));
@@ -1087,7 +1108,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         String output = RNAFolder.foldSuboptimals(
                 currentSequences.get(selectedSequence).toString(),
                 sb.toString());
-        jTextArea1.setText(output);
         String[] outputLines = output.split("[\r\n]+");
         String name = outputLines[0];
 
@@ -1105,7 +1125,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         }
 
         jTableSuboptimal.clearSelection();
-        DefaultTableModel newModel = new DefaultTableModel(standardColumns, 0);
+        DefaultTableModel newModel = new DefaultTableModel(STANDARDCOLUMNS, 0);
         if (jRadioButtonRange.isSelected()) {
             for (int i = 3; i < outputLines.length; i++) {
                 String[] line = splitFirstSpace(outputLines[i]);
@@ -1145,7 +1165,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             int upper = Integer.valueOf(jFormattedTextFieldTemperatureUpper.getText());
             if (lower < upper) {
                 jTableMultiple.clearSelection();
-                DefaultTableModel newModel = new DefaultTableModel(tempRangeColumns, 0);
+                DefaultTableModel newModel = new DefaultTableModel(TEMPRANGECOLUMNS, 0);
                 for (int i = lower; i <= upper; i++) {
                     String output = RNAFolder.foldSequence(
                             currentSequences.get(selectedSequence).toString(),
@@ -1163,7 +1183,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             }
         } else {
             jTableMultiple.clearSelection();
-            DefaultTableModel newModel = new DefaultTableModel(standardColumns, 0);
+            DefaultTableModel newModel = new DefaultTableModel(STANDARDCOLUMNS, 0);
             for (int i = 0; i < currentSequences.size(); i++) {
                 String output = RNAFolder.foldSequence(
                             currentSequences.get(i).toString(),
@@ -1298,7 +1318,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabelRange;
     private javax.swing.JLabel jLabelTemperature;
     private javax.swing.JLabel jLabelTemperatureRange;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelMFE;
     private javax.swing.JPanel jPanelMultiple;
     private javax.swing.JPanel jPanelOptions;
@@ -1314,7 +1333,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JRadioButton jRadioButtonPositionalEntropy;
     private javax.swing.JRadioButton jRadioButtonRandom;
     private javax.swing.JRadioButton jRadioButtonRange;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPaneFoldOutput;
     private javax.swing.JScrollPane jScrollPaneMultiple;
     private javax.swing.JScrollPane jScrollPaneQueries;
@@ -1322,7 +1340,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
     private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTable jTableMultiple;
     private javax.swing.JTable jTableSuboptimal;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextAreaFoldOutput;
     private javax.swing.JTextField jTextFieldParamFile;
     private javax.swing.JTree jTreeQueries;

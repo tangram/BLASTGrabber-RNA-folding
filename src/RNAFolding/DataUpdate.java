@@ -25,12 +25,15 @@ public class DataUpdate {
      */
     public static void updatemiRBaseData() {
         if (!new File(BASEPATH + DATAPATH + "miRNA.dat").exists()) {
-            int choice = JOptionPane.showConfirmDialog(null,
+            Object[] options = {"Yes", "No", "Never"};
+            int choice = JOptionPane.showOptionDialog(null,
                     "No miRNA data exists. Download from http://www.mirbase.org/?\n" +
                     "This will take a few seconds, depending on your connection",
                     "miRNA data download",
-                    JOptionPane.YES_NO_OPTION);
-            if (choice == JOptionPane.YES_OPTION) {
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null, options, options[0]);
+            if (choice == 0) {
                 try {
                     new File(BASEPATH + DATAPATH).mkdir();
                     URL miRNADataURL = new URL("ftp://mirbase.org/pub/mirbase/CURRENT/miRNA.dat.gz");
@@ -53,6 +56,11 @@ public class DataUpdate {
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null, "Download and decompression of miRNA.dat failed:\n" + e.getMessage());
                 }
+            } else if (choice == 2) {
+                try {
+                    new File(BASEPATH + DATAPATH).mkdir();
+                    new File(BASEPATH + DATAPATH + "miRNA.dat").createNewFile();
+                } catch (Exception e) { }
             }
         }
     }

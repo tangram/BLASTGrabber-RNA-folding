@@ -44,7 +44,7 @@ public class ColorAnnotator {
      * @param filepath  String containing filepath to PostScript file
      * @return          Dataset containing pair identifiers and pair probabilities as String[]
      */
-    public static Dataset readPairProbabilities(String filepath) {
+    protected static Dataset readPairProbabilities(String filepath) {
         String ubox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+ubox";
         String lbox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+lbox";
         Dataset dataset = new Dataset();
@@ -99,7 +99,7 @@ public class ColorAnnotator {
     }
 
     /**
-     * Get the XML/CSS RGB hex String for a given Color
+     * Get the XML RGB hex String for a given Color
      *
      * @param color     Color to get hex string for
      * @return          String on the form "#ffffff"
@@ -115,10 +115,11 @@ public class ColorAnnotator {
      * This is a long and ugly method. Think of it more as a script.
      *
      * @param sequence          RNASequence object
-     * @param computeEntropy    Dataset containing pair identifiers and pair probabilities or positional entropy
+     * @param computeEntropy    If true, compute entropy instead of pair probabilities
+     * @param hasDotPlot        If false, will not compute entropy or pair probabilities, and no color is added
      * @return                  String containing filepath to new SVG file
      */
-    protected static String annnotateSVG(RNASequence sequence, boolean computeEntropy) {
+    protected static String annotateSVG(RNASequence sequence, boolean computeEntropy, boolean hasDotPlot) {
         Builder parser = new Builder();
         Document doc = null;
 
@@ -127,7 +128,9 @@ public class ColorAnnotator {
             name = name.substring(0, 42);
         name = RNAFolder.WORKINGDIR + File.separator + name;
 
-        Dataset dataset = readPairProbabilities(name + "_dp.ps");
+        Dataset dataset = new Dataset();
+        if (hasDotPlot)
+            dataset = readPairProbabilities(name + "_dp.ps");
 
         // read svg file
         try {
@@ -180,34 +183,36 @@ public class ColorAnnotator {
         double[] pp = new double[n];
         double[] values = new double[n];
 
-        for (String[] d : dataset.data) {
-            Double p = Double.valueOf(d[2]);
-            p = p * p;
-            Integer i = Integer.valueOf(d[0]);
-            Integer j = Integer.valueOf(d[1]);
-            if (!computeEntropy) {
-                if (dataset.pairs.get(i) == j) {
-                    values[i-1] = p;
-                    values[j-1] = p;
+        if (hasDotPlot) {
+            for (String[] d : dataset.data) {
+                Double p = Double.valueOf(d[2]);
+                p = p * p;
+                Integer i = Integer.valueOf(d[0]);
+                Integer j = Integer.valueOf(d[1]);
+                if (!computeEntropy) {
+                    if (dataset.pairs.get(i) == j) {
+                        values[i-1] = p;
+                        values[j-1] = p;
+                    }
+                } else {
+                    double e = (p > 0) ? p * Math.log(p) : 0;
+                    values[i-1] += e;
+                    values[j-1] += e;
                 }
-            } else {
-                double e = (p > 0) ? p * Math.log(p) : 0;
-                values[i-1] += e;
-                values[j-1] += e;
+                pp[i-1] += p;
+                pp[j-1] += p;
             }
-            pp[i-1] += p;
-            pp[j-1] += p;
-        }
-        double log2 = Math.log(2.0);
-        for (int i = 0; i < n; i++) {
-            if (!computeEntropy) {
-                if (values[i] == 0.0)
-                    values[i] = 1 - pp[i];
-            } else {
-                values[i] += (pp[i] < 1) ? (1 - pp[i]) * Math.log(1 - pp[i]) : 0;
-                values[i] /= -log2;
-                if (values[i] > dataset.max)
-                    dataset.max = values[i];
+            double log2 = Math.log(2.0);
+            for (int i = 0; i < n; i++) {
+                if (!computeEntropy) {
+                    if (values[i] == 0.0)
+                        values[i] = 1 - pp[i];
+                } else {
+                    values[i] += (pp[i] < 1) ? (1 - pp[i]) * Math.log(1 - pp[i]) : 0;
+                    values[i] /= -log2;
+                    if (values[i] > dataset.max)
+                        dataset.max = values[i];
+                }
             }
         }
 
@@ -227,8 +232,12 @@ public class ColorAnnotator {
             circle.addAttribute(new Attribute("cx", point[0]));
             circle.addAttribute(new Attribute("cy", point[1]));
             circle.addAttribute(new Attribute("r", "7"));
-            int color = (int) ((values[i] / dataset.max) * (nCol - 1));
-            circle.addAttribute(new Attribute("fill", getHex(colors[color])));
+            if (hasDotPlot) {
+                int color = (int) ((values[i] / dataset.max) * (nCol - 1));
+                circle.addAttribute(new Attribute("fill", getHex(colors[color])));
+            } else {
+                circle.addAttribute(new Attribute("fill", getHex(Color.white)));
+            }
             boolean align = i >= sequence.getAlignmentStart()-1 && i < sequence.getAlignmentStop()-1;
             boolean mature = i >= sequence.getMatureStart()-1 && i < sequence.getMatureStop()-1;
             // outline alignment or mature sequence
@@ -240,30 +249,32 @@ public class ColorAnnotator {
         }
 
         // build legend
-        // color key
         Element legend = new Element("g", svg);
         legend.addAttribute(new Attribute("style", "stroke-width: 0"));
         legend.addAttribute(new Attribute("transform", "scale(0.885 0.885) translate(340 0)"));
         legend.addAttribute(new Attribute("id", "legend"));
-        Element min = new Element("text", svg);
-        min.addAttribute(new Attribute("x", "0"));
-        min.addAttribute(new Attribute("y", "20"));
-        min.appendChild("0");
-        legend.appendChild(min);
-        Element max = new Element("text", svg);
-        max.addAttribute(new Attribute("x", "84"));
-        max.addAttribute(new Attribute("y", "20"));
-        max.appendChild(Double.toString(Math.round(10.0 * dataset.max) / 10.0));
-        legend.appendChild(max);
-        for (int i = 0; i < nCol; i += 5) {
-            Element rect = new Element("rect", svg);
-            rect.addAttribute(new Attribute("x", Integer.toString(i)));
-            rect.addAttribute(new Attribute("y", "21"));
-            rect.addAttribute(new Attribute("width", "5"));
-            rect.addAttribute(new Attribute("height", "10"));
-            String col = getHex(colors[i]);
-            rect.addAttribute(new Attribute("style", "fill: " + col));
-            legend.appendChild(rect);
+        // color key
+        if (hasDotPlot) {
+            Element min = new Element("text", svg);
+            min.addAttribute(new Attribute("x", "0"));
+            min.addAttribute(new Attribute("y", "20"));
+            min.appendChild("0");
+            legend.appendChild(min);
+            Element max = new Element("text", svg);
+            max.addAttribute(new Attribute("x", "84"));
+            max.addAttribute(new Attribute("y", "20"));
+            max.appendChild(Double.toString(Math.round(10.0 * dataset.max) / 10.0));
+            legend.appendChild(max);
+            for (int i = 0; i < nCol; i += 5) {
+                Element rect = new Element("rect", svg);
+                rect.addAttribute(new Attribute("x", Integer.toString(i)));
+                rect.addAttribute(new Attribute("y", "21"));
+                rect.addAttribute(new Attribute("width", "5"));
+                rect.addAttribute(new Attribute("height", "10"));
+                String col = getHex(colors[i]);
+                rect.addAttribute(new Attribute("style", "fill: " + col));
+                legend.appendChild(rect);
+            }
         }
         // alignment
         if (sequence.getAlignmentStart() != 0 && sequence.getAlignmentStop() != 0) {
