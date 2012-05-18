@@ -1,13 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Data;
 
 import BLASTGrabber.Facade.BLASTGrabberHit;
 /**
+ * An extension of BLASTGrabberHit with a toString() method
  *
- * @author Petter
+ * @author Petter Hannevold
  */
 public class RNAHit extends BLASTGrabberHit{
 

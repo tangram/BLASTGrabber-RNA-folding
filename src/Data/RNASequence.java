@@ -13,7 +13,7 @@ public class RNASequence {
     private int matureStop;
 
     public RNASequence() {
-        sequence = null;
+        sequence = "";
         alignmentStart = 0;
         alignmentStop = 0;
         matureStart = 0;

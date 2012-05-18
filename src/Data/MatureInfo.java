@@ -1,5 +1,10 @@
 package Data;
 
+/**
+ * A data class for mature miRNA data
+ *
+ * @author Petter Hannevold
+ */
 public class MatureInfo {
     public int start, stop;
     public String accession;

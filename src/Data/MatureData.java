@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+/**
+ * A utility class for finding mature miRNA data in a miRBase database file
+ *
+ * @author Petter Hannevold
+ */
 public class MatureData {
 
     private HashMap<String, ArrayList<MatureInfo>> matches = new HashMap<String, ArrayList<MatureInfo>>();
@@ -19,7 +24,7 @@ public class MatureData {
     public MatureData(String filePath) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            Pattern HairpinPattern = Pattern.compile("MI[\\d]+");
+            Pattern hairpinPattern = Pattern.compile("MI[\\d]+");
             Pattern maturePattern = Pattern.compile("\\d+");
             Pattern matureIndexPattern = Pattern.compile("miRNA");
             Pattern accessionPattern = Pattern.compile("MIMAT[\\d]+");
@@ -36,7 +41,7 @@ public class MatureData {
             while (line != null) {
 
                 if (line.substring(0, 2).equals("AC")) {
-                    matcher = HairpinPattern.matcher(line);
+                    matcher = hairpinPattern.matcher(line);
                     matureInfoList = new ArrayList<MatureInfo>();
 
                     if (matcher.find()) {
@@ -79,7 +84,7 @@ public class MatureData {
             reader.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("miRNA data error: " + e);
         }
     }
 

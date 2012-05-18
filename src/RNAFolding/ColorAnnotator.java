@@ -240,8 +240,10 @@ public class ColorAnnotator {
             }
             boolean align = i >= sequence.getAlignmentStart()-1 && i < sequence.getAlignmentStop()-1;
             boolean mature = i >= sequence.getMatureStart()-1 && i < sequence.getMatureStop()-1;
-            // outline alignment or mature sequence
-            if (align)
+            // outline alignment and/or mature sequence
+            if (align && mature)
+                circle.addAttribute(new Attribute("style", "stroke-dasharray: 2, 1, 1, 1; stroke-width: 1"));
+            else if (align)
                 circle.addAttribute(new Attribute("style", "stroke-dasharray: 1, 1; stroke-width: 1"));
             else if (mature)
                 circle.addAttribute(new Attribute("style", "stroke-dasharray: 2, 1; stroke-width: 1"));
@@ -277,7 +279,8 @@ public class ColorAnnotator {
             }
         }
         // alignment
-        if (sequence.getAlignmentStart() != 0 && sequence.getAlignmentStop() != 0) {
+        boolean hasAlign = sequence.getAlignmentStart() != 0 && sequence.getAlignmentStop() != 0;
+        if (hasAlign) {
             Element dot = new Element("line", svg);
             dot.addAttribute(new Attribute("x1", "0"));
             dot.addAttribute(new Attribute("x2", "40"));
@@ -296,13 +299,15 @@ public class ColorAnnotator {
             Element dash = new Element("line", svg);
             dash.addAttribute(new Attribute("x1", "0"));
             dash.addAttribute(new Attribute("x2", "30"));
-            dash.addAttribute(new Attribute("y1", "40"));
-            dash.addAttribute(new Attribute("y2", "40"));
+            String y = (hasAlign) ? "60" : "40";
+            dash.addAttribute(new Attribute("y1", y));
+            dash.addAttribute(new Attribute("y2", y));
             dash.addAttribute(new Attribute("style", "stroke: black; stroke-dasharray: 4, 2; stroke-width: 2"));
             legend.appendChild(dash);
             Element mature = new Element("text", svg);
             mature.addAttribute(new Attribute("x", "31"));
-            mature.addAttribute(new Attribute("y", "45"));
+            y = (hasAlign) ? "65" : "45";
+            mature.addAttribute(new Attribute("y", y));
             mature.appendChild("Mature seq.");
             legend.appendChild(mature);
         }
@@ -311,6 +316,8 @@ public class ColorAnnotator {
         String type = "pairprob";
         if (computeEntropy)
             type = "entropy";
+        if (!hasDotPlot)
+            type = "annot";
         String newFilepath = name + "_ss_" + type + ".svg";
 
         // write new svg file

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Data;
 
 import BLASTGrabber.Facade.BLASTGrabberHit;
@@ -9,8 +5,9 @@ import BLASTGrabber.Facade.BLASTGrabberQuery;
 import java.util.ArrayList;
 
 /**
+ * An extension of BLASTGrabberQuery with a toString() method
  *
- * @author Petter
+ * @author Petter Hannevold
  */
 public class RNAQuery extends BLASTGrabberQuery{
 
