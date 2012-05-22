@@ -1,9 +1,10 @@
 package Data;
 
 /**
- * A small class containing indexing data for mature miRNA within the hairpin
- * 
- * @author Petter
+
+ * A data class for mature miRNA data
+ *
+ * @author Petter Hannevold
  */
 public class MatureInfo {
 

@@ -41,7 +41,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabelTitle" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPaneInstructions" pref="264" max="32767" attributes="0"/>
+              <Component id="jScrollPaneInstructions" pref="268" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -53,7 +53,7 @@
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="SansSerif" size="16" style="1"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="miRNA Folding for BLASTGrabber"/>
+        <Property name="text" type="java.lang.String" value="RNA Folding for BLASTGrabber"/>
       </Properties>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPaneInstructions">
@@ -72,7 +72,7 @@
             </Property>
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="rows" type="int" value="5"/>
-            <Property name="text" type="java.lang.String" value="BLAST searches will frequently return a large number of hits. When searching for short sequences of microRNA (miRNA), usually 18-24 bases in length, the number of hits can be overwhelming. A number of sequences may not be actual candidates for miRNA.&#xa;&#xa;This plugin allows the user to fold precursor sequences of miRNA according to the RNAfold algorithm, to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.&#xa;&#xa;Usage:&#xa;1. Select candidate sequences in any data view&#xa;2. Right-click and Quick-grab selected sequences&#xa;3. Mark any or all sequences&#xa;4. Right-click and choose Plugins &gt; miRNA Folding&#xa;&#xa;Sequences appear in the clipboard list. Choose sequence to display by left clicking."/>
+            <Property name="text" type="java.lang.String" value="RNA Folding will fold any RNA sequence or set of sequences using the Vienna RNA tools RNAfold algorithm. &#xa;&#xa;However, RNA Folding was made to adress a very specific need for researchers working with microRNA (miRNA). BLAST searches will frequently return a large number of hits. When searching for relatively short sequences of miRNA, the number of hits can be overwhelming. A number of these sequences may not be actual candidates for miRNA. The plugin allows researchers to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.&#xa;&#xa;Usage:&#xa;1. Select candidate sequences in any data view&#xa;2. Right-click and Quick-grab selected sequences&#xa;3. Mark any or all sequences&#xa;4. Right-click and choose Plugins &gt; RNA Folding&#xa;&#xa;Sequences appear in the clipboard list. Choose sequence to display by left clicking."/>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
           </Properties>
         </Component>

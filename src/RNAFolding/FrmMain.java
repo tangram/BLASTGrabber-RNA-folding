@@ -1,9 +1,9 @@
-/*
- * frmMain.java
- */
 package RNAFolding;
 
 /**
+ * FrmMain is the form displayed from BLASTGrabbers main menu.
+ * Shows instructions on how to start the plugin with data.
+ *
  * @author Eirik Krogstad
  */
 public class FrmMain extends javax.swing.JInternalFrame {
@@ -31,15 +31,15 @@ public class FrmMain extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setResizable(true);
 
-        jLabelTitle.setFont(new java.awt.Font("SansSerif", 1, 16));
-        jLabelTitle.setText("miRNA Folding for BLASTGrabber");
+        jLabelTitle.setFont(new java.awt.Font("SansSerif", 1, 16)); // NOI18N
+        jLabelTitle.setText("RNA Folding for BLASTGrabber");
 
         jTextAreaInstructions.setColumns(20);
         jTextAreaInstructions.setEditable(false);
-        jTextAreaInstructions.setFont(new java.awt.Font("SansSerif", 0, 12));
+        jTextAreaInstructions.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
         jTextAreaInstructions.setLineWrap(true);
         jTextAreaInstructions.setRows(5);
-        jTextAreaInstructions.setText("BLAST searches will frequently return a large number of hits. When searching for short sequences of microRNA (miRNA), usually 18-24 bases in length, the number of hits can be overwhelming. A number of sequences may not be actual candidates for miRNA.\n\nThis plugin allows the user to fold precursor sequences of miRNA according to the RNAfold algorithm, to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.\n\nUsage:\n1. Select candidate sequences in any data view\n2. Right-click and Quick-grab selected sequences\n3. Mark any or all sequences\n4. Right-click and choose Plugins > miRNA Folding\n\nSequences appear in the clipboard list. Choose sequence to display by left clicking.");
+        jTextAreaInstructions.setText("RNA Folding will fold any RNA sequence or set of sequences using the Vienna RNA tools RNAfold algorithm. \n\nHowever, RNA Folding was made to adress a very specific need for researchers working with microRNA (miRNA). BLAST searches will frequently return a large number of hits. When searching for relatively short sequences of miRNA, the number of hits can be overwhelming. A number of these sequences may not be actual candidates for miRNA. The plugin allows researchers to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.\n\nUsage:\n1. Select candidate sequences in any data view\n2. Right-click and Quick-grab selected sequences\n3. Mark any or all sequences\n4. Right-click and choose Plugins > RNA Folding\n\nSequences appear in the clipboard list. Choose sequence to display by left clicking.");
         jTextAreaInstructions.setWrapStyleWord(true);
         jScrollPaneInstructions.setViewportView(jTextAreaInstructions);
 
@@ -60,7 +60,7 @@ public class FrmMain extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addComponent(jLabelTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPaneInstructions, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+                .addComponent(jScrollPaneInstructions, javax.swing.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
                 .addContainerGap())
         );
 

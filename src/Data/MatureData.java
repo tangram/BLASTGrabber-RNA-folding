@@ -11,7 +11,8 @@ import java.util.regex.Matcher;
 /**
  * MatureData generates a list of all known hairpins and the mature microRNA they produce.
  * It does so by parsing the file miRNA.dat, downloaded from mirbase.org
- * @author Petter
+ * @author Petter Hannevold
+
  */
 public class MatureData {
 
@@ -36,7 +37,7 @@ public class MatureData {
     public MatureData(String filePath) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            Pattern HairpinPattern = Pattern.compile("MI[\\d]+");
+            Pattern hairpinPattern = Pattern.compile("MI[\\d]+");
             Pattern maturePattern = Pattern.compile("\\d+");
             Pattern matureIndexPattern = Pattern.compile("miRNA");
             Pattern accessionPattern = Pattern.compile("MIMAT[\\d]+");
@@ -53,7 +54,7 @@ public class MatureData {
             while (line != null) {
 
                 if (line.substring(0, 2).equals("AC")) {
-                    matcher = HairpinPattern.matcher(line);
+                    matcher = hairpinPattern.matcher(line);
                     matureInfoList = new ArrayList<MatureInfo>();
 
                     if (matcher.find()) {
@@ -96,7 +97,7 @@ public class MatureData {
             reader.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("miRNA data error: " + e);
         }
     }
 

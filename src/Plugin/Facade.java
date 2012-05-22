@@ -1,13 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Plugin;
 
 import BLASTGrabber.Facade.BLASTGrabberQuery;
 import java.util.HashMap;
 
 /**
+ * Interface for a BLASTGrabber plugin, must be implemented in Plugin.Main
+ *
  * @author Ralf Neumann
  */
 public interface Facade {

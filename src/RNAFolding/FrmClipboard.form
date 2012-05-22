@@ -354,7 +354,7 @@
                       <JTableSelectionModel selectionMode="0"/>
                     </Property>
                     <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                      <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
                     </Property>
                   </Properties>
                 </Component>
@@ -483,7 +483,7 @@
                       <JTableSelectionModel selectionMode="0"/>
                     </Property>
                     <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                      <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
                     </Property>
                   </Properties>
                 </Component>
@@ -761,6 +761,7 @@
             </Component>
           </SubComponents>
         </Container>
+<<<<<<< HEAD
         <Container class="javax.swing.JPanel" name="jPanel1">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
@@ -811,6 +812,8 @@
             </Container>
           </SubComponents>
         </Container>
+=======
+>>>>>>> 0eb10e7395b209a44c362ca95a48210494427690
       </SubComponents>
     </Container>
     <Container class="javax.swing.JScrollPane" name="jScrollPaneQueries">

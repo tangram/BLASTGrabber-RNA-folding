@@ -8,6 +8,8 @@ import javax.swing.JDesktopPane;
 import javax.swing.JOptionPane;
 
 /**
+ * Main class and entry point for plugin
+ *
  * @author Ralf Neumann
  * @author Eirik Krogstad
  * @author Petter Hannevold

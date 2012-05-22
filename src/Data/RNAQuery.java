@@ -1,4 +1,3 @@
-
 package Data;
 
 import BLASTGrabber.Facade.BLASTGrabberHit;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
  * 
  * @author Petter
  */
-
 public class RNAQuery extends BLASTGrabberQuery{
     /**
      * ArrayList containing all hits on this query from BLASTGrabber

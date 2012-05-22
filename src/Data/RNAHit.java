@@ -1,4 +1,3 @@
-
 package Data;
 
 import BLASTGrabber.Facade.BLASTGrabberHit;
@@ -7,6 +6,7 @@ import BLASTGrabber.Facade.BLASTGrabberHit;
  * The only difference from BLASTGrabber hit is the toString() method which now shows the sequenceheader of the hit.
  * 
  * @author Petter
+
  */
     
 public class RNAHit extends BLASTGrabberHit{
