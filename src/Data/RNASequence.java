@@ -50,7 +50,7 @@ public class RNASequence {
     }
 
     public String getSequence() {
-        return name;
+        return sequence;
     }
 
     public int getAlignmentStart() {

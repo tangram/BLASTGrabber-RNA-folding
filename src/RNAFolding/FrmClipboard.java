@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Locale;
 import javax.swing.JFileChooser;
@@ -30,6 +31,15 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.biojava3.alignment.Alignments;
+import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
+import org.biojava3.alignment.SimpleGapPenalty;
+import org.biojava3.alignment.SubstitutionMatrixHelper;
+import org.biojava3.alignment.template.SequencePair;
+import org.biojava3.alignment.template.SubstitutionMatrix;
+import org.biojava3.core.sequence.DNASequence;
+import org.biojava3.core.sequence.compound.AmbiguityDNACompoundSet;
+import org.biojava3.core.sequence.compound.NucleotideCompound;
 
 /**
  * FrmClipboard is the main view and controller class for the RNA Folding plugin.
@@ -164,6 +174,29 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         }
 
         return rnaQueries;
+    }
+    
+    private static int[] getLocalAlignment(String targetSeq, String querySeq) {
+        
+        targetSeq = targetSeq.replace('U', 'T');
+        querySeq = querySeq.replace('U', 'T');
+        
+        DNASequence target = new DNASequence(targetSeq,
+				AmbiguityDNACompoundSet.getDNACompoundSet());
+        DNASequence query = new DNASequence(querySeq,
+				AmbiguityDNACompoundSet.getDNACompoundSet());
+        SubstitutionMatrix<NucleotideCompound> matrix = SubstitutionMatrixHelper.getNuc4_4();
+        SimpleGapPenalty gapP = new SimpleGapPenalty();
+        gapP.setOpenPenalty((short)10);
+        SequencePair<DNASequence, NucleotideCompound> psa = 
+                Alignments.getPairwiseAlignment(query, target,
+                PairwiseSequenceAlignerType.LOCAL, gapP, matrix);
+        
+        int start = psa.getIndexInTargetAt(1);
+        int end = start + psa.getLength();
+        
+        int[] a = {start, end};
+        return a;
     }
 
     /**
@@ -418,7 +451,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 }
             }
         }
-
         int[] matureArray = {matureStart, matureStop};
         return matureArray;
     }
@@ -429,9 +461,9 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
      * @param object    An RNAhit or RNAQuery, as stored in jTreeQueries
      * @return          An RNASequence with subsequence start and stop data
      */
-    private RNASequence lookUpRNASequence(Object object) {
-        if (object instanceof RNAHit) {
-            RNAHit hit = (RNAHit) object;
+    private RNASequence lookUpRNASequence(DefaultMutableTreeNode object) {
+        if (object.getUserObject() instanceof RNAHit) {
+            RNAHit hit = (RNAHit) object.getUserObject();
             int start = 0, stop = 0, qstart = 0, qstop = 0, length = 0;
 
             for (BLASTGrabberStatistic i : hit.Statistics) {
@@ -464,7 +496,10 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             else
                 sequence = sequence.substring(start, stop);
 
-            int[] matureArray = getMatureStartStop(name);
+            RNASequence parentQuery = lookUpRNASequence((DefaultMutableTreeNode) object.getParent());
+            String matureQuery = parentQuery.getSequence().substring(parentQuery.getMatureStart(), parentQuery.getMatureStop());
+            int[] matureArray = getLocalAlignment(parentQuery.getSequence(), matureQuery);
+                    
             int matureStart = matureArray[0];
             int matureStop = matureArray[1];
 
@@ -474,8 +509,8 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 JOptionPane.showMessageDialog(null, "No sequence found for this hit");
             }
 
-        } else if (object instanceof RNAQuery) {
-            RNAQuery query = (RNAQuery) object;
+        } else if (object.getUserObject() instanceof RNAQuery) {
+            RNAQuery query = (RNAQuery) object.getUserObject();
 
             String name = ">" + query.Name;  // Queries do not have a fasta header marker ">"
             String sequence = querySequences.get(name);
@@ -515,7 +550,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             else if (object instanceof RNAQuery)
                 objectID = ((RNAQuery) object).BLASTGrabberID;
             if (objectID == id)
-                return lookUpRNASequence(object);
+                return lookUpRNASequence(node);
         }
         return null;
     }
@@ -1134,7 +1169,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             for (TreePath path : jTreeQueries.getSelectionPaths()) {
                 Object node = path.getLastPathComponent();
                 Object current = ((DefaultMutableTreeNode) node).getUserObject();
-                RNASequence currentSequence = lookUpRNASequence(current);
+                RNASequence currentSequence = lookUpRNASequence((DefaultMutableTreeNode) node);
                 if (currentSequence != null)
                     currentSequences.add(currentSequence);
                 selectedSequence = currentSequences.size() - 1;
