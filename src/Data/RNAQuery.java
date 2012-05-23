@@ -20,18 +20,24 @@ public class RNAQuery extends BLASTGrabberQuery{
      * 
      * @param BGQuery Query from BLASTGrabber
      */
-    public RNAQuery(BLASTGrabberQuery BGQuery){
-        this.Name = BGQuery.Name;
-        this.BLASTGrabberID = BGQuery.BLASTGrabberID;
-        this.RNAHits = convertHits(BGQuery.Hits);
+    public int nextHitID;
+
+    public RNAQuery(BLASTGrabberQuery bgquery, int nextHitID){
+        this.nextHitID = nextHitID;
+        this.Name = bgquery.Name;
+        this.BLASTGrabberID = bgquery.BLASTGrabberID;
+        this.RNAHits = convertHits(bgquery.Hits);
     }
 
     @Override
-    public String toString () { return Name; }
+    public String toString () {
+        return Name;
+    }
 
     private ArrayList<RNAHit> convertHits(ArrayList<BLASTGrabberHit> bghits){
         ArrayList<RNAHit> hits = new ArrayList<RNAHit>();
-        for(BLASTGrabberHit hit : bghits){
+        for(BLASTGrabberHit hit : bghits) {
+            hit.BLASTGrabberID = nextHitID++;
             hits.add(new RNAHit(hit));
         }
         return hits;

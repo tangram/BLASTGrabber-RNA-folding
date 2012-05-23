@@ -6,6 +6,7 @@ package RNAFolding;
  * @author Eirik Krogstad
  */
 public class OsDetector {
+    
     private static String os;
 
     public static String getOSName() {
@@ -22,8 +23,8 @@ public class OsDetector {
 		return (getOSName().toLowerCase().indexOf("mac") >= 0);
 	}
 
-	public static boolean isUnix() {
-		return (getOSName().toLowerCase().indexOf("nix") >= 0 || getOSName().toLowerCase().indexOf("nux") >= 0);
+	public static boolean isLinux() {
+		return (getOSName().toLowerCase().indexOf("nux") >= 0);
 	}
 
 	public static boolean isSolaris() {
@@ -34,8 +35,17 @@ public class OsDetector {
         String osExtension = "";
         if (OsDetector.isWindows())
             osExtension = ".exe";
-        if (OsDetector.isMac())
-            osExtension = ".app";
         return osExtension;
+    }
+
+    public static String getOSFolder() {
+        String osFolder = "";
+        if (OsDetector.isWindows())
+            osFolder = "win/";
+        if (OsDetector.isMac())
+            osFolder = "osx/";
+        if (OsDetector.isLinux())
+            osFolder = "linux/";
+        return osFolder;
     }
 }

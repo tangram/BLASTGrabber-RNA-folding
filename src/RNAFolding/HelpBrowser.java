@@ -21,6 +21,7 @@ import javax.swing.event.HyperlinkListener;
  * @author Eirik Krogstad
  */
 public class HelpBrowser extends JFrame {
+    
 	private static final int REL_X = 512;
 	private static final int REL_Y = 0;
 	private static final int SET_WIDTH = 512;
@@ -38,7 +39,7 @@ public class HelpBrowser extends JFrame {
 	 */
 	public HelpBrowser(String page) {
 		setBounds(REL_X, REL_Y, SET_WIDTH, SET_HEIGHT);
-		setTitle("Help browser for miRNA Folding");
+		setTitle("Help browser for RNA Folding");
 		setLayout(new BorderLayout());
 
 		// navigation
@@ -93,7 +94,7 @@ public class HelpBrowser extends JFrame {
 	 * @param page	String with the URL to be shown (relative to working directory/doc)
 	 */
 	public void showPage(String page) {
-		// lag ny gren av historie og vis angitt page
+		// make a new history branch and show given page
 		if (history.size() > 1)
 			history.subList(index + 1, history.size()).clear();
 		back.setEnabled(true);
