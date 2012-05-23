@@ -1,18 +1,24 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta charset="utf-8">
 <title>RNA Folding User Manual</title>
 <style type="text/css">
 p {
 	margin:11pt 0;
 }
 strong {
-	font-weight:bold
+	font-weight:bold;
 }
 em {
-	font-style:italic
+	font-style:italic;
 }
 .break {
-	margin:0
+	margin:0;
+}
+li {
+	list-style:square;
 }
 body {
 	padding:4pt;
@@ -23,147 +29,102 @@ body {
 	max-width:600pt;
 }
 h1 {
-	padding-top:6pt;
 	color:#000000;
 	font-size:24pt;
 	font-family:Arial;
-	font-weight:bold
+	font-weight:bold;
 }
 h2 {
-	padding-top:18pt;
 	color:#000000;
 	font-size:18pt;
 	font-family:Arial;
-	font-weight:bold
+	font-weight:bold;
 }
 h3 {
-	padding-top:14pt;
-	line-height:1.15;
 	color:#666666;
 	font-size:14pt;
 	font-family:Arial;
-	font-weight:bold
+	font-weight:bold;
 }
 h4 {
-	padding-top:12pt;
 	color:#666666;
 	font-style:italic;
 	font-size:12pt;
-	font-family:Arial
-}
-h5 {
-	padding-top:11pt;
-	color:#666666;
-	font-size:11pt;
 	font-family:Arial;
-	font-weight:bold
-}
-h6 {
-	padding-top:10pt;
-	color:#666666;
-	font-style:italic;
-	font-size:10pt;
-	font-family:Arial
 }
 </style>
 </head>
 <body>
-<h1><a name="h.p4l9ktylu9fq"></a>RNA Folding User Manual</h1>
-<p>
-	RNA Folding is a plugin for BLASTGrabber, a BLAST result management and analysis tool developed by the Molecular Evolution Research Group (MERG) at the Department of Biology, University of Oslo. RNA Folding not usable outside of the BLASTGrabber environment.
-</p>
-<p>
-	RNA Folding will fold any RNA sequence or set of sequences using the Vienna RNA tools RNAfold algorithm. RNA Folding was made to adress a very specific need for researchers working with microRNA (miRNA). BLAST searches will frequently return a large number of hits. When searching for relatively short sequences of miRNA, the number of hits can be overwhelming. A number of these sequences may not be actual candidates for miRNA. The plugin allows researchers to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.
-</p>
-<h2><a name="h.kku3gvvbv38q"></a>Accessing the plugin</h2>
-<p>
-	The plugin accepts data from BLASTGrabber through the latter&rsquo;s Clipboard view. A dataset needs to be either opened or imported in BLASTGrabber, and viewed through the Sequence viewer, Matrix viewer or Description viewer. Select candidate sequences from either of these by marking them. Optionally several can be marked with Ctrl+left mouse button or Shift+left mouse button. Right click selected sequences and select Quick-grab selected sequences from the context menu.
-</p>
-<p>
-	From the Clipboard view, mark selected sequences (or Select all) and right-click again. Select Plugins &gt; RNA Folding from the context menu. The marked sequences are exported to RNA Folding, and you are presented with the RNA Folding main window.
-</p>
-<h2><a name="h.4kxod1myfmav"></a>Using the plugin</h2>
-<p>
-	The top tree view lists the sequences that were imported to RNA Folding. Each folder is a BLAST query, under which corresponding hits can be found. Buttons to the left of the tree view allow you to expand and collapse the tree, select queries only, hits only, or all sequences. Help is available at any time by pressing the Help button. The bottom-left window panel displays a graphical view of the folding stucture. The bottom-right panel contains several tabs with commands and data outputs.
-</p>
-<h3><a name="h.uxsl9jatyr1o"></a>Understanding and setting options</h3>
-<p>
-	The Options tab gives a set of common options for the folding tools.
-</p>
-<p>
-	<strong>Scale to temperature.</strong>&nbsp;This option allows you to scale the results of the folding algorithm to a certain temperature, eg. for poikilothermic organisms. The default temperature is 37&deg;C. As the folding algorithm is based on thermodynamics, setting the temperature can have a profound effect on the folding structure. See also the temperature range option in the Multiple runs tab.
-</p>
-<p>
-	<strong>Assume circular RNA.</strong>&nbsp;This option makes the folding algorithm assume RNA molecules are circular in structure, rather than linear.
-</p>
-<p>
-	<strong>Disallow lonely pairs (helices of length 1).</strong>&nbsp;When selecting this option, a single pair of bases with a pairing between them and bulges or loops on either sides, are disallowed. 
-</p>
-<p class="break">&nbsp;</p>
-<p>
-	The following set of options determine how dangling ends are treated:
-</p>
-<p>
-	<strong>Ignore dangling ends.</strong>
-</p>
-<p>
-	<strong>Only unpaired bases can participate in at most one dangling end.</strong>
-</p>
-<p>
-	<strong>Dangling energies will be added for the bases adjacent to a helix on both sides.</strong>
-</p>
-<p>
-	<strong>Allow coaxial stacking of adjacent helices in multi-loops.</strong>
-</p>
-<p class="break">&nbsp;</p>
-<p>
-	The following set of options determine whether to allow GU pairs:
-</p>
-<p>
-	<strong>Allow GU pairs.</strong>&nbsp;Guanine-Uracil pairs are allowed.</strong>
-</p>
-<p>
-	<strong>Disallow GU pairs at ends of helices.</strong>&nbsp;Guanine-Uracil pairs are allowed, except at the ends of helices, where energy conditions are more likely to pull GU pairs apart.
-</p>
-<p>
-	<strong>Disallow GU pairs. </strong>Guanine-Uracil pairs are entirely disallowed.
-</p>
-<p class="break">&nbsp;</p>
-<p>
-	<strong>Use parameter file.</strong>&nbsp;The Vienna RNA tools allow the use of parameter files, with thermodynamic parameters that influence the folding algorithm. A small number of parameter files are supplied in the <em>par</em>&nbsp;folder. Click the &lsquo;...&rsquo; button to select and load a parameter file.
-</p>
-<h3><a name="h.9bhha8ajwikv"></a>Folding a single sequence</h3>
-<p>
-	Folding single sequences are done from the MFE structure, or Minimum Free Energy structure tab. Simply mark a sequence in the tree view, either a query or a hit, and press Fold. The results are displayed as a graphical representation of the secondary structure on the left, and resulting parameters on the right.
-</p>
-<h3><a name="h.3a5lywwkqsp1"></a>Folding suboptimal structures</h3>
-<p>
-	The Suboptimal structures tab can be used to fold structures that deviate from the MFE structure. The first option gives structures that deviate from the MFE structure by a set in kcal/mol. The second option gives a random selection of <em>n</em>&nbsp;structures, drawn with probabilities equal to their Boltzmann weights via stochastic backtracking in the partition function.
-</p>
-<p>
-	Be aware that the number of suboptimal results increases exponentially with kcal/mol . A high setting (&gt; 12-13 kcal/mol) will likely run you out of memory. Refer to the BLASTGrabber manual to allow for a larger heap space.
-</p>
-<p>
-	On pressing Fold suboptimal structures, the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view. Additional result data, as per a single sequence, can be found by switching to the MFE structure tab.
-</p>
-<h3><a name="h.g8ptrhbjzwlx"></a>Folding multiple structures</h3>
-<p>
-	The Multiple runs tab allows you to select multiple sequences from the tree view. Please note that a large number of sequences will take a while to fold. Warnings are given accordingly.
-</p>
-<p>
-	There is an option to fold a single sequence over a range of temperatures. With this option checked and a temperature range set, folding is repeated in 1&deg; increments.
-</p>
-<p>
-	On pressing Fold selected sequences, the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view. Additional result data, as per a single sequence, can be found by switching to the MFE structure tab.
-</p>
-<h3><a name="h.suu6wjhzdhxy"></a>Understanding the folding output</h3>
-<h4><a name="h.3ezbxedcf6yc"></a>The graphical view</h4>
-<p>
-	This window shows you a graphic representation of the secondary structure. If Show pair probabilities is set, colors represent pair probabilities as given by the legend in the upper-right corner. For unpaired bases, colors represent the probability of being unpaired. If Show positional entropy is set, colors represent positional entropy as given by the legend. If a miRBase accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is outlined in dashes. If the folded sequence is a BLAST hit, the BLAST alignment is given as the bases outlined in dots.
-</p>
-<h4><a name="h.p2wyok9kv1tn"></a>The parameter readout</h4>
-<p>
-	The first and second lines of the parameter readout shows the name and base sequence of the folded sequence. The third line shows the structure in dot-parenthesis form and free energy value for the MFE structure. The fourth and fifth lines show the structure and free energy value of the thermodynamic ensemble and centroid structure, respectively. The sixth line shows additional parameters for the resulting thermodynamic ensemble. The free energy values are repeated below for clarity. If a miRBase accession code is found in a query name, and a match is found in the miRBase database, the mature miRNA segment is shown. For hits, the alignment between query and hit is shown.
-</p>
-</body>
-</html>
+
+<h1 id="RNA_Folding_User_Manual">RNA Folding User Manual</h1>
+<p>RNA Folding is a plugin for BLASTGrabber, a BLAST result management and analysis tool developed by the Molecular Evolution Research Group (MERG) at the Department of Biology, University of Oslo. RNA Folding is not usable outside of the BLASTGrabber environment.</p>
+
+<p>RNA Folding will fold any RNA sequence or set of sequences using the Vienna RNA tools RNAfold algorithm. However, RNA Folding was made to address a very specific need for researchers working with microRNA (miRNA), and additional functionality is provided for this purpose. BLAST searches will frequently return a large number of hits. When searching for relatively short sequences of miRNA, the number of hits can be overwhelming. A number of these sequences may not be actual candidates for miRNA. The plugin allows researchers to see if the segment forms a stable stem/hairpin loop structure, and thereby judge the validity of candidate hits.</p>
+
+<h2 id="Preparation">Preparation</h2>
+<p>A dataset needs to be either opened or imported in BLASTGrabber. The dataset only contains data from the BLAST result. In addition, a <strong>query file</strong> containing sequence data for your queries, and a <strong>custom database</strong> containing sequence data for your hits must be loaded. These are set from Options &gt; File References. Refer to the BLASTGrabber manual for additional information.</p>
+
+<h2 id="Accessing_the_plugin">Accessing the plugin</h2>
+<p>The plugin accepts data from BLASTGrabber through the latter’s Clipboard view. The Clipboard view can be accessed through the Sequence viewer, Matrix viewer or Description viewer. Select candidate sequences from either of these by marking them. Optionally several can be marked with Ctrl+left mouse button or Shift+left mouse button. Right click selected sequences and select Quick-grab selected sequences from the context menu.</p>
+
+<p>From the Clipboard view, mark selected sequences (or Select all) and right-click again. Select Plugins &gt; RNA Folding from the context menu. The marked sequences are exported to RNA Folding, and you are presented with the RNA Folding main window.</p>
+
+<h2 id="Using_the_plugin">Using the plugin</h2>
+<p>The top tree view lists the sequences that were imported to RNA Folding. Each folder is a BLAST query, under which corresponding hits can be found. Buttons to the left of the tree view allow you to expand and collapse the tree, select queries only, hits only, or all sequences. Help is available at any time by pressing the Help button. The bottom-left window panel displays a graphical view of the folding structure. The bottom-right panel contains several tabs with commands and data outputs.</p>
+
+<h2 id="Understanding_and_setting_options">Understanding and setting options</h2>
+<p>The Options tab gives a set of common options for the folding tools.</p>
+
+<ul>
+	<li> <strong>Scale to temperature.</strong> This option allows you to scale the results of the folding algorithm to a certain temperature, e.g. for poikilothermic organisms. The default temperature is 37°C. As the folding algorithm is based on thermodynamics, setting the temperature can have a profound effect on the folding structure. See also the temperature range option in the Multiple runs tab.</li>
+	<li> <strong>Assume circular RNA.</strong> This option makes the folding algorithm assume RNA molecules are circular in structure, rather than linear.</li><li> <strong>Disallow lonely pairs (helices of length 1).</strong> When selecting this option, a single pair of bases with a pairing between them, and bulges or loops on either side, are disallowed.</li>
+</ul>
+
+<p>The following set of options determine how dangling ends are treated:</p>
+
+<ul>
+	<li> <strong>Ignore dangling ends.</strong></li>
+	<li> <strong>Only unpaired bases can participate in at most one dangling end.</strong></li>
+	<li> <strong>Dangling energies will be added for the bases adjacent to a helix on both sides.</strong></li>
+	<li> <strong>Allow coaxial stacking of adjacent helices in multi-loops.</strong></li>
+</ul>
+
+<p>The following set of options determine whether to allow GU pairs:</p>
+
+<ul>
+	<li> <strong>Allow GU pairs.</strong> Guanine-Uracil pairs are allowed.</li>
+	<li> <strong>Disallow GU pairs at ends of helices.</strong> Guanine-Uracil pairs are allowed, except at the ends of helices, where energy conditions are more likely to pull GU pairs apart.</li>
+	<li> <strong>Disallow GU pairs.</strong> Guanine-Uracil pairs are entirely disallowed.</li>
+</ul>
+
+<p><strong>Use parameter file.</strong> The Vienna RNA tools allow the use of parameter files, with thermodynamic parameters that influence the folding algorithm. A small number of parameter files are supplied in the "par" folder. Click the ‘...’ button to select and load a parameter file.</p>
+
+<h2 id="Folding_a_single_sequence">Folding a single sequence</h2>
+<p>Folding a single sequence is done from the MFE structure, or Minimum Free Energy structure tab. Simply mark a sequence in the tree view, either a query or a hit, and press Fold. The results are displayed as a graphical representation of the secondary structure on the left, and resulting parameters on the right.</p>
+
+<p>Each set of graphical representations will take up at least 40 KB of disk space. The Scalable Vector Graphics (SVG) files are stored in the subfolder "plots", where filenames ending in "pairprob", "entropy" and "annot" are the final products. Repeated renderings of the same structure will overwrite a previous one.</p>
+
+<h2 id="Folding_suboptimal_structures">Folding suboptimal structures</h2>
+<p>The Suboptimal structures tab can be used to fold structures that deviate from the MFE structure. The first option gives structures that deviate from the MFE structure by a set in kcal/mol. The second option gives a random selection of n structures, drawn with probabilities equal to their Boltzmann weights via stochastic backtracking in the partition function.</p>
+
+<p>Be aware that the number of suboptimal results increases exponentially with kcal/mol. A high setting (&gt; 12-13 kcal/mol) will likely run you out of memory. Refer to the BLASTGrabber manual to allow for a larger heap space.</p>
+
+<p>On pressing Fold suboptimal structures, the selected structure is processed, and the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view. Additional result data, as per a single sequence, can be found by switching to the MFE structure tab.</p>
+
+<p>Note that pair probability and positional entropy data is not available for suboptimal structures. These are rendered in black and white.</p>
+
+<h2 id="Folding_multiple_structures">Folding multiple structures</h2>
+<p>The Multiple runs tab allows you to select multiple sequences from the tree view. Please note that a large number of sequences will take a while to fold. Warnings are given accordingly.</p>
+
+<p>There is an option to fold a single sequence over a range of temperatures. With this option checked and a temperature range set, folding is repeated in 1° increments.</p>
+
+<p>On pressing Fold selected sequences, the selected sequences are processed, and the table is filled with results. Selecting a line in the table will render the secondary structure in the graphical view. Additional result data, as per a single sequence, can be found by switching to the MFE structure tab.</p>
+
+<h2 id="Understanding_the_folding_output">Understanding the folding output</h2>
+<h3 id="The_graphical_view">The graphical view</h3>
+<p>This window shows you a graphic representation of the secondary structure. If Show pair probabilities is set, colors represent pair probabilities as given by the legend in the upper-right corner. For unpaired bases, colors represent the probability of being unpaired. If Show positional entropy is set, colors represent positional entropy as given by the legend. If a miRBase accession code is found in a sequence name, and a match is found in the miRBase database, the mature miRNA segment is outlined in dashes. If the folded sequence is a BLAST hit, the BLAST alignment is given as the bases outlined in dots.</p>
+
+<h3 id="The_parameter_readout">The parameter readout</h3>
+<p>The first and second lines of the parameter readout show the name and base sequence of the folded sequence. The third line shows the structure in dot-parenthesis form and free energy value for the MFE structure. The fourth and fifth lines show the structure and free energy value of the thermodynamic ensemble and centroid structure, respectively. The sixth line shows additional parameters for the resulting thermodynamic ensemble. The free energy values are repeated below for clarity. If a miRBase accession code is found in a sequence name, and a match is found in the miRBase database, the mature miRNA segment is shown. For hits, the alignment between query and hit is shown.</p>
+
+</body></html>

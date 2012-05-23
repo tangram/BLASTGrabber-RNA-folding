@@ -15,9 +15,11 @@ import javax.swing.JOptionPane;
  * @author Eirik Krogstad
  */
 public class DataUpdate {
+
+    private final static int MAXTRANSFER = 10000000;
+    
     public final static String BASEPATH = FrmClipboard.BASEPATH;
     public final static String DATAPATH = "dat/";
-    public final static int MAXTRANSFER = 10000000;
 
     /**
      * Checks if miRBase data is present, if not, prompts the user with the choice to download.

@@ -3,7 +3,6 @@ package RNAFolding;
 import java.awt.Color;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.ParsingException;
 import nu.xom.Serializer;
 import Data.RNASequence;
 import java.io.File;
@@ -29,10 +27,11 @@ import java.io.File;
  * @author Eirik Krogstad
  */
 public class ColorAnnotator {
+
     /**
      * A small data structure to combine data points and pair info
      */
-    public static class Dataset {
+    private static class Dataset {
         public ArrayList<String[]> data = new ArrayList<String[]>();
         public HashMap<Integer, Integer> pairs = new HashMap<Integer, Integer>();
         public double max = 1.0;
@@ -44,7 +43,7 @@ public class ColorAnnotator {
      * @param filepath  String containing filepath to PostScript file
      * @return          Dataset containing pair identifiers and pair probabilities as String[]
      */
-    protected static Dataset readPairProbabilities(String filepath) {
+    private static Dataset readPairProbabilities(String filepath) {
         String ubox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+ubox";
         String lbox = "\\d+\\s+\\d+\\s+[0-9.Ee-]+\\s+lbox";
         Dataset dataset = new Dataset();
@@ -55,7 +54,7 @@ public class ColorAnnotator {
             String[] splitLine = null;
             boolean start = false;
 
-            reader.skip(1900);  // we can safely skip ahead this much
+            reader.skip(1900);  // we can safely skip ahead this much, saves time
 
             while ((line = reader.readLine()) != null) {
                 if (line.equals("drawgrid"))
@@ -73,10 +72,9 @@ public class ColorAnnotator {
                 }
             }
             reader.close();
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "File does not exist: " + e);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error reading file: " + e);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Unable to read dot plot;\n" + e);
+            return null;
         }
 
         return dataset;
@@ -112,7 +110,6 @@ public class ColorAnnotator {
      * Calls XML routines to write pair probabilities or positional entropy as color annotation to a new SVG file.
      * Should only ever be called for SVGs output by RNAplot. Bases are circled and colored according to a color map.
      * The plot is also slightly scaled and translated to make room for circles. Annotation for subsequences are added.
-     * This is a long and ugly method. Think of it more as a script.
      *
      * @param sequence          RNASequence object
      * @param computeEntropy    If true, compute entropy instead of pair probabilities
@@ -135,10 +132,9 @@ public class ColorAnnotator {
         // read svg file
         try {
             doc = parser.build(new BufferedReader(new FileReader(name + "_ss.svg")));
-        } catch (ParsingException e) {
-            JOptionPane.showMessageDialog(null, "Error parsing file: " + e);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error reading file: " + e);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Unable to read structure plot;\n" + e);
+            return null;
         }
 
         String svg = "http://www.w3.org/2000/svg";
@@ -216,7 +212,7 @@ public class ColorAnnotator {
             }
         }
 
-        // build circle elements
+        // build circle elements around bases
         Element circles = new Element("g", svg);
         circles.addAttribute(new Attribute("style", "stroke: black; stroke-width: 0.5"));
         circles.addAttribute(new Attribute("id", "circles"));
@@ -233,6 +229,7 @@ public class ColorAnnotator {
             circle.addAttribute(new Attribute("cy", point[1]));
             circle.addAttribute(new Attribute("r", "7"));
             if (hasDotPlot) {
+                // colorize with pair probability or positional entropy
                 int color = (int) ((values[i] / dataset.max) * (nCol - 1));
                 circle.addAttribute(new Attribute("fill", getHex(colors[color])));
             } else {
@@ -255,7 +252,7 @@ public class ColorAnnotator {
         legend.addAttribute(new Attribute("style", "stroke-width: 0"));
         legend.addAttribute(new Attribute("transform", "scale(0.885 0.885) translate(340 0)"));
         legend.addAttribute(new Attribute("id", "legend"));
-        // color key
+        // color key legend entry
         if (hasDotPlot) {
             Element min = new Element("text", svg);
             min.addAttribute(new Attribute("x", "0"));
@@ -278,7 +275,7 @@ public class ColorAnnotator {
                 legend.appendChild(rect);
             }
         }
-        // alignment
+        // alignment legend entry
         boolean hasAlign = sequence.getAlignmentStart() != 0 && sequence.getAlignmentStop() != 0;
         if (hasAlign) {
             Element dot = new Element("line", svg);
@@ -294,7 +291,7 @@ public class ColorAnnotator {
             align.appendChild("Alignment");
             legend.appendChild(align);
         }
-        // mature sequence
+        // mature sequence legend entry
         if (sequence.getMatureStart() != 0 && sequence.getMatureStop() != 0) {
             Element dash = new Element("line", svg);
             dash.addAttribute(new Attribute("x1", "0"));
@@ -330,7 +327,8 @@ public class ColorAnnotator {
             stream.flush();
             stream.close();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error writing SVG file: " + e);
+            JOptionPane.showMessageDialog(null, "Unable to write annotated structure plot;\n" + e);
+            return null;
         }
 
         return newFilepath;

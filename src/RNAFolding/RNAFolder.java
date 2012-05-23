@@ -12,8 +12,10 @@ import javax.swing.JOptionPane;
  * @author Eirik Krogstad
  */
 public class RNAFolder {
+
     public final static String BINPATH = "bin/";
     public final static String EXTENSION = OsDetector.getOSExtension();
+    public final static String FOLDER = OsDetector.getOSFolder();
     public final static String BASEPATH = FrmClipboard.BASEPATH;
     public final static File WORKINGDIR = new File(BASEPATH + "plots/");
 
@@ -69,7 +71,7 @@ public class RNAFolder {
      * @return          String containing the standard output of RNAfold
      */
     public static String foldSequence(String sequence, String options) {
-        return runProcess(sequence, BASEPATH + BINPATH + "RNAfold" + EXTENSION + options, false);
+        return runProcess(sequence, BASEPATH + BINPATH + FOLDER + "RNAfold" + EXTENSION + options, false);
     }
 
     /**
@@ -80,7 +82,7 @@ public class RNAFolder {
      * @return          String containing the standard output of RNAsubopt
      */
     public static String foldSuboptimals(String sequence, String options) {
-        return runProcess(sequence, BASEPATH + BINPATH + "RNAsubopt" + EXTENSION + options, false);
+        return runProcess(sequence, BASEPATH + BINPATH + FOLDER + "RNAsubopt" + EXTENSION + options, false);
     }
 
     /**
@@ -92,15 +94,15 @@ public class RNAFolder {
      * @return              String containing the standard output of RNAeval
      */
     public static String evalSuboptimals(String structures, String options) {
-        return runProcess(structures, BASEPATH + BINPATH + "RNAeval" + EXTENSION + options, false);
+        return runProcess(structures, BASEPATH + BINPATH + FOLDER + "RNAeval" + EXTENSION + options, false);
     }
 
     /**
      * Generates an SVG structure plot using the Vienna RNA package command line tool RNAplot
      *
-     * @param structure  String containing a folding notation as produced by eg. RNAfold
+     * @param structure  String containing a folding notation as produced by e.g. RNAfold
      */
     public static void generatePlots(String structure) {
-        runProcess(structure, BASEPATH + BINPATH + "RNAplot" + EXTENSION + " -t 0 -o svg", true);
+        runProcess(structure, BASEPATH + BINPATH + FOLDER + "RNAplot" + EXTENSION + " -t 0 -o svg", true);
     }
 }
