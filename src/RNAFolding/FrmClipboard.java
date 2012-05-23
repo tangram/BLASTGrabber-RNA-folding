@@ -18,13 +18,11 @@ import java.util.Locale;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -1222,11 +1220,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             jTableSuboptimal.setModel(newModel);
 
             setColumnSizes(jTableSuboptimal, 10, 10, 100, 300, 10);
-            DefaultTableCellRenderer r = new DefaultTableCellRenderer();
-            r.setHorizontalAlignment(SwingConstants.RIGHT);
-            jTableSuboptimal.getColumn("Number").setCellRenderer(r);
-            jTableSuboptimal.getColumn("ID").setCellRenderer(r);
-            jTableSuboptimal.getColumn("kcal/mol").setCellRenderer(r);
         }
     }
 
@@ -1268,10 +1261,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     jTableMultiple.setModel(newModel);
 
                     setColumnSizes(jTableMultiple, 10, 10, 100, 300, 10);
-                    DefaultTableCellRenderer r = new DefaultTableCellRenderer();
-                    r.setHorizontalAlignment(SwingConstants.RIGHT);
-                    jTableMultiple.getColumn("ID").setCellRenderer(r);
-                    jTableMultiple.getColumn("kcal/mol").setCellRenderer(r);
                 }
             } else {
 
@@ -1293,11 +1282,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 jTableMultiple.setModel(newModel);
 
                 setColumnSizes(jTableMultiple, 10, 10, 100, 300, 10);
-                DefaultTableCellRenderer r = new DefaultTableCellRenderer();
-                r.setHorizontalAlignment(SwingConstants.RIGHT);
-                jTableMultiple.getColumn("Number").setCellRenderer(r);
-                jTableMultiple.getColumn("ID").setCellRenderer(r);
-                jTableMultiple.getColumn("kcal/mol").setCellRenderer(r);
             }
         }
     }
