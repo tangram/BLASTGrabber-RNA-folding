@@ -15,9 +15,11 @@ public class FoldingTableModel extends DefaultTableModel {
 
     @Override
     public Class getColumnClass(int col) {
-        if (columnIdentifiers.get(col).equals("Number") ||
-            columnIdentifiers.get(col).equals("ID"))
+        if (columnIdentifiers.get(col).equals("Number") || columnIdentifiers.get(col).equals("ID"))
             return Integer.class;
-        else return String.class;
+        else if (columnIdentifiers.get(col).equals("kcal/mol"))
+            return Double.class;
+        else
+            return String.class;
     }
 }

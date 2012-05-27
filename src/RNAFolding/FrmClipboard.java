@@ -30,6 +30,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  * FrmClipboard is the main view and controller class for the RNA Folding plugin.
@@ -476,7 +478,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         } else if (object instanceof RNAQuery) {
             RNAQuery query = (RNAQuery) object;
 
-            String name = ">" + query.Name;  // Queries do not have a fasta header marker ">"
+            String name = ">" + query.Name;  // Queries do not have a FASTA header indicator
             String sequence = querySequences.get(name);
 
             int[] matureArray = getMatureStartStop(name);
@@ -1091,7 +1093,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 if (selected != null) {
                     lastRNASequence = selected;
                     String folding = (String) jTableSuboptimal.getValueAt(row, 3);
-                    String freeEnergy = (String) jTableSuboptimal.getValueAt(row, 4);
+                    String freeEnergy = jTableSuboptimal.getValueAt(row, 4).toString();
                     String structure = selected.toString() + "\n" + folding + " (" + freeEnergy + ")\n";
                     generatePlot(structure, false);
                     lastFoldOutput = "";
@@ -1114,7 +1116,7 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 if (selected != null) {
                     lastRNASequence = selected;
                     String folding = (String) jTableMultiple.getValueAt(row, 3);
-                    String freeEnergy = (String) jTableMultiple.getValueAt(row, 4);
+                    String freeEnergy = jTableMultiple.getValueAt(row, 4).toString();
                     String structure = selected.toString() + "\n" + folding + " (" + freeEnergy + ")\n";
                     generatePlot(structure, true);
                 }
@@ -1207,13 +1209,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
             if (jRadioButtonRange.isSelected()) {
                 for (int i = 3; i < outputLines.length; i++) {
                     String[] foldStructure = splitFirstSpace(outputLines[i]);
-                    Object[] row = {(Integer) (i-2), id, name, foldStructure[0], stripParantheses(foldStructure[1])};
+                    Double freeEnergy = Double.valueOf(stripParantheses(foldStructure[1]));
+                    Object[] row = {(Integer) (i-2), id, name, foldStructure[0], freeEnergy};
                     newModel.addRow(row);
                 }
             } else {
                 for (int i = 1; i < outputLines.length; i += 2) {
                     String[] foldStructure = splitFirstSpace(outputLines[i]);
-                    Object[] row = {(Integer) ((i/2)+1), id, name, foldStructure[0], stripParantheses(foldStructure[1])};
+                    Double freeEnergy = Double.valueOf(stripParantheses(foldStructure[1]));
+                    Object[] row = {(Integer) ((i/2)+1), id, name, foldStructure[0], freeEnergy};
                     newModel.addRow(row);
                 }
             }
@@ -1244,7 +1248,6 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                 if (lower < upper) {
 
                     jTableMultiple.clearSelection();
-
                     FoldingTableModel newModel = new FoldingTableModel(TEMPRANGECOLUMNS, 0);
                     for (int i = lower; i <= upper; i++) {
                         String output = RNAFolder.foldSequence(
@@ -1255,17 +1258,16 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                         String[] idAndName = splitFirstSpace(outputLines[0]);
                         Integer id = Integer.valueOf(idAndName[0].substring(1));
                         String name = idAndName[1];
-                        Object[] row = {i + "°C", id, name, foldStructure[0], stripParantheses(foldStructure[1])};
+                        Double freeEnergy = Double.valueOf(stripParantheses(foldStructure[1]));
+                        Object[] row = {i + "°C", id, name, foldStructure[0], freeEnergy};
                         newModel.addRow(row);
                     }
                     jTableMultiple.setModel(newModel);
 
-                    setColumnSizes(jTableMultiple, 10, 10, 100, 300, 10);
                 }
             } else {
 
                 jTableMultiple.clearSelection();
-
                 FoldingTableModel newModel = new FoldingTableModel(STANDARDCOLUMNS, 0);
                 for (int i = 0; i < currentSequences.size(); i++) {
                     String output = RNAFolder.foldSequence(
@@ -1276,13 +1278,15 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
                     String[] idAndName = splitFirstSpace(outputLines[0]);
                     Integer id = Integer.valueOf(idAndName[0].substring(1));
                     String name = idAndName[1];
-                    Object[] row = {(Integer) (i+1), id, name, foldStructure[0], stripParantheses(foldStructure[1])};
+                    Double freeEnergy = Double.valueOf(stripParantheses(foldStructure[1]));
+                    Object[] row = {(Integer) (i+1), id, name, foldStructure[0], freeEnergy};
                     newModel.addRow(row);
                 }
                 jTableMultiple.setModel(newModel);
 
-                setColumnSizes(jTableMultiple, 10, 10, 100, 300, 10);
             }
+
+            setColumnSizes(jTableMultiple, 10, 10, 100, 300, 10);
         }
     }
 
