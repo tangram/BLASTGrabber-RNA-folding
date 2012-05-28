@@ -1,5 +1,6 @@
-package RNAFolding;
+package Data;
 
+import RNAFolding.FrmClipboard;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +18,7 @@ import javax.swing.JOptionPane;
 public class DataUpdate {
 
     private final static int MAXTRANSFER = 10000000;
-    
+
     public final static String BASEPATH = FrmClipboard.BASEPATH;
     public final static String DATAPATH = "dat/";
 

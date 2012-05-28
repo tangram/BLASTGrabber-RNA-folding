@@ -3,13 +3,19 @@ package Data;
 import BLASTGrabber.Facade.BLASTGrabberHit;
 
 /**
- * An extension of BLASTGrabberHit with a toString() method
- *
- * @author Petter Hannevold
- */
-public class RNAHit extends BLASTGrabberHit {
+ * miRNAHit contains a series of statistics on a hit from BLASTGrabber.
+ * The only difference from BLASTGrabber hit is the toString() method which now shows the sequenceheader of the hit.
+ * 
+ * @author Petter
+ */    
+public class RNAHit extends BLASTGrabberHit{
 
-    public RNAHit(BLASTGrabberHit BGHit) {
+     /**
+     * 
+     * @param BGHit Hit from BLASTGrabber
+     */
+    public RNAHit(BLASTGrabberHit BGHit){
+
         this.BLASTGrabberID = BGHit.BLASTGrabberID;
         this.SequenceHeader = BGHit.SequenceHeader;
         this.Statistics = BGHit.Statistics;

@@ -296,14 +296,14 @@ public class ColorAnnotator {
             Element dash = new Element("line", svg);
             dash.addAttribute(new Attribute("x1", "0"));
             dash.addAttribute(new Attribute("x2", "30"));
-            String y = (hasAlign) ? "60" : "40";
+            String y = (hasAlign) ? "55" : "40";
             dash.addAttribute(new Attribute("y1", y));
             dash.addAttribute(new Attribute("y2", y));
             dash.addAttribute(new Attribute("style", "stroke: black; stroke-dasharray: 4, 2; stroke-width: 2"));
             legend.appendChild(dash);
             Element mature = new Element("text", svg);
             mature.addAttribute(new Attribute("x", "31"));
-            y = (hasAlign) ? "65" : "45";
+            y = (hasAlign) ? "60" : "45";
             mature.addAttribute(new Attribute("y", y));
             mature.appendChild("Mature seq.");
             legend.appendChild(mature);

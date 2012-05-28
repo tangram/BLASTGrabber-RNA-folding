@@ -9,18 +9,31 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 /**
- * A utility class for finding mature miRNA data in a miRBase database file
- *
+ * MatureData generates a list of all known hairpins and the mature microRNA they produce.
+ * It does so by parsing the file miRNA.dat, downloaded from mirbase.org
  * @author Petter Hannevold
+
  */
 public class MatureData {
 
     private HashMap<String, ArrayList<MatureInfo>> matches = new HashMap<String, ArrayList<MatureInfo>>();
 
+    /**
+     * Gets indexes for the mature miRNA within the hairpin, the data is contained in the MatureInfo object
+     * 
+     * @param hairPinIdentifier     The unique identifier for the hairpin in of the form MI#######
+     * @return                      Arraylist of indexes for all mature miRNA within the hairpin contained in a MatureInfo object
+     */
     public ArrayList<MatureInfo> getMatureIndexes(String hairPinIdentifier) {
         return matches.get(hairPinIdentifier);
     }
 
+    /**
+     * Constructor generates a list of mature miRNA within all known hairpins from the file miRNA.dat
+     * from mirbase.org
+     * 
+     * @param filePath      Path to the file miRNA.dat.
+     */
     public MatureData(String filePath) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));

@@ -5,13 +5,21 @@ import BLASTGrabber.Facade.BLASTGrabberQuery;
 import java.util.ArrayList;
 
 /**
- * An extension of BLASTGrabberQuery with a toString() method
- *
- * @author Petter Hannevold
+ * miRNAQuery contains hits from a query from BLASTGrabber.
+ * The class converts all hits from BLASTGrabberHit to miRHAHit upon construction, 
+ * in addition, the toString() method is overridden to show the name of the query
+ * 
+ * @author Petter
  */
 public class RNAQuery extends BLASTGrabberQuery{
-
+    /**
+     * ArrayList containing all hits on this query from BLASTGrabber
+     */
     public ArrayList<RNAHit> RNAHits;
+    /**
+     * 
+     * @param BGQuery Query from BLASTGrabber
+     */
     public int nextHitID;
 
     public RNAQuery(BLASTGrabberQuery bgquery, int nextHitID){
