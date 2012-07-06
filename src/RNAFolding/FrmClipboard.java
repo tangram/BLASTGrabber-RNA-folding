@@ -1102,15 +1102,17 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         public void valueChanged(ListSelectionEvent e) {
             if (!e.getValueIsAdjusting()) {
                 int row = jTableSuboptimal.getSelectedRow();
-                Integer id = (Integer) jTableSuboptimal.getValueAt(row, 1);
-                RNASequence selected = lookUpRNASequence(id);
-                if (selected != null) {
-                    lastRNASequence = selected;
-                    String folding = (String) jTableSuboptimal.getValueAt(row, 3);
-                    String freeEnergy = jTableSuboptimal.getValueAt(row, 4).toString();
-                    String structure = selected.toString() + "\n" + folding + " (" + freeEnergy + ")\n";
-                    generatePlot(structure, false);
-                    lastFoldOutput = "";
+                if (row > -1) {
+                    Integer id = (Integer) jTableSuboptimal.getValueAt(row, 1);
+                    RNASequence selected = lookUpRNASequence(id);
+                    if (selected != null) {
+                        lastRNASequence = selected;
+                        String folding = (String) jTableSuboptimal.getValueAt(row, 3);
+                        String freeEnergy = jTableSuboptimal.getValueAt(row, 4).toString();
+                        String structure = selected.toString() + "\n" + folding + " (" + freeEnergy + ")\n";
+                        generatePlot(structure, false);
+                        lastFoldOutput = "";
+                    }
                 }
             }
         }
@@ -1125,14 +1127,16 @@ public class FrmClipboard extends javax.swing.JInternalFrame {
         public void valueChanged(ListSelectionEvent e) {
             if (!e.getValueIsAdjusting()) {
                 int row = jTableMultiple.getSelectedRow();
-                Integer id = (Integer) jTableMultiple.getValueAt(row, 1);
-                RNASequence selected = lookUpRNASequence(id);
-                if (selected != null) {
-                    lastRNASequence = selected;
-                    String folding = (String) jTableMultiple.getValueAt(row, 3);
-                    String freeEnergy = jTableMultiple.getValueAt(row, 4).toString();
-                    String structure = selected.toString() + "\n" + folding + " (" + freeEnergy + ")\n";
-                    generatePlot(structure, true);
+                if (row > -1) {
+                    Integer id = (Integer) jTableMultiple.getValueAt(row, 1);
+                    RNASequence selected = lookUpRNASequence(id);
+                    if (selected != null) {
+                        lastRNASequence = selected;
+                        String folding = (String) jTableMultiple.getValueAt(row, 3);
+                        String freeEnergy = jTableMultiple.getValueAt(row, 4).toString();
+                        String structure = selected.toString() + "\n" + folding + " (" + freeEnergy + ")\n";
+                        generatePlot(structure, true);
+                    }
                 }
             }
         }
